@@ -2,13 +2,16 @@ import { useState } from 'react';
 import CategorySelect from './components/CategorySelect';
 import Footer from './components/Footer';
 import Header from './components/Header';
+import InfoPage from './components/InfoPage';
 import QuestionFlow from './components/QuestionFlow';
 import Results from './components/Results';
 import { categories } from './data/categories';
 import { DISCLAIMER } from './data/disclaimer';
+import { realHelpSignals } from './data/legal';
 import type { Answers, Category } from './types';
 
-type Step = 'start' | 'questions' | 'results';
+type InfoStep = 'imprint' | 'privacy' | 'help';
+type Step = 'start' | 'questions' | 'results' | InfoStep;
 
 export default function App() {
   const [step, setStep] = useState<Step>('start');
@@ -54,6 +57,25 @@ export default function App() {
                 </div>
               </div>
             </section>
+            <section className="help-preview panel" aria-labelledby="real-help-heading">
+              <div>
+                <p className="eyebrow">Nicht allein bleiben</p>
+                <h2 id="real-help-heading">Wann du echte Hilfe suchen solltest</h2>
+                <p>
+                  Wenn Fristen, Gerichtspost, Sperren oder Pfändungen im Raum stehen, ist direkte
+                  Unterstützung wichtig. KlarKommen kann vorbereiten, ersetzt aber keine persönliche
+                  Beratung.
+                </p>
+              </div>
+              <ul>
+                {realHelpSignals.slice(0, 3).map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+              <button className="secondary-button" type="button" onClick={() => setStep('help')}>
+                Alle Hinweise ansehen
+              </button>
+            </section>
             <CategorySelect categories={categories} onSelect={selectCategory} />
           </>
         )}
@@ -65,8 +87,12 @@ export default function App() {
         {step === 'results' && category && (
           <Results category={category} answers={answers} onReset={reset} />
         )}
+
+        {(step === 'imprint' || step === 'privacy' || step === 'help') && (
+          <InfoPage page={step} onBack={reset} />
+        )}
       </main>
-      <Footer />
+      <Footer onNavigate={(page) => setStep(page)} />
     </div>
   );
 }
