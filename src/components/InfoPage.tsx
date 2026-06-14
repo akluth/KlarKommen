@@ -41,7 +41,7 @@ function Imprint() {
         <p>
           Mobil: <a href="tel:+491782870806">01 78 / 287 08 06</a>
           <br />
-          E-Mail: <a href="mailto:kluth.dus@gmail.com">kluth.dus@gmail.com</a>
+          E-Mail: <a href="mailto:alex@denkwerk-kluth.de">alex@denkwerk-kluth.de</a>
         </p>
       </div>
       <div className="legal-block">

@@ -21,7 +21,7 @@ export const privacySections = [
   },
   {
     title: 'Verantwortlicher',
-    text: 'Alexander Kluth, Kaistraße 2, 40221 Düsseldorf, Deutschland. E-Mail: kluth.dus@gmail.com',
+    text: 'Alexander Kluth, Kaistraße 2, 40221 Düsseldorf, Deutschland. E-Mail: alex@denkwerk-kluth.de',
   },
   {
     title: 'Welche Daten werden verarbeitet?',
