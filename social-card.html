@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KlarKommen Social Card</title>
+    <style>
+      :root {
+        --navy: #12333f;
+        --turquoise: #35b8a8;
+        --yellow: #f5c45f;
+        --paper: #f4f7f7;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        width: 1400px;
+        height: 1400px;
+        overflow: hidden;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background:
+          radial-gradient(circle at 12% 10%, rgb(53 184 168 / 20%), transparent 26%),
+          radial-gradient(circle at 86% 22%, rgb(245 196 95 / 22%), transparent 24%),
+          linear-gradient(135deg, #e9f3f2 0%, #f9fbfa 46%, #e8efef 100%);
+        color: var(--navy);
+      }
+
+      .stage {
+        display: grid;
+        grid-template-rows: 1fr auto;
+        gap: 28px;
+        width: 100%;
+        height: 100%;
+        padding: 72px 72px 58px;
+      }
+
+      .browser {
+        align-self: center;
+        overflow: hidden;
+        border: 1px solid rgb(18 51 63 / 16%);
+        border-radius: 22px;
+        background: white;
+        box-shadow:
+          0 44px 90px rgb(18 51 63 / 22%),
+          0 8px 0 rgb(255 255 255 / 42%) inset;
+      }
+
+      .bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        height: 58px;
+        padding: 0 20px;
+        background: #f8fbfb;
+        border-bottom: 1px solid #dde8e7;
+      }
+
+      .dot {
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+      }
+
+      .dot:nth-child(1) {
+        background: #ef756f;
+      }
+
+      .dot:nth-child(2) {
+        background: var(--yellow);
+      }
+
+      .dot:nth-child(3) {
+        background: var(--turquoise);
+      }
+
+      .url {
+        margin-left: 14px;
+        border-radius: 999px;
+        background: #edf4f4;
+        color: #557076;
+        padding: 9px 18px;
+        font-size: 17px;
+        font-weight: 700;
+      }
+
+      .browser img {
+        display: block;
+        width: 1256px;
+        height: 1050px;
+        object-fit: cover;
+        object-position: top center;
+      }
+
+      .bottom {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 40px;
+      }
+
+      .bottom strong {
+        display: block;
+        max-width: 740px;
+        font-size: 34px;
+        line-height: 1.16;
+      }
+
+      .bottom span {
+        display: block;
+        margin-top: 12px;
+        color: #557076;
+        font-size: 22px;
+      }
+
+      .accent {
+        width: 190px;
+        height: 14px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--turquoise), var(--yellow));
+      }
+    </style>
+  </head>
+  <body>
+    <main class="stage">
+      <section class="browser" aria-label="KlarKommen App Screenshot">
+        <div class="bar">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="url">klarkommen.app</span>
+        </div>
+        <img src="klarkommen-social-screenshot.png" alt="Screenshot der KlarKommen Web-App" />
+      </section>
+
+      <section class="bottom">
+        <div>
+          <strong>Ruhig sortieren. Heute anfangen.</strong>
+          <span>Keine Rechtsberatung, sondern klare erste Schritte und Textvorlagen.</span>
+        </div>
+        <div class="accent"></div>
+      </section>
+    </main>
+  </body>
+</html>
