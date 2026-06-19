@@ -46,6 +46,7 @@ button:disabled {
 }
 
 .app-shell {
+  position: relative;
   min-height: 100vh;
   background:
     linear-gradient(180deg, #eef6f5 0, #f7f9f8 360px, #f4f7f7 100%),
@@ -60,11 +61,15 @@ main {
 }
 
 .site-header {
+  position: absolute;
+  top: 20px;
+  right: 0;
+  left: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 18px 0 0;
+  z-index: 2;
 }
 
 .language-switcher {
@@ -233,7 +238,7 @@ html[dir="rtl"] .info-back {
 }
 
 .hero {
-  padding: 34px 0 22px;
+  padding: 20px 0 22px;
 }
 
 .hero-content {
@@ -394,7 +399,7 @@ h3 {
 
 .flow-shell,
 .results {
-  padding: 28px 0 48px;
+  padding: 86px 0 48px;
 }
 
 .flow-top,
@@ -643,7 +648,7 @@ textarea:focus {
 }
 
 .info-page {
-  padding: 28px 0 52px;
+  padding: 86px 0 52px;
 }
 
 .info-back {
