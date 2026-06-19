@@ -167,6 +167,10 @@ main {
   content: "";
 }
 
+.flag-icon-uk {
+  background: linear-gradient(180deg, #0057b7 0 50%, #ffd700 50%);
+}
+
 html[dir="rtl"] {
   direction: rtl;
 }

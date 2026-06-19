@@ -3,8 +3,9 @@ import type { ReactNode } from 'react';
 import { ar } from './ar';
 import { de } from './de';
 import { tr } from './tr';
+import { uk } from './uk';
 
-export type Language = 'de' | 'tr' | 'ar';
+export type Language = 'de' | 'tr' | 'ar' | 'uk';
 
 const STORAGE_KEY = 'klarkommen-language';
 
@@ -12,12 +13,14 @@ const translations = {
   ar,
   de,
   tr,
+  uk,
 };
 
 const languageOptions: Array<{ code: Language; label: string }> = [
   { code: 'de', label: 'Deutsch' },
   { code: 'tr', label: 'Türkçe' },
   { code: 'ar', label: 'العربية' },
+  { code: 'uk', label: 'Українська' },
 ];
 
 interface I18nContextValue {
@@ -33,6 +36,7 @@ const readInitialLanguage = (): Language => {
   if (typeof window === 'undefined') return 'de';
   const savedLanguage = window.localStorage.getItem(STORAGE_KEY);
   if (savedLanguage === 'ar') return 'ar';
+  if (savedLanguage === 'uk') return 'uk';
   return savedLanguage === 'tr' ? 'tr' : 'de';
 };
 
