@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useI18n } from '../i18n';
 
 interface TemplateBoxProps {
   title: string;
@@ -6,6 +7,7 @@ interface TemplateBoxProps {
 }
 
 export default function TemplateBox({ title, text }: TemplateBoxProps) {
+  const { t } = useI18n();
   const [copied, setCopied] = useState(false);
 
   const copy = async () => {
@@ -19,7 +21,7 @@ export default function TemplateBox({ title, text }: TemplateBoxProps) {
       <div className="template-head">
         <h3>{title}</h3>
         <button className="secondary-button compact" type="button" onClick={copy}>
-          {copied ? 'Kopiert' : 'Text kopieren'}
+          {copied ? t.ui.copied : t.ui.copyText}
         </button>
       </div>
       <pre>{text}</pre>

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { categoryQuestions, commonQuestions } from '../data/questions';
+import { useI18n } from '../i18n';
 import type { Answers, Category, Question } from '../types';
 
 interface QuestionFlowProps {
@@ -9,9 +9,10 @@ interface QuestionFlowProps {
 }
 
 export default function QuestionFlow({ category, onComplete, onBack }: QuestionFlowProps) {
+  const { t } = useI18n();
   const questions = useMemo(
-    () => [...commonQuestions, ...categoryQuestions[category.id]],
-    [category.id],
+    () => [...t.commonQuestions, ...t.categoryQuestions[category.id]],
+    [category.id, t],
   );
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
@@ -45,30 +46,34 @@ export default function QuestionFlow({ category, onComplete, onBack }: QuestionF
     <section className="flow-shell" aria-labelledby="question-heading">
       <div className="flow-top">
         <div>
-          <p className="eyebrow">Schritt 2 · {category.title}</p>
-          <h2 id="question-heading">Ein paar Angaben sortieren</h2>
+          <p className="eyebrow">
+            {t.ui.questionStep} · {category.title}
+          </p>
+          <h2 id="question-heading">{t.ui.questionHeading}</h2>
         </div>
-        <span className="progress-label">
-          {index + 1} / {questions.length}
-        </span>
+        <span className="progress-label">{t.ui.progressLabel(index + 1, questions.length)}</span>
       </div>
 
-      <div className="progress-track" aria-label={`Fortschritt ${progress} Prozent`}>
+      <div className="progress-track" aria-label={t.ui.progressAria(progress)}>
         <span style={{ width: `${progress}%` }} />
       </div>
 
       <article className="question-card">
         <label htmlFor={current.id}>{current.text}</label>
         {current.help && <p className="field-help">{current.help}</p>}
-        <QuestionInput question={current} value={value} onChange={(nextValue) => updateAnswer(current, nextValue)} />
+        <QuestionInput
+          question={current}
+          value={value}
+          onChange={(nextValue) => updateAnswer(current, nextValue)}
+        />
       </article>
 
       <div className="flow-actions">
         <button className="secondary-button" type="button" onClick={previous}>
-          Zurück
+          {t.ui.back}
         </button>
         <button className="primary-button" type="button" disabled={!canContinue} onClick={next}>
-          {index === questions.length - 1 ? 'Ergebnis anzeigen' : 'Weiter'}
+          {index === questions.length - 1 ? t.ui.showResults : t.ui.next}
         </button>
       </div>
     </section>

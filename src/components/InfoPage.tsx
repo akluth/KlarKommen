@@ -1,5 +1,4 @@
-import { DISCLAIMER } from '../data/disclaimer';
-import { privacySections, realHelpSignals, urgentContacts } from '../data/legal';
+import { useI18n } from '../i18n';
 
 interface InfoPageProps {
   page: 'imprint' | 'privacy' | 'help';
@@ -7,10 +6,12 @@ interface InfoPageProps {
 }
 
 export default function InfoPage({ page, onBack }: InfoPageProps) {
+  const { t } = useI18n();
+
   return (
     <section className="info-page">
       <button className="ghost-button info-back" type="button" onClick={onBack}>
-        Zurück zur Startseite
+        {t.ui.backToStart}
       </button>
       {page === 'imprint' && <Imprint />}
       {page === 'privacy' && <Privacy />}
@@ -20,12 +21,14 @@ export default function InfoPage({ page, onBack }: InfoPageProps) {
 }
 
 function Imprint() {
+  const { t } = useI18n();
+
   return (
     <article className="panel info-panel">
-      <p className="eyebrow">Rechtliches</p>
-      <h1>Impressum</h1>
+      <p className="eyebrow">{t.ui.legalEyebrow}</p>
+      <h1>{t.ui.imprint}</h1>
       <div className="legal-block">
-        <h2>Angaben gemäß § 5 TMG</h2>
+        <h2>{t.ui.imprintDetails}</h2>
         <p>
           Alexander Kluth
           <br />
@@ -37,7 +40,7 @@ function Imprint() {
         </p>
       </div>
       <div className="legal-block">
-        <h2>Kontakt</h2>
+        <h2>{t.ui.contact}</h2>
         <p>
           Mobil: <a href="tel:+491782870806">01 78 / 287 08 06</a>
           <br />
@@ -45,23 +48,22 @@ function Imprint() {
         </p>
       </div>
       <div className="legal-block">
-        <h2>Hinweis</h2>
-        <p>{DISCLAIMER}</p>
+        <h2>{t.ui.note}</h2>
+        <p>{t.disclaimer}</p>
       </div>
     </article>
   );
 }
 
 function Privacy() {
+  const { t } = useI18n();
+
   return (
     <article className="panel info-panel">
-      <p className="eyebrow">Datenschutz</p>
-      <h1>Datenschutzerklärung</h1>
-      <p className="info-lead">
-        Diese Erklärung beschreibt, wie KlarKommen mit Daten umgeht. Die App ist bewusst ohne
-        Anmeldung, Backend und Server-Speicherung personenbezogener Situationsdaten gebaut.
-      </p>
-      {privacySections.map((section) => (
+      <p className="eyebrow">{t.ui.privacy}</p>
+      <h1>{t.ui.privacyTitle}</h1>
+      <p className="info-lead">{t.ui.privacyLead}</p>
+      {t.legal.privacySections.map((section) => (
         <div className="legal-block" key={section.title}>
           <h2>{section.title}</h2>
           <p>{section.text}</p>
@@ -72,27 +74,25 @@ function Privacy() {
 }
 
 function RealHelp() {
+  const { t } = useI18n();
+
   return (
     <article className="panel info-panel">
-      <p className="eyebrow">Wichtig</p>
-      <h1>Wann du echte Hilfe suchen solltest</h1>
-      <p className="info-lead">
-        KlarKommen kann sortieren und vorbereiten. In manchen Situationen solltest du aber nicht
-        allein weitermachen, sondern direkt eine Beratungsstelle, Behörde, Anwältin oder einen
-        Anwalt kontaktieren.
-      </p>
+      <p className="eyebrow">{t.ui.realHelpEyebrow}</p>
+      <h1>{t.ui.realHelpTitle}</h1>
+      <p className="info-lead">{t.ui.realHelpLead}</p>
       <div className="legal-block">
-        <h2>Suche schnell Unterstützung, wenn...</h2>
+        <h2>{t.ui.realHelpSignalsTitle}</h2>
         <ul className="info-list">
-          {realHelpSignals.map((item) => (
+          {t.legal.realHelpSignals.map((item) => (
             <li key={item}>{item}</li>
           ))}
         </ul>
       </div>
       <div className="legal-block">
-        <h2>Mögliche nächste Kontakte</h2>
+        <h2>{t.ui.urgentContactsTitle}</h2>
         <ul className="info-list">
-          {urgentContacts.map((item) => (
+          {t.legal.urgentContacts.map((item) => (
             <li key={item}>{item}</li>
           ))}
         </ul>

@@ -61,8 +61,82 @@ main {
 
 .site-header {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   padding: 18px 0 0;
+}
+
+.language-switcher {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgb(255 255 255 / 82%);
+}
+
+.language-switcher button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 38px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--navy);
+  padding: 8px 10px;
+  font-weight: 850;
+}
+
+.language-switcher button.active {
+  background: var(--navy);
+  color: white;
+}
+
+.flag-icon {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 20px;
+  height: 14px;
+  overflow: hidden;
+  border: 1px solid rgb(18 51 63 / 24%);
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 65%);
+}
+
+.flag-icon-de {
+  background: linear-gradient(180deg, #000 0 33.33%, #dd0000 33.33% 66.66%, #ffce00 66.66%);
+}
+
+.flag-icon-tr {
+  position: relative;
+  background: #e30a17;
+}
+
+.flag-icon-tr::before {
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: white;
+  content: "";
+}
+
+.flag-icon-tr::after {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #e30a17;
+  box-shadow: 5px 0 0 -1px white;
+  content: "";
 }
 
 .site-footer p {

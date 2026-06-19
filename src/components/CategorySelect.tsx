@@ -1,4 +1,5 @@
 import type { Category } from '../types';
+import { useI18n } from '../i18n';
 
 interface CategorySelectProps {
   categories: Category[];
@@ -6,11 +7,13 @@ interface CategorySelectProps {
 }
 
 export default function CategorySelect({ categories, onSelect }: CategorySelectProps) {
+  const { t } = useI18n();
+
   return (
     <section className="category-section" aria-labelledby="category-heading">
       <div className="section-heading">
-        <p className="eyebrow">Schritt 1</p>
-        <h2 id="category-heading">Welche Situation passt am ehesten?</h2>
+        <p className="eyebrow">{t.ui.categoryStep}</p>
+        <h2 id="category-heading">{t.ui.categoryHeading}</h2>
       </div>
       <div className="category-grid">
         {categories.map((category) => (
