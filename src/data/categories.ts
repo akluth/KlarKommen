@@ -43,4 +43,11 @@ export const categories: Category[] = [
     description: 'Ablehnung, Dringlichkeit, Alternativen und Beratungsbedarf abwagen.',
     primaryContact: 'Schuldnerberatung',
   },
+  {
+    id: 'family',
+    title: 'Familie / Lebensumbruch',
+    shortTitle: 'Familie',
+    description: 'Tod, Geburt, Trennung, Scheidung oder Elternschaft ruhig sortieren.',
+    primaryContact: 'Sozialberatung oder Familienberatung',
+  },
 ];

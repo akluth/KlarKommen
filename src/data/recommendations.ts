@@ -254,5 +254,44 @@ export function buildRecommendations(categoryId: CategoryId, answers: Answers): 
           'Neue Schulden nicht aufnehmen, wenn damit nur alte Fristen kurzfristig verdeckt werden.',
         ],
       };
+    case 'family':
+      return {
+        situation: [
+          `Thema: ${answers.familyEvent || 'nicht angegeben'}.`,
+          `Zur Frist: ${deadline}.`,
+          has(answers, 'childrenAffected', 'ja')
+            ? 'Kinder sind direkt betroffen. Betreuung, Unterhalt, Sorge- oder Umgangsfragen sollten früh mitgedacht werden.'
+            : 'Direkt betroffene Kinder wurden nicht angegeben oder sind unklar.',
+          has(answers, 'livingSituationChanged', 'ja') || has(answers, 'livingSituationChanged', 'bald')
+            ? 'Die Wohnsituation verändert sich oder könnte sich bald verändern.'
+            : 'Eine veränderte Wohnsituation wurde nicht angegeben.',
+        ],
+        today: [
+          'Die wichtigsten Fakten notieren: Was ist passiert, seit wann, wer ist betroffen, welche Termine oder Fristen gibt es?',
+          'Vorhandene Dokumente fotografieren oder kopieren und nach Thema sortieren.',
+          'Wenn Kinder betroffen sind: Betreuung, Schule/Kita und wichtige Bezugspersonen für die nächsten Tage klären.',
+          'Eine vertraute Person oder Beratungsstelle um einen konkreten nächsten Schritt bitten.',
+        ],
+        tomorrow: [
+          'Sozialberatung, Familienberatung oder Erziehungsberatung kontaktieren.',
+          'Prüfen, ob Standesamt, Jugendamt, Familiengericht, Krankenkasse, Arbeitgeber oder Versicherung informiert werden müssen.',
+          'Bei Trennung oder Scheidung Unterhalt, Wohnung, Konto, gemeinsame Verträge und Sorge-/Umgangsfragen getrennt notieren.',
+          'Bei Tod oder Geburt nötige Urkunden, Anträge, Leistungen und Meldungen Schritt für Schritt sammeln.',
+        ],
+        help: [
+          ...commonHelp(city),
+          'Familien- oder Erziehungsberatungsstelle',
+          'Jugendamt, besonders wenn Kinder betroffen sind',
+          'Standesamt bei Geburt oder Sterbefall',
+          'Fachanwaltliche Beratung bei Scheidung, Sorge, Umgang, Unterhalt oder Erbe',
+        ],
+        avoid: [
+          ...commonAvoid,
+          'Keine wichtigen Vereinbarungen unter Druck unterschreiben.',
+          'Kinder nicht als Boten oder Konfliktpartner einsetzen.',
+          'Gemeinsame Konten, Verträge oder Versicherungen nicht vorschnell ändern, ohne Folgen zu prüfen.',
+          'Bei akuter Gewalt oder Bedrohung nicht abwarten, sondern sofort Schutz und Hilfe holen.',
+        ],
+      };
   }
 }

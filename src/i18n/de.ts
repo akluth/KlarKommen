@@ -93,6 +93,8 @@ const categoryOpening: Record<CategoryId, string> = {
     'ich melde mich wegen einer Kontopfändung beziehungsweise wegen Schutz über ein P-Konto.',
   schufa:
     'ich melde mich wegen einer finanziellen Notlage und einer möglichen Schufa- oder Bonitätsproblematik.',
+  family:
+    'ich melde mich wegen einer familiären Veränderung und möchte die nächsten Schritte ruhig sortieren.',
 };
 
 const recipientByCategory: Record<CategoryId, string> = {
@@ -102,6 +104,7 @@ const recipientByCategory: Record<CategoryId, string> = {
   health: 'Krankenkasse',
   garnishment: 'Bank',
   schufa: 'Schuldnerberatung',
+  family: 'Sozialberatung / Familienberatung',
 };
 
 export const de = {
@@ -211,6 +214,13 @@ export const de = {
       shortTitle: 'Schufa',
       description: 'Ablehnung, Dringlichkeit, Alternativen und Beratungsbedarf abwägen.',
       primaryContact: 'Schuldnerberatung',
+    },
+    {
+      id: 'family',
+      title: 'Familie / Lebensumbruch',
+      shortTitle: 'Familie',
+      description: 'Tod, Geburt, Trennung, Scheidung oder Elternschaft ruhig sortieren.',
+      primaryContact: 'Sozialberatung oder Familienberatung',
     },
   ] as Category[],
   commonQuestions: [
@@ -570,6 +580,74 @@ export const de = {
         ],
       },
     ],
+    family: [
+      {
+        id: 'familyEvent',
+        category: 'family',
+        text: 'Worum geht es gerade?',
+        type: 'select',
+        options: [
+          { value: 'tod', label: 'Tod / Trauerfall' },
+          { value: 'geburt', label: 'Geburt / Schwangerschaft' },
+          { value: 'trennung', label: 'Trennung' },
+          { value: 'scheidung', label: 'Scheidung' },
+          { value: 'elternschaft', label: 'Elternschaft / Sorge' },
+          { value: 'mehreres', label: 'Mehreres gleichzeitig' },
+        ],
+      },
+      {
+        id: 'childrenAffected',
+        category: 'family',
+        text: 'Sind Kinder direkt betroffen?',
+        type: 'select',
+        options: [
+          { value: 'ja', label: 'Ja' },
+          { value: 'nein', label: 'Nein' },
+          { value: 'unklar', label: 'Unklar' },
+        ],
+      },
+      {
+        id: 'livingSituationChanged',
+        category: 'family',
+        text: 'Hat sich die Wohnsituation verändert oder steht das bevor?',
+        type: 'select',
+        options: [
+          { value: 'ja', label: 'Ja' },
+          { value: 'nein', label: 'Nein' },
+          { value: 'bald', label: 'Vermutlich bald' },
+        ],
+      },
+      {
+        id: 'documentsNeeded',
+        category: 'family',
+        text: 'Gibt es Dokumente, die du besorgen oder ändern musst?',
+        help: 'Zum Beispiel Geburtsurkunde, Sterbeurkunde, Sorgerecht, Unterhalt, Mietvertrag oder Versicherung.',
+        type: 'select',
+        options: [
+          { value: 'ja', label: 'Ja' },
+          { value: 'nein', label: 'Nein' },
+          { value: 'unklar', label: 'Unklar' },
+        ],
+      },
+      {
+        id: 'supportNetwork',
+        category: 'family',
+        text: 'Hast du gerade verlässliche Unterstützung?',
+        type: 'select',
+        options: [
+          { value: 'ja', label: 'Ja' },
+          { value: 'teilweise', label: 'Teilweise' },
+          { value: 'nein', label: 'Nein' },
+        ],
+      },
+      {
+        id: 'familyNotes',
+        category: 'family',
+        text: 'Was muss unbedingt mitgedacht werden?',
+        type: 'textarea',
+        placeholder: 'z. B. Termine, Kinderbetreuung, Erbe, Unterhalt, Wohnung, Sorge- oder Umgangsfragen',
+      },
+    ],
   } as Record<CategoryId, Question[]>,
   legal: {
     realHelpSignals: [
@@ -829,9 +907,109 @@ export const de = {
             'Neue Schulden nicht aufnehmen, wenn damit nur alte Fristen kurzfristig verdeckt werden.',
           ],
         };
+      case 'family':
+        return {
+          situation: [
+            `Thema: ${answers.familyEvent || 'nicht angegeben'}.`,
+            `Zur Frist: ${deadline}.`,
+            has(answers, 'childrenAffected', 'ja')
+              ? 'Kinder sind direkt betroffen. Dann sollten Betreuung, Unterhalt, Sorge- oder Umgangsfragen früh mitgedacht werden.'
+              : 'Direkt betroffene Kinder wurden nicht angegeben oder sind unklar.',
+            has(answers, 'livingSituationChanged', 'ja') || has(answers, 'livingSituationChanged', 'bald')
+              ? 'Die Wohnsituation verändert sich oder könnte sich bald verändern.'
+              : 'Eine veränderte Wohnsituation wurde nicht angegeben.',
+            filled(answers, 'familyNotes')
+              ? `Wichtig außerdem: ${answers.familyNotes}.`
+              : 'Weitere wichtige Punkte wurden noch nicht beschrieben.',
+          ],
+          today: [
+            'Schreibe die wichtigsten Fakten auf: Was ist passiert, seit wann, wer ist betroffen, welche Termine oder Fristen gibt es?',
+            'Sichere vorhandene Dokumente digital oder als Kopie und lege sie nach Thema ab.',
+            'Wenn Kinder betroffen sind: Betreuung für die nächsten Tage, Schule/Kita und wichtige Bezugspersonen klären.',
+            'Eine vertraute Person oder Beratungsstelle um einen konkreten nächsten Schritt bitten.',
+          ],
+          tomorrow: [
+            'Sozialberatung, Familienberatung oder Erziehungsberatung kontaktieren.',
+            'Prüfen, ob Standesamt, Jugendamt, Familiengericht, Krankenkasse, Arbeitgeber oder Versicherung informiert werden müssen.',
+            'Bei Trennung oder Scheidung: Unterhalt, Wohnung, Konto, gemeinsame Verträge und Sorge-/Umgangsfragen getrennt notieren.',
+            'Bei Tod oder Geburt: nötige Urkunden, Anträge, Leistungen und Meldungen Schritt für Schritt sammeln.',
+          ],
+          help: [
+            ...commonHelp(city),
+            'Familien- oder Erziehungsberatungsstelle',
+            'Jugendamt, besonders wenn Kinder betroffen sind',
+            'Standesamt bei Geburt oder Sterbefall',
+            'Fachanwaltliche Beratung bei Scheidung, Sorge, Umgang, Unterhalt oder Erbe',
+            'Trauerberatung oder Krisendienst, wenn es emotional akut wird',
+          ],
+          avoid: [
+            ...commonAvoid,
+            'Keine wichtigen Vereinbarungen unter Druck unterschreiben.',
+            'Kinder nicht als Boten oder Konfliktpartner einsetzen.',
+            'Gemeinsame Konten, Verträge oder Versicherungen nicht vorschnell ändern, ohne Folgen zu prüfen.',
+            'Bei akuter Gewalt oder Bedrohung nicht abwarten, sondern sofort Schutz und Hilfe holen.',
+          ],
+        };
     }
   },
   buildAllTemplates(category: Category, answers: Answers) {
+    if (category.id === 'family') {
+      const baseContext = `Ort: ${line(answers.city)}
+Thema: ${line(answers.familyEvent, 'nicht angegeben')}
+Frist: ${templateDeadlineText(answers)}
+Kinder betroffen: ${line(answers.childrenAffected, 'nicht angegeben')}
+Wichtige Punkte: ${line(answers.familyNotes, 'nicht angegeben')}`;
+
+      return [
+        {
+          label: 'Bitte um Beratungstermin',
+          text: `${senderBlock(answers)}An:
+${recipientByCategory[category.id]}
+
+Betreff: Bitte um kurzfristigen Beratungstermin - ${category.shortTitle}
+
+Sehr geehrte Damen und Herren,
+
+${categoryOpening[category.id]}
+
+Hintergrund:
+${baseContext}
+
+Ich bitte um einen kurzfristigen Termin oder eine kurze Rückmeldung, welche Unterlagen ich vorbereiten soll.
+
+${closing}`,
+        },
+        {
+          label: 'Bitte um Klärung nächster Schritte',
+          text: `${senderBlock(answers)}Betreff: Bitte um Klärung der nächsten Schritte
+
+Sehr geehrte Damen und Herren,
+
+ich möchte klären, welche nächsten Schritte in meiner familiären Situation sinnvoll und notwendig sind.
+
+Hintergrund:
+${baseContext}
+
+Bitte teilen Sie mir mit, welche Stelle zuständig ist und welche Unterlagen benötigt werden.
+
+${closing}`,
+        },
+        {
+          label: 'Mitteilung an Schule, Kita oder Stelle',
+          text: `${senderBlock(answers)}Betreff: Kurze Mitteilung zu einer familiären Situation
+
+Sehr geehrte Damen und Herren,
+
+ich möchte Sie darüber informieren, dass es aktuell eine familiäre Veränderung gibt. Falls dadurch Termine, Betreuung oder Absprachen betroffen sind, melde ich mich zeitnah mit weiteren Informationen.
+
+Hintergrund:
+${baseContext}
+
+${closing}`,
+        },
+      ];
+    }
+
     const subject = `Bitte um Klärung und Unterstützung - ${category.shortTitle}`;
     const baseContext = `Ort: ${line(answers.city)}
 Offener Betrag: ${amountText(answers)}

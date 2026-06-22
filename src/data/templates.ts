@@ -51,6 +51,8 @@ const categoryOpening: Record<CategoryId, string> = {
     'ich melde mich wegen einer Kontopfändung beziehungsweise wegen Schutz über ein P-Konto.',
   schufa:
     'ich melde mich wegen einer finanziellen Notlage und einer möglichen Schufa- oder Bonitätsproblematik.',
+  family:
+    'ich melde mich wegen einer familiären Veränderung und möchte die nächsten Schritte ruhig sortieren.',
 };
 
 const recipientByCategory: Record<CategoryId, string> = {
@@ -60,9 +62,30 @@ const recipientByCategory: Record<CategoryId, string> = {
   health: 'Krankenkasse',
   garnishment: 'Bank',
   schufa: 'Schuldnerberatung',
+  family: 'Sozialberatung / Familienberatung',
 };
 
 export function buildTemplate(category: Category, answers: Answers) {
+  if (category.id === 'family') {
+    return `${senderBlock(answers)}An:
+${recipientByCategory[category.id]}
+
+Betreff: Bitte um Klärung der nächsten Schritte - ${category.shortTitle}
+
+Sehr geehrte Damen und Herren,
+
+${categoryOpening[category.id]}
+
+Thema: ${line(answers.familyEvent, 'nicht angegeben')}
+Frist: ${deadlineText(answers)}
+Kinder betroffen: ${line(answers.childrenAffected, 'nicht angegeben')}
+Wichtige Punkte: ${line(answers.familyNotes, 'nicht angegeben')}
+
+Ich bitte um einen kurzfristigen Termin oder eine kurze Rückmeldung, welche Unterlagen ich vorbereiten soll.
+
+${closing}`;
+  }
+
   const subject = `Bitte um Klärung und Unterstützung - ${category.shortTitle}`;
   return `${senderBlock(answers)}An:
 ${recipientByCategory[category.id]}
@@ -87,6 +110,49 @@ ${closing}`;
 }
 
 export function buildAllTemplates(category: Category, answers: Answers) {
+  if (category.id === 'family') {
+    const baseContext = `Ort: ${line(answers.city)}
+Thema: ${line(answers.familyEvent, 'nicht angegeben')}
+Frist: ${deadlineText(answers)}
+Kinder betroffen: ${line(answers.childrenAffected, 'nicht angegeben')}
+Wichtige Punkte: ${line(answers.familyNotes, 'nicht angegeben')}`;
+
+    return [
+      {
+        label: 'Hauptvorlage',
+        text: buildTemplate(category, answers),
+      },
+      {
+        label: 'Bitte um Beratungstermin',
+        text: `${senderBlock(answers)}Betreff: Bitte um kurzfristigen Beratungstermin
+
+Sehr geehrte Damen und Herren,
+
+${appointmentParagraph(category)}
+
+Hintergrund:
+${baseContext}
+
+${closing}`,
+      },
+      {
+        label: 'Bitte um Klärung nächster Schritte',
+        text: `${senderBlock(answers)}Betreff: Bitte um Klärung der nächsten Schritte
+
+Sehr geehrte Damen und Herren,
+
+ich möchte klären, welche nächsten Schritte in meiner familiären Situation sinnvoll und notwendig sind.
+
+Hintergrund:
+${baseContext}
+
+Bitte teilen Sie mir mit, welche Stelle zuständig ist und welche Unterlagen benötigt werden.
+
+${closing}`,
+      },
+    ];
+  }
+
   const baseContext = `Ort: ${line(answers.city)}
 Offener Betrag: ${amountText(answers)}
 Frist: ${deadlineText(answers)}

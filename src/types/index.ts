@@ -4,7 +4,8 @@ export type CategoryId =
   | 'jobcenter'
   | 'health'
   | 'garnishment'
-  | 'schufa';
+  | 'schufa'
+  | 'family';
 
 export type QuestionType = 'text' | 'number' | 'date' | 'select' | 'textarea';
 

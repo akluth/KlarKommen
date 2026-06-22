@@ -358,4 +358,71 @@ export const categoryQuestions: Record<CategoryId, Question[]> = {
       ],
     },
   ],
+  family: [
+    {
+      id: 'familyEvent',
+      category: 'family',
+      text: 'Worum geht es gerade?',
+      type: 'select',
+      options: [
+        { value: 'tod', label: 'Tod / Trauerfall' },
+        { value: 'geburt', label: 'Geburt / Schwangerschaft' },
+        { value: 'trennung', label: 'Trennung' },
+        { value: 'scheidung', label: 'Scheidung' },
+        { value: 'elternschaft', label: 'Elternschaft / Sorge' },
+        { value: 'mehreres', label: 'Mehreres gleichzeitig' },
+      ],
+    },
+    {
+      id: 'childrenAffected',
+      category: 'family',
+      text: 'Sind Kinder direkt betroffen?',
+      type: 'select',
+      options: [
+        { value: 'ja', label: 'Ja' },
+        { value: 'nein', label: 'Nein' },
+        { value: 'unklar', label: 'Unklar' },
+      ],
+    },
+    {
+      id: 'livingSituationChanged',
+      category: 'family',
+      text: 'Hat sich die Wohnsituation verändert oder steht das bevor?',
+      type: 'select',
+      options: [
+        { value: 'ja', label: 'Ja' },
+        { value: 'nein', label: 'Nein' },
+        { value: 'bald', label: 'Vermutlich bald' },
+      ],
+    },
+    {
+      id: 'documentsNeeded',
+      category: 'family',
+      text: 'Gibt es Dokumente, die du besorgen oder ändern musst?',
+      type: 'select',
+      options: [
+        { value: 'ja', label: 'Ja' },
+        { value: 'nein', label: 'Nein' },
+        { value: 'unklar', label: 'Unklar' },
+      ],
+    },
+    {
+      id: 'supportNetwork',
+      category: 'family',
+      text: 'Hast du gerade verlässliche Unterstützung?',
+      type: 'select',
+      options: [
+        { value: 'ja', label: 'Ja' },
+        { value: 'teilweise', label: 'Teilweise' },
+        { value: 'nein', label: 'Nein' },
+      ],
+    },
+    {
+      id: 'familyNotes',
+      category: 'family',
+      text: 'Was muss unbedingt mitgedacht werden?',
+      type: 'textarea',
+      placeholder: 'z. B. Termine, Kinderbetreuung, Erbe, Unterhalt, Wohnung, Sorge- oder Umgangsfragen',
+    },
+  ],
 };

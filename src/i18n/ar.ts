@@ -87,6 +87,7 @@ const categoryOpening: Record<CategoryId, string> = {
   health: 'أتواصل بسبب ديون اشتراكات التأمين الصحي وأريد توضيح وضعي التأميني.',
   garnishment: 'أتواصل بسبب حجز على الحساب أو بسبب الحماية عبر P-Konto (حساب محمي من الحجز).',
   schufa: 'أتواصل بسبب ضائقة مالية ومشكلة محتملة مع Schufa / سجل الائتمان.',
+  family: 'أتواصل بسبب تغيير عائلي وأريد ترتيب الخطوات التالية بهدوء.',
 };
 
 const recipientByCategory: Record<CategoryId, string> = {
@@ -96,6 +97,7 @@ const recipientByCategory: Record<CategoryId, string> = {
   health: 'شركة التأمين الصحي',
   garnishment: 'البنك',
   schufa: 'استشارة الديون',
+  family: 'استشارة اجتماعية / استشارة عائلية',
 };
 
 export const ar = {
@@ -202,6 +204,13 @@ export const ar = {
       shortTitle: 'Schufa',
       description: 'تقييم الرفض، الاستعجال، البدائل والحاجة إلى استشارة.',
       primaryContact: 'استشارة الديون',
+    },
+    {
+      id: 'family',
+      title: 'العائلة / تغيير في الحياة',
+      shortTitle: 'العائلة',
+      description: 'ترتيب الوفاة، الولادة، الانفصال، الطلاق أو الأبوة والأمومة بهدوء.',
+      primaryContact: 'استشارة اجتماعية أو عائلية',
     },
   ] as Category[],
   commonQuestions: [
@@ -561,6 +570,74 @@ export const ar = {
         ],
       },
     ],
+    family: [
+      {
+        id: 'familyEvent',
+        category: 'family',
+        text: 'ما الموضوع الآن؟',
+        type: 'select',
+        options: [
+          { value: 'tod', label: 'وفاة / حزن' },
+          { value: 'geburt', label: 'ولادة / حمل' },
+          { value: 'trennung', label: 'انفصال' },
+          { value: 'scheidung', label: 'طلاق' },
+          { value: 'elternschaft', label: 'أبوة وأمومة / رعاية' },
+          { value: 'mehreres', label: 'عدة أمور في الوقت نفسه' },
+        ],
+      },
+      {
+        id: 'childrenAffected',
+        category: 'family',
+        text: 'هل الأطفال متأثرون بشكل مباشر؟',
+        type: 'select',
+        options: [
+          { value: 'ja', label: 'نعم' },
+          { value: 'nein', label: 'لا' },
+          { value: 'unklar', label: 'غير واضح' },
+        ],
+      },
+      {
+        id: 'livingSituationChanged',
+        category: 'family',
+        text: 'هل تغير وضع السكن أو قد يتغير قريبا؟',
+        type: 'select',
+        options: [
+          { value: 'ja', label: 'نعم' },
+          { value: 'nein', label: 'لا' },
+          { value: 'bald', label: 'ربما قريبا' },
+        ],
+      },
+      {
+        id: 'documentsNeeded',
+        category: 'family',
+        text: 'هل توجد وثائق يجب استخراجها أو تغييرها؟',
+        help: 'مثلا شهادة ميلاد، شهادة وفاة، حضانة، نفقة، عقد إيجار أو تأمين.',
+        type: 'select',
+        options: [
+          { value: 'ja', label: 'نعم' },
+          { value: 'nein', label: 'لا' },
+          { value: 'unklar', label: 'غير واضح' },
+        ],
+      },
+      {
+        id: 'supportNetwork',
+        category: 'family',
+        text: 'هل لديك دعم موثوق الآن؟',
+        type: 'select',
+        options: [
+          { value: 'ja', label: 'نعم' },
+          { value: 'teilweise', label: 'جزئيا' },
+          { value: 'nein', label: 'لا' },
+        ],
+      },
+      {
+        id: 'familyNotes',
+        category: 'family',
+        text: 'ما الذي يجب أخذه بالحسبان بالتأكيد؟',
+        type: 'textarea',
+        placeholder: 'مثلا مواعيد، رعاية أطفال، ميراث، نفقة، سكن، حضانة أو تواصل مع الأطفال',
+      },
+    ],
   } as Record<CategoryId, Question[]>,
   legal: {
     realHelpSignals: [
@@ -820,9 +897,109 @@ export const ar = {
             'لا تأخذ ديونا جديدة إذا كانت فقط تخفي المهل القديمة لفترة قصيرة.',
           ],
         };
+      case 'family':
+        return {
+          situation: [
+            `الموضوع: ${answers.familyEvent || 'غير مذكور'}.`,
+            `بخصوص المهلة: ${deadline}.`,
+            has(answers, 'childrenAffected', 'ja')
+              ? 'الأطفال متأثرون بشكل مباشر. يجب التفكير مبكرا في الرعاية، النفقة، الحضانة أو التواصل.'
+              : 'لم يتم ذكر أطفال متأثرين بشكل مباشر أو الأمر غير واضح.',
+            has(answers, 'livingSituationChanged', 'ja') || has(answers, 'livingSituationChanged', 'bald')
+              ? 'وضع السكن يتغير أو قد يتغير قريبا.'
+              : 'لم يتم ذكر تغيير في وضع السكن.',
+            filled(answers, 'familyNotes')
+              ? `مهم أيضا: ${answers.familyNotes}.`
+              : 'لم يتم وصف نقاط مهمة أخرى بعد.',
+          ],
+          today: [
+            'اكتب أهم الحقائق: ماذا حدث، منذ متى، من المتأثر، وما المواعيد أو المهل الموجودة؟',
+            'احفظ الوثائق الموجودة رقميا أو كنسخ ورتبها حسب الموضوع.',
+            'إذا كان الأطفال متأثرين: وضح الرعاية للأيام القادمة، المدرسة/الحضانة والأشخاص المهمين القريبين.',
+            'اطلب من شخص موثوق أو جهة استشارة خطوة تالية محددة.',
+          ],
+          tomorrow: [
+            'تواصل مع استشارة اجتماعية، استشارة عائلية أو استشارة تربوية.',
+            'تحقق هل يجب إبلاغ Standesamt، Jugendamt، محكمة الأسرة، التأمين الصحي، صاحب العمل أو شركة التأمين.',
+            'عند الانفصال أو الطلاق: اكتب النفقة، السكن، الحساب، العقود المشتركة وقضايا الحضانة/التواصل بشكل منفصل.',
+            'عند الوفاة أو الولادة: اجمع الشهادات، الطلبات، المساعدات والإبلاغات المطلوبة خطوة بخطوة.',
+          ],
+          help: [
+            ...commonHelp(city),
+            'استشارة عائلية أو تربوية',
+            'Jugendamt، خاصة إذا كان الأطفال متأثرين',
+            'Standesamt عند الولادة أو الوفاة',
+            'استشارة قانونية عند الطلاق، الحضانة، التواصل، النفقة أو الميراث',
+            'استشارة حزن أو خدمة أزمات إذا كان الوضع العاطفي حادا',
+          ],
+          avoid: [
+            ...commonAvoid,
+            'لا توقع اتفاقات مهمة تحت الضغط.',
+            'لا تجعل الأطفال رسلا أو طرفا في النزاع.',
+            'لا تغير الحسابات أو العقود أو التأمينات المشتركة بسرعة قبل فحص العواقب.',
+            'عند وجود عنف أو تهديد حاد لا تنتظر، بل اطلب الحماية والمساعدة فورا.',
+          ],
+        };
     }
   },
   buildAllTemplates(category: Category, answers: Answers) {
+    if (category.id === 'family') {
+      const baseContext = `المكان: ${line(answers.city)}
+الموضوع: ${line(answers.familyEvent, 'غير مذكور')}
+المهلة: ${templateDeadlineText(answers)}
+الأطفال متأثرون: ${line(answers.childrenAffected, 'غير مذكور')}
+نقاط مهمة: ${line(answers.familyNotes, 'غير مذكور')}`;
+
+      return [
+        {
+          label: 'طلب موعد استشارة',
+          text: `${senderBlock(answers)}إلى:
+${recipientByCategory[category.id]}
+
+الموضوع: طلب موعد استشارة قريب - ${category.shortTitle}
+
+السيدات والسادة المحترمون،
+
+${categoryOpening[category.id]}
+
+الخلفية:
+${baseContext}
+
+أطلب موعدا قريبا أو ردا قصيرا حول الوثائق التي يجب أن أجهزها.
+
+${closing}`,
+        },
+        {
+          label: 'طلب توضيح الخطوات التالية',
+          text: `${senderBlock(answers)}الموضوع: طلب توضيح الخطوات التالية
+
+السيدات والسادة المحترمون،
+
+أريد توضيح الخطوات التالية المناسبة والضرورية في وضعي العائلي.
+
+الخلفية:
+${baseContext}
+
+يرجى إبلاغي بالجهة المختصة والوثائق المطلوبة.
+
+${closing}`,
+        },
+        {
+          label: 'إبلاغ المدرسة أو الحضانة أو جهة أخرى',
+          text: `${senderBlock(answers)}الموضوع: إبلاغ قصير عن وضع عائلي
+
+السيدات والسادة المحترمون،
+
+أود إبلاغكم بأن هناك تغييرا عائليا حاليا. إذا تأثرت المواعيد أو الرعاية أو الاتفاقات بذلك فسأرسل معلومات إضافية قريبا.
+
+الخلفية:
+${baseContext}
+
+${closing}`,
+        },
+      ];
+    }
+
     const subject = `طلب توضيح ودعم - ${category.shortTitle}`;
     const baseContext = `المكان: ${line(answers.city)}
 المبلغ المفتوح: ${amountText(answers)}

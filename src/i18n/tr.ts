@@ -93,6 +93,8 @@ const categoryOpening: Record<CategoryId, string> = {
     'hesap haczi veya P-Konto (haciz korumalı hesap) üzerinden koruma nedeniyle yazıyorum.',
   schufa:
     'maddi bir sıkışma ve olası Schufa / kredi geçmişi sorunu nedeniyle yazıyorum.',
+  family:
+    'aileyle ilgili bir değişiklik nedeniyle yazıyorum ve sonraki adımları sakin şekilde düzenlemek istiyorum.',
 };
 
 const recipientByCategory: Record<CategoryId, string> = {
@@ -102,6 +104,7 @@ const recipientByCategory: Record<CategoryId, string> = {
   health: 'Sağlık sigortası',
   garnishment: 'Banka',
   schufa: 'Borç danışmanlığı',
+  family: 'Sosyal danışmanlık / aile danışmanlığı',
 };
 
 export const tr = {
@@ -209,6 +212,13 @@ export const tr = {
       shortTitle: 'Schufa',
       description: 'Ret, aciliyet, alternatifler ve danışma ihtiyacını değerlendir.',
       primaryContact: 'Borç danışmanlığı',
+    },
+    {
+      id: 'family',
+      title: 'Aile / yaşam değişikliği',
+      shortTitle: 'Aile',
+      description: 'Ölüm, doğum, ayrılık, boşanma veya ebeveynliği sakin şekilde düzenle.',
+      primaryContact: 'Sosyal danışmanlık veya aile danışmanlığı',
     },
   ] as Category[],
   commonQuestions: [
@@ -568,6 +578,74 @@ export const tr = {
         ],
       },
     ],
+    family: [
+      {
+        id: 'familyEvent',
+        category: 'family',
+        text: 'Şu anda konu ne?',
+        type: 'select',
+        options: [
+          { value: 'tod', label: 'Ölüm / yas' },
+          { value: 'geburt', label: 'Doğum / hamilelik' },
+          { value: 'trennung', label: 'Ayrılık' },
+          { value: 'scheidung', label: 'Boşanma' },
+          { value: 'elternschaft', label: 'Ebeveynlik / bakım' },
+          { value: 'mehreres', label: 'Birden fazla konu' },
+        ],
+      },
+      {
+        id: 'childrenAffected',
+        category: 'family',
+        text: 'Çocuklar doğrudan etkileniyor mu?',
+        type: 'select',
+        options: [
+          { value: 'ja', label: 'Evet' },
+          { value: 'nein', label: 'Hayır' },
+          { value: 'unklar', label: 'Belirsiz' },
+        ],
+      },
+      {
+        id: 'livingSituationChanged',
+        category: 'family',
+        text: 'Ev veya yaşam durumu değişti mi ya da değişmek üzere mi?',
+        type: 'select',
+        options: [
+          { value: 'ja', label: 'Evet' },
+          { value: 'nein', label: 'Hayır' },
+          { value: 'bald', label: 'Muhtemelen yakında' },
+        ],
+      },
+      {
+        id: 'documentsNeeded',
+        category: 'family',
+        text: 'Alman veya değiştirmen gereken belgeler var mı?',
+        help: 'Örneğin doğum belgesi, ölüm belgesi, velayet, nafaka, kira sözleşmesi veya sigorta.',
+        type: 'select',
+        options: [
+          { value: 'ja', label: 'Evet' },
+          { value: 'nein', label: 'Hayır' },
+          { value: 'unklar', label: 'Belirsiz' },
+        ],
+      },
+      {
+        id: 'supportNetwork',
+        category: 'family',
+        text: 'Şu anda güvenilir desteğin var mı?',
+        type: 'select',
+        options: [
+          { value: 'ja', label: 'Evet' },
+          { value: 'teilweise', label: 'Kısmen' },
+          { value: 'nein', label: 'Hayır' },
+        ],
+      },
+      {
+        id: 'familyNotes',
+        category: 'family',
+        text: 'Mutlaka dikkate alınması gereken ne var?',
+        type: 'textarea',
+        placeholder: 'örn. randevular, çocuk bakımı, miras, nafaka, ev, velayet veya görüşme konuları',
+      },
+    ],
   } as Record<CategoryId, Question[]>,
   legal: {
     realHelpSignals: [
@@ -827,9 +905,109 @@ export const tr = {
             'Sadece eski süreleri kısa süre gizlemek için yeni borç almayın.',
           ],
         };
+      case 'family':
+        return {
+          situation: [
+            `Konu: ${answers.familyEvent || 'belirtilmedi'}.`,
+            `Süre bilgisi: ${deadline}.`,
+            has(answers, 'childrenAffected', 'ja')
+              ? 'Çocuklar doğrudan etkileniyor. Bakım, nafaka, velayet veya görüşme konuları erken düşünülmeli.'
+              : 'Doğrudan etkilenen çocuk belirtilmedi veya durum belirsiz.',
+            has(answers, 'livingSituationChanged', 'ja') || has(answers, 'livingSituationChanged', 'bald')
+              ? 'Ev veya yaşam durumu değişiyor ya da yakında değişebilir.'
+              : 'Ev veya yaşam durumunda değişiklik belirtilmedi.',
+            filled(answers, 'familyNotes')
+              ? `Ayrıca önemli: ${answers.familyNotes}.`
+              : 'Başka önemli noktalar henüz açıklanmadı.',
+          ],
+          today: [
+            'En önemli bilgileri yaz: ne oldu, ne zamandan beri, kim etkilendi, hangi randevular veya süreler var?',
+            'Mevcut belgeleri dijital olarak veya kopya halinde güvene al ve konuya göre sırala.',
+            'Çocuklar etkileniyorsa: önümüzdeki günler için bakım, okul/kreş ve önemli yakın kişiler netleşsin.',
+            'Güvendiğin bir kişiden veya danışma yerinden somut bir sonraki adım iste.',
+          ],
+          tomorrow: [
+            'Sosyal danışmanlık, aile danışmanlığı veya ebeveyn danışmanlığıyla iletişime geç.',
+            'Nüfus dairesi, Jugendamt, aile mahkemesi, sağlık sigortası, işveren veya sigortanın bilgilendirilmesi gerekip gerekmediğini kontrol et.',
+            'Ayrılık veya boşanmada: nafaka, ev, hesap, ortak sözleşmeler ve velayet/görüşme konularını ayrı ayrı not et.',
+            'Ölüm veya doğumda: gerekli belgeleri, başvuruları, yardımları ve bildirimleri adım adım topla.',
+          ],
+          help: [
+            ...commonHelp(city),
+            'Aile veya ebeveyn danışmanlığı',
+            'Çocuklar etkileniyorsa Jugendamt',
+            'Doğum veya ölüm durumunda Standesamt',
+            'Boşanma, velayet, görüşme, nafaka veya miras için hukuki danışmanlık',
+            'Duygusal olarak acilse yas danışmanlığı veya kriz hizmeti',
+          ],
+          avoid: [
+            ...commonAvoid,
+            'Baskı altındayken önemli anlaşmaları imzalama.',
+            'Çocukları haber taşıyıcı veya çatışmanın tarafı yapma.',
+            'Ortak hesapları, sözleşmeleri veya sigortaları sonuçlarını kontrol etmeden aceleyle değiştirme.',
+            'Acil şiddet veya tehdit varsa bekleme, hemen koruma ve yardım al.',
+          ],
+        };
     }
   },
   buildAllTemplates(category: Category, answers: Answers) {
+    if (category.id === 'family') {
+      const baseContext = `Yer: ${line(answers.city)}
+Konu: ${line(answers.familyEvent, 'belirtilmedi')}
+Süre: ${templateDeadlineText(answers)}
+Çocuklar etkileniyor: ${line(answers.childrenAffected, 'belirtilmedi')}
+Önemli noktalar: ${line(answers.familyNotes, 'belirtilmedi')}`;
+
+      return [
+        {
+          label: 'Danışma randevusu talebi',
+          text: `${senderBlock(answers)}Kime:
+${recipientByCategory[category.id]}
+
+Konu: Kısa sürede danışma randevusu talebi - ${category.shortTitle}
+
+Sayın yetkili,
+
+${categoryOpening[category.id]}
+
+Arka plan:
+${baseContext}
+
+Kısa sürede bir randevu veya hangi belgeleri hazırlamam gerektiğine dair kısa bilgi rica ediyorum.
+
+${closing}`,
+        },
+        {
+          label: 'Sonraki adımları sorma',
+          text: `${senderBlock(answers)}Konu: Sonraki adımların netleştirilmesi
+
+Sayın yetkili,
+
+Aile durumumda hangi sonraki adımların mantıklı ve gerekli olduğunu netleştirmek istiyorum.
+
+Arka plan:
+${baseContext}
+
+Lütfen hangi yerin yetkili olduğunu ve hangi belgelerin gerektiğini bildirir misiniz?
+
+${closing}`,
+        },
+        {
+          label: 'Okul, kreş veya kuruma bildirim',
+          text: `${senderBlock(answers)}Konu: Aile durumuyla ilgili kısa bildirim
+
+Sayın yetkili,
+
+Şu anda aileyle ilgili bir değişiklik olduğunu bildirmek istiyorum. Bu durum randevuları, bakım düzenini veya anlaşmaları etkilerse kısa sürede tekrar bilgi vereceğim.
+
+Arka plan:
+${baseContext}
+
+${closing}`,
+        },
+      ];
+    }
+
     const subject = `Açıklama ve destek talebi - ${category.shortTitle}`;
     const baseContext = `Yer: ${line(answers.city)}
 Açık tutar: ${amountText(answers)}
