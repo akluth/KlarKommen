@@ -44,6 +44,13 @@ export const categories: Category[] = [
     primaryContact: 'Schuldnerberatung',
   },
   {
+    id: 'debtCourt',
+    title: 'Inkasso / Mahnbescheid',
+    shortTitle: 'Inkasso',
+    description: 'Inkassoschreiben, Forderung oder gerichtlichen Mahnbescheid sortieren.',
+    primaryContact: 'Inkassounternehmen, Gläubiger oder Mahngericht',
+  },
+  {
     id: 'family',
     title: 'Familie / Lebensumbruch',
     shortTitle: 'Familie',

@@ -358,6 +358,56 @@ export const categoryQuestions: Record<CategoryId, Question[]> = {
       ],
     },
   ],
+  debtCourt: [
+    {
+      id: 'debtLetterType',
+      category: 'debtCourt',
+      text: 'Was liegt dir vor?',
+      type: 'select',
+      options: [
+        { value: 'inkasso', label: 'Inkassoschreiben' },
+        { value: 'mahnbrief', label: 'Mahnung vom Gläubiger' },
+        { value: 'mahnbescheid', label: 'Gerichtlicher Mahnbescheid' },
+        { value: 'vollstreckungsbescheid', label: 'Vollstreckungsbescheid' },
+        { value: 'unklar', label: 'Unklar' },
+      ],
+    },
+    {
+      id: 'claimKnown',
+      category: 'debtCourt',
+      text: 'Kennst du die Forderung?',
+      type: 'select',
+      options: [
+        { value: 'ja', label: 'Ja' },
+        { value: 'teilweise', label: 'Teilweise' },
+        { value: 'nein', label: 'Nein' },
+        { value: 'unklar', label: 'Unklar' },
+      ],
+    },
+    {
+      id: 'claimDisputed',
+      category: 'debtCourt',
+      text: 'Hältst du die Forderung für falsch oder zu hoch?',
+      type: 'select',
+      options: [
+        { value: 'ja', label: 'Ja' },
+        { value: 'nein', label: 'Nein' },
+        { value: 'teilweise', label: 'Teilweise' },
+        { value: 'unklar', label: 'Unklar' },
+      ],
+    },
+    {
+      id: 'courtYellowEnvelope',
+      category: 'debtCourt',
+      text: 'Kam ein gelber Umschlag vom Gericht?',
+      type: 'select',
+      options: [
+        { value: 'ja', label: 'Ja' },
+        { value: 'nein', label: 'Nein' },
+        { value: 'unklar', label: 'Unklar' },
+      ],
+    },
+  ],
   family: [
     {
       id: 'familyEvent',

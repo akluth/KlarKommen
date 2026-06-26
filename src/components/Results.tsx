@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useI18n } from '../i18n';
 import { buildActionPlan, buildDocuments, buildUrgency } from '../data/preparation';
 import type { Answers, Category } from '../types';
@@ -19,18 +20,25 @@ export default function Results({ category, answers, onReset }: ResultsProps) {
   const documents = buildDocuments(category.id, answers);
   const actionPlan = buildActionPlan(category.id, answers);
   const urgency = buildUrgency(category.id, answers);
+  const [packageCopied, setPackageCopied] = useState(false);
 
-  const allResults = [
+  const packageLines = [
     t.ui.resultExportTitle(category.title),
     '',
+    'Beratungspaket:',
+    `Kategorie: ${category.title}`,
+    `Ort: ${answers.city || 'nicht angegeben'}`,
+    `Offener Betrag: ${answers.amount ? `${answers.amount} Euro` : 'nicht angegeben'}`,
+    `Frist: ${answers.deadlineDate || (answers.writtenDeadline === 'ja' ? 'schriftliche Frist vorhanden, Datum prüfen' : 'nicht angegeben')}`,
     `Dringlichkeit: ${urgency.label} - ${urgency.headline}`,
-    urgency.summary,
+    '',
+    'Warum diese Einschätzung:',
     ...urgency.reasons.map((item) => `- ${item}`),
     '',
     'Aktionsplan:',
     ...actionPlan.map((item) => `- ${item}`),
     '',
-    'Unterlagen, die du bereitlegen solltest:',
+    'Unterlagen:',
     ...documents.map((item) => `- ${item}`),
     '',
     `${t.ui.situationTitle}:`,
@@ -47,6 +55,10 @@ export default function Results({ category, answers, onReset }: ResultsProps) {
     '',
     `${t.ui.avoidTitle}:`,
     ...result.avoid.map((item) => `- ${item}`),
+  ];
+
+  const allResults = [
+    ...packageLines,
     '',
     t.ui.templatesExportTitle,
     ...templates.flatMap((template) => ['', template.label, template.text]),
@@ -54,6 +66,12 @@ export default function Results({ category, answers, onReset }: ResultsProps) {
 
   const copyAll = async () => {
     await navigator.clipboard.writeText(allResults);
+  };
+
+  const copyPackage = async () => {
+    await navigator.clipboard.writeText(packageLines.join('\n'));
+    setPackageCopied(true);
+    window.setTimeout(() => setPackageCopied(false), 1800);
   };
 
   return (
@@ -67,7 +85,7 @@ export default function Results({ category, answers, onReset }: ResultsProps) {
             {t.ui.copyAll}
           </button>
           <button className="secondary-button" type="button" onClick={() => window.print()}>
-            {t.ui.print}
+            Druck / PDF
           </button>
           <button className="ghost-button" type="button" onClick={onReset}>
             {t.ui.reset}
@@ -76,6 +94,44 @@ export default function Results({ category, answers, onReset }: ResultsProps) {
       </div>
 
       <UrgencyCard urgency={urgency} />
+
+      <section className="panel package-card" aria-labelledby="package-heading">
+        <div>
+          <p className="eyebrow">Beratungspaket</p>
+          <h3 id="package-heading">Für Gespräch, Termin oder Ausdruck</h3>
+          <p>
+            {category.title} · {answers.city || 'Ort nicht angegeben'} · {urgency.label} -{' '}
+            {urgency.headline}
+          </p>
+        </div>
+        <dl>
+          <div>
+            <dt>Frist</dt>
+            <dd>
+              {answers.deadlineDate ||
+                (answers.writtenDeadline === 'ja'
+                  ? 'Schriftliche Frist vorhanden'
+                  : 'Nicht angegeben')}
+            </dd>
+          </div>
+          <div>
+            <dt>Betrag</dt>
+            <dd>{answers.amount ? `${answers.amount} Euro` : 'Nicht angegeben'}</dd>
+          </div>
+          <div>
+            <dt>Kontakt</dt>
+            <dd>{category.primaryContact}</dd>
+          </div>
+        </dl>
+        <div className="package-actions">
+          <button className="secondary-button" type="button" onClick={copyPackage}>
+            {packageCopied ? t.ui.copied : 'Beratungspaket kopieren'}
+          </button>
+          <button className="secondary-button" type="button" onClick={() => window.print()}>
+            Als PDF speichern / drucken
+          </button>
+        </div>
+      </section>
 
       <div className="results-grid priority-grid">
         <TaskList title="Dein nächster Aktionsplan" eyebrow="Jetzt konkret werden" items={actionPlan} />

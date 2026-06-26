@@ -93,6 +93,8 @@ const categoryOpening: Record<CategoryId, string> = {
     'ich melde mich wegen einer Kontopfändung beziehungsweise wegen Schutz über ein P-Konto.',
   schufa:
     'ich melde mich wegen einer finanziellen Notlage und einer möglichen Schufa- oder Bonitätsproblematik.',
+  debtCourt:
+    'ich melde mich wegen einer Inkasso-Forderung beziehungsweise eines gerichtlichen Mahnverfahrens.',
   family:
     'ich melde mich wegen einer familiären Veränderung und möchte die nächsten Schritte ruhig sortieren.',
 };
@@ -104,6 +106,7 @@ const recipientByCategory: Record<CategoryId, string> = {
   health: 'Krankenkasse',
   garnishment: 'Bank',
   schufa: 'Schuldnerberatung',
+  debtCourt: 'Inkassounternehmen / Gläubiger / Mahngericht',
   family: 'Sozialberatung / Familienberatung',
 };
 
@@ -214,6 +217,14 @@ export const de = {
       shortTitle: 'Schufa',
       description: 'Ablehnung, Dringlichkeit, Alternativen und Beratungsbedarf abwägen.',
       primaryContact: 'Schuldnerberatung',
+    },
+    {
+      id: 'debtCourt',
+      title: 'Inkasso / Mahnbescheid',
+      shortTitle: 'Inkasso',
+      description:
+        'Inkassoschreiben, Forderung, gerichtlichen Mahnbescheid oder Vollstreckungsbescheid sortieren.',
+      primaryContact: 'Inkassounternehmen, Gläubiger oder Mahngericht',
     },
     {
       id: 'family',
@@ -580,6 +591,67 @@ export const de = {
         ],
       },
     ],
+    debtCourt: [
+      {
+        id: 'debtLetterType',
+        category: 'debtCourt',
+        text: 'Was liegt dir vor?',
+        type: 'select',
+        options: [
+          { value: 'inkasso', label: 'Inkassoschreiben' },
+          { value: 'mahnbrief', label: 'Mahnung vom Gläubiger' },
+          { value: 'mahnbescheid', label: 'Gerichtlicher Mahnbescheid' },
+          { value: 'vollstreckungsbescheid', label: 'Vollstreckungsbescheid' },
+          { value: 'unklar', label: 'Unklar' },
+        ],
+      },
+      {
+        id: 'claimKnown',
+        category: 'debtCourt',
+        text: 'Kennst du die Forderung?',
+        type: 'select',
+        options: [
+          { value: 'ja', label: 'Ja' },
+          { value: 'teilweise', label: 'Teilweise' },
+          { value: 'nein', label: 'Nein' },
+          { value: 'unklar', label: 'Unklar' },
+        ],
+      },
+      {
+        id: 'claimDisputed',
+        category: 'debtCourt',
+        text: 'Hältst du die Forderung für falsch oder zu hoch?',
+        type: 'select',
+        options: [
+          { value: 'ja', label: 'Ja' },
+          { value: 'nein', label: 'Nein' },
+          { value: 'teilweise', label: 'Teilweise' },
+          { value: 'unklar', label: 'Unklar' },
+        ],
+      },
+      {
+        id: 'courtYellowEnvelope',
+        category: 'debtCourt',
+        text: 'Kam ein gelber Umschlag vom Gericht?',
+        type: 'select',
+        options: [
+          { value: 'ja', label: 'Ja' },
+          { value: 'nein', label: 'Nein' },
+          { value: 'unklar', label: 'Unklar' },
+        ],
+      },
+      {
+        id: 'debtAlreadyPaid',
+        category: 'debtCourt',
+        text: 'Hast du schon etwas gezahlt?',
+        type: 'select',
+        options: [
+          { value: 'ja', label: 'Ja' },
+          { value: 'nein', label: 'Nein' },
+          { value: 'teilweise', label: 'Teilweise' },
+        ],
+      },
+    ],
     family: [
       {
         id: 'familyEvent',
@@ -905,6 +977,47 @@ export const de = {
             ...commonAvoid,
             'Keine Vorkosten für angeblich sichere Kredite zahlen.',
             'Neue Schulden nicht aufnehmen, wenn damit nur alte Fristen kurzfristig verdeckt werden.',
+          ],
+        };
+      case 'debtCourt':
+        return {
+          situation: [
+            `Art des Schreibens: ${answers.debtLetterType || 'nicht angegeben'}.`,
+            `Offener Betrag: ${amount}.`,
+            `Zur Frist: ${deadline}.`,
+            has(answers, 'debtLetterType', 'mahnbescheid') ||
+            has(answers, 'debtLetterType', 'vollstreckungsbescheid') ||
+            has(answers, 'courtYellowEnvelope', 'ja')
+              ? 'Gerichtspost oder ein gerichtliches Mahnverfahren ist ein starkes Warnsignal. Fristen sollten sofort geprüft werden.'
+              : 'Es wurde keine eindeutige Gerichtspost angegeben. Trotzdem sollte die Forderung schriftlich geklärt werden.',
+            has(answers, 'claimDisputed', 'ja') || has(answers, 'claimDisputed', 'teilweise')
+              ? 'Du hältst die Forderung ganz oder teilweise für falsch. Dann sind Nachweise und Beratung besonders wichtig.'
+              : 'Ein konkreter Streit über die Forderung wurde nicht angegeben.',
+          ],
+          today: [
+            ...sharedToday,
+            'Prüfen, ob das Schreiben vom Gericht kommt oder von Inkasso beziehungsweise Gläubiger.',
+            'Wenn Gerichtspost vorliegt: Datum der Zustellung notieren und sofort Beratung suchen.',
+            'Bei Inkasso schriftlich Forderungsaufstellung, Vollmacht und Nachweise zur Forderung anfordern.',
+          ],
+          tomorrow: [
+            ...sharedTomorrow,
+            'Schuldnerberatung oder Verbraucherzentrale kontaktieren und Schreiben mitnehmen.',
+            'Falls die Forderung falsch ist: Belege sammeln und nicht vorschnell zahlen oder anerkennen.',
+            'Falls die Forderung stimmt: realistische Ratenzahlung nur nach Haushaltsüberblick anbieten.',
+          ],
+          help: [
+            ...commonHelp(city),
+            'Verbraucherzentrale wegen Inkassokosten und Forderungsprüfung',
+            'Amtsgericht oder Mahngericht bei gerichtlichem Mahnbescheid',
+            'Fachanwaltliche Beratung bei unklarer oder bestrittener Forderung',
+          ],
+          avoid: [
+            ...commonAvoid,
+            'Gerichtliche Mahnbescheide nicht wie normale Inkassobriefe behandeln.',
+            'Keine Forderung schriftlich anerkennen, wenn du sie für falsch oder unklar hältst.',
+            'Keine Ratenzahlung unterschreiben, ohne Kosten, Zinsen und Gesamtsumme zu prüfen.',
+            'Nicht nur telefonisch widersprechen oder klären, sondern schriftliche Nachweise sichern.',
           ],
         };
       case 'family':

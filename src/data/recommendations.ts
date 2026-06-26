@@ -254,6 +254,39 @@ export function buildRecommendations(categoryId: CategoryId, answers: Answers): 
           'Neue Schulden nicht aufnehmen, wenn damit nur alte Fristen kurzfristig verdeckt werden.',
         ],
       };
+    case 'debtCourt':
+      return {
+        situation: [
+          `Art des Schreibens: ${answers.debtLetterType || 'nicht angegeben'}.`,
+          `Offener Betrag: ${amount}.`,
+          `Zur Frist: ${deadline}.`,
+          has(answers, 'debtLetterType', 'mahnbescheid') ||
+          has(answers, 'debtLetterType', 'vollstreckungsbescheid') ||
+          has(answers, 'courtYellowEnvelope', 'ja')
+            ? 'Gerichtspost oder ein gerichtliches Mahnverfahren ist ein starkes Warnsignal.'
+            : 'Es wurde keine eindeutige Gerichtspost angegeben.',
+        ],
+        today: [
+          ...sharedToday,
+          'Prüfen, ob das Schreiben vom Gericht, Inkasso oder Gläubiger kommt.',
+          'Bei Inkasso schriftlich Forderungsaufstellung, Vollmacht und Nachweise anfordern.',
+        ],
+        tomorrow: [
+          ...sharedTomorrow,
+          'Schuldnerberatung oder Verbraucherzentrale kontaktieren.',
+          'Falls die Forderung falsch ist: Belege sammeln und nichts vorschnell anerkennen.',
+        ],
+        help: [
+          ...commonHelp(city),
+          'Verbraucherzentrale',
+          'Amtsgericht oder Mahngericht',
+        ],
+        avoid: [
+          ...commonAvoid,
+          'Gerichtliche Mahnbescheide nicht wie normale Inkassobriefe behandeln.',
+          'Keine unklare Forderung vorschnell anerkennen.',
+        ],
+      };
     case 'family':
       return {
         situation: [

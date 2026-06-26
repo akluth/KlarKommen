@@ -93,6 +93,8 @@ const categoryOpening: Record<CategoryId, string> = {
     'hesap haczi veya P-Konto (haciz korumalı hesap) üzerinden koruma nedeniyle yazıyorum.',
   schufa:
     'maddi bir sıkışma ve olası Schufa / kredi geçmişi sorunu nedeniyle yazıyorum.',
+  debtCourt:
+    'ich melde mich wegen einer Inkasso-Forderung beziehungsweise eines gerichtlichen Mahnverfahrens.',
   family:
     'aileyle ilgili bir değişiklik nedeniyle yazıyorum ve sonraki adımları sakin şekilde düzenlemek istiyorum.',
 };
@@ -104,6 +106,7 @@ const recipientByCategory: Record<CategoryId, string> = {
   health: 'Sağlık sigortası',
   garnishment: 'Banka',
   schufa: 'Borç danışmanlığı',
+  debtCourt: 'Inkassounternehmen / Gläubiger / Mahngericht',
   family: 'Sosyal danışmanlık / aile danışmanlığı',
 };
 
@@ -212,6 +215,14 @@ export const tr = {
       shortTitle: 'Schufa',
       description: 'Ret, aciliyet, alternatifler ve danışma ihtiyacını değerlendir.',
       primaryContact: 'Borç danışmanlığı',
+    },
+    {
+      id: 'debtCourt',
+      title: 'Inkasso / Mahnbescheid',
+      shortTitle: 'Inkasso',
+      description:
+        'Inkassoschreiben, Forderung, gerichtlichen Mahnbescheid oder Vollstreckungsbescheid sortieren.',
+      primaryContact: 'Inkassounternehmen, Gläubiger oder Mahngericht',
     },
     {
       id: 'family',
@@ -578,6 +589,56 @@ export const tr = {
         ],
       },
     ],
+    debtCourt: [
+      {
+        id: 'debtLetterType',
+        category: 'debtCourt',
+        text: 'Was liegt dir vor?',
+        type: 'select',
+        options: [
+          { value: 'inkasso', label: 'Inkassoschreiben' },
+          { value: 'mahnbrief', label: 'Mahnung vom Gläubiger' },
+          { value: 'mahnbescheid', label: 'Gerichtlicher Mahnbescheid' },
+          { value: 'vollstreckungsbescheid', label: 'Vollstreckungsbescheid' },
+          { value: 'unklar', label: 'Unklar' },
+        ],
+      },
+      {
+        id: 'claimKnown',
+        category: 'debtCourt',
+        text: 'Kennst du die Forderung?',
+        type: 'select',
+        options: [
+          { value: 'ja', label: 'Ja' },
+          { value: 'teilweise', label: 'Teilweise' },
+          { value: 'nein', label: 'Nein' },
+          { value: 'unklar', label: 'Unklar' },
+        ],
+      },
+      {
+        id: 'claimDisputed',
+        category: 'debtCourt',
+        text: 'Hältst du die Forderung für falsch oder zu hoch?',
+        type: 'select',
+        options: [
+          { value: 'ja', label: 'Ja' },
+          { value: 'nein', label: 'Nein' },
+          { value: 'teilweise', label: 'Teilweise' },
+          { value: 'unklar', label: 'Unklar' },
+        ],
+      },
+      {
+        id: 'courtYellowEnvelope',
+        category: 'debtCourt',
+        text: 'Kam ein gelber Umschlag vom Gericht?',
+        type: 'select',
+        options: [
+          { value: 'ja', label: 'Ja' },
+          { value: 'nein', label: 'Nein' },
+          { value: 'unklar', label: 'Unklar' },
+        ],
+      },
+    ],
     family: [
       {
         id: 'familyEvent',
@@ -903,6 +964,35 @@ export const tr = {
             ...commonAvoid,
             'Sözde garantili krediler için ön ödeme yapmayın.',
             'Sadece eski süreleri kısa süre gizlemek için yeni borç almayın.',
+          ],
+        };
+      case 'debtCourt':
+        return {
+          situation: [
+            `Art des Schreibens: ${answers.debtLetterType || 'nicht angegeben'}.`,
+            `Offener Betrag: ${amount}.`,
+            `Zur Frist: ${deadline}.`,
+            has(answers, 'debtLetterType', 'mahnbescheid') ||
+            has(answers, 'debtLetterType', 'vollstreckungsbescheid') ||
+            has(answers, 'courtYellowEnvelope', 'ja')
+              ? 'Gerichtspost oder ein gerichtliches Mahnverfahren ist ein starkes Warnsignal.'
+              : 'Es wurde keine eindeutige Gerichtspost angegeben.',
+          ],
+          today: [
+            ...sharedToday,
+            'Prüfen, ob das Schreiben vom Gericht, Inkasso oder Gläubiger kommt.',
+            'Bei Gerichtspost Zustelldatum notieren und sofort Beratung suchen.',
+          ],
+          tomorrow: [
+            ...sharedTomorrow,
+            'Schuldnerberatung oder Verbraucherzentrale kontaktieren.',
+            'Forderungsaufstellung, Vollmacht und Nachweise schriftlich anfordern.',
+          ],
+          help: [...commonHelp(city), 'Verbraucherzentrale', 'Mahngericht oder Amtsgericht'],
+          avoid: [
+            ...commonAvoid,
+            'Gerichtliche Mahnbescheide nicht wie normale Inkassobriefe behandeln.',
+            'Keine unklare Forderung vorschnell anerkennen.',
           ],
         };
       case 'family':

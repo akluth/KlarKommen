@@ -5,6 +5,7 @@ export type CategoryId =
   | 'health'
   | 'garnishment'
   | 'schufa'
+  | 'debtCourt'
   | 'family';
 
 export type QuestionType = 'text' | 'number' | 'date' | 'select' | 'textarea';

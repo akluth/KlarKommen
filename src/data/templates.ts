@@ -51,6 +51,8 @@ const categoryOpening: Record<CategoryId, string> = {
     'ich melde mich wegen einer Kontopfändung beziehungsweise wegen Schutz über ein P-Konto.',
   schufa:
     'ich melde mich wegen einer finanziellen Notlage und einer möglichen Schufa- oder Bonitätsproblematik.',
+  debtCourt:
+    'ich melde mich wegen einer Inkasso-Forderung beziehungsweise eines gerichtlichen Mahnverfahrens.',
   family:
     'ich melde mich wegen einer familiären Veränderung und möchte die nächsten Schritte ruhig sortieren.',
 };
@@ -62,6 +64,7 @@ const recipientByCategory: Record<CategoryId, string> = {
   health: 'Krankenkasse',
   garnishment: 'Bank',
   schufa: 'Schuldnerberatung',
+  debtCourt: 'Inkassounternehmen / Gläubiger / Mahngericht',
   family: 'Sozialberatung / Familienberatung',
 };
 

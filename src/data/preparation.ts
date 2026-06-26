@@ -136,6 +136,21 @@ export function buildUrgency(categoryId: CategoryId, answers: Answers): UrgencyR
         signals.push({ score: 1, text: 'Ein Kredit wurde vermutlich wegen Bonität oder Schufa abgelehnt.' });
       }
       break;
+    case 'debtCourt':
+      if (
+        has(answers, 'debtLetterType', 'mahnbescheid') ||
+        has(answers, 'debtLetterType', 'vollstreckungsbescheid') ||
+        has(answers, 'courtYellowEnvelope', 'ja')
+      ) {
+        signals.push({ score: 3, text: 'Es liegt Gerichtspost oder ein gerichtliches Mahnverfahren nahe.' });
+      }
+      if (has(answers, 'claimDisputed', 'ja') || has(answers, 'claimDisputed', 'teilweise')) {
+        signals.push({ score: 2, text: 'Die Forderung ist ganz oder teilweise bestritten.' });
+      }
+      if (has(answers, 'claimKnown', 'nein') || has(answers, 'claimKnown', 'unklar')) {
+        signals.push({ score: 1, text: 'Die Forderung ist dir nicht klar bekannt.' });
+      }
+      break;
     case 'family':
       if (has(answers, 'childrenAffected', 'ja') && has(answers, 'supportNetwork', 'nein')) {
         signals.push({ score: 2, text: 'Kinder sind betroffen und verlässliche Unterstützung fehlt gerade.' });
@@ -232,6 +247,15 @@ export function buildDocuments(categoryId: CategoryId, answers: Answers) {
         'Datenkopie oder Auskunft von Auskunfteien, falls vorhanden',
         ...sharedDocuments,
       ];
+    case 'debtCourt':
+      return [
+        'Inkassoschreiben, Mahnung, Mahnbescheid oder Vollstreckungsbescheid',
+        'Gelber Umschlag mit Zustelldatum, falls vorhanden',
+        'Vertrag, Rechnung, Kündigung oder frühere Schreiben zur Forderung',
+        'Zahlungsnachweise, Ratenvereinbarungen oder Kontoauszüge',
+        'Eigene Notiz, welche Teile der Forderung unklar oder bestritten sind',
+        ...sharedDocuments,
+      ];
     case 'family':
       return [
         'Urkunden, Bescheinigungen oder gerichtliche Schreiben',
@@ -286,6 +310,14 @@ export function buildActionPlan(categoryId: CategoryId, answers: Answers) {
         ...plan,
         'Direkten Gläubiger oder Vertragspartner um Fristaufschub oder Ratenzahlung bitten.',
         'Teure Sofortkredite pausieren und zuerst Forderung, Schufa-Daten und Beratungsoptionen prüfen.',
+      ];
+    case 'debtCourt':
+      return [
+        ...plan,
+        'Prüfen, ob das Schreiben vom Gericht, vom Gläubiger oder von einem Inkassounternehmen kommt.',
+        'Bei Gerichtspost das Zustelldatum notieren und sofort Beratung suchen.',
+        'Bei Inkasso schriftlich Forderungsaufstellung, Vollmacht und Nachweise anfordern.',
+        'Wenn die Forderung falsch oder unklar ist: Belege sammeln und nichts vorschnell anerkennen.',
       ];
     case 'family':
       return [
