@@ -1,7 +1,10 @@
 import { useI18n } from '../i18n';
+import { buildActionPlan, buildDocuments, buildUrgency } from '../data/preparation';
 import type { Answers, Category } from '../types';
 import Checklist from './Checklist';
+import TaskList from './TaskList';
 import TemplateBox from './TemplateBox';
+import UrgencyCard from './UrgencyCard';
 
 interface ResultsProps {
   category: Category;
@@ -13,9 +16,22 @@ export default function Results({ category, answers, onReset }: ResultsProps) {
   const { t } = useI18n();
   const result = t.buildRecommendations(category.id, answers);
   const templates = t.buildAllTemplates(category, answers);
+  const documents = buildDocuments(category.id, answers);
+  const actionPlan = buildActionPlan(category.id, answers);
+  const urgency = buildUrgency(category.id, answers);
 
   const allResults = [
     t.ui.resultExportTitle(category.title),
+    '',
+    `Dringlichkeit: ${urgency.label} - ${urgency.headline}`,
+    urgency.summary,
+    ...urgency.reasons.map((item) => `- ${item}`),
+    '',
+    'Aktionsplan:',
+    ...actionPlan.map((item) => `- ${item}`),
+    '',
+    'Unterlagen, die du bereitlegen solltest:',
+    ...documents.map((item) => `- ${item}`),
     '',
     `${t.ui.situationTitle}:`,
     ...result.situation.map((item) => `- ${item}`),
@@ -57,6 +73,17 @@ export default function Results({ category, answers, onReset }: ResultsProps) {
             {t.ui.reset}
           </button>
         </div>
+      </div>
+
+      <UrgencyCard urgency={urgency} />
+
+      <div className="results-grid priority-grid">
+        <TaskList title="Dein nächster Aktionsplan" eyebrow="Jetzt konkret werden" items={actionPlan} />
+        <TaskList
+          title="Unterlagen bereitlegen"
+          eyebrow="Damit Gespräche leichter werden"
+          items={documents}
+        />
       </div>
 
       <div className="results-grid">

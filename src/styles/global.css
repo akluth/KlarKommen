@@ -562,8 +562,149 @@ textarea:focus {
   gap: 16px;
 }
 
+.priority-grid {
+  margin-bottom: 18px;
+}
+
+.urgency-card {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding: 20px;
+  border-left-width: 8px;
+}
+
+.urgency-red {
+  border-left-color: #d7483d;
+  background: #fff7f5;
+}
+
+.urgency-yellow {
+  border-left-color: var(--yellow);
+  background: #fffaf0;
+}
+
+.urgency-green {
+  border-left-color: var(--turquoise);
+  background: #f3fbf9;
+}
+
+.urgency-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.traffic-light {
+  display: grid;
+  flex: 0 0 auto;
+  gap: 5px;
+  width: 34px;
+  border: 1px solid #cbdad8;
+  border-radius: 999px;
+  background: #18333d;
+  padding: 6px;
+}
+
+.traffic-light span {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #5b7076;
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 25%);
+}
+
+.urgency-red .traffic-light span:nth-child(1),
+.urgency-yellow .traffic-light span:nth-child(2),
+.urgency-green .traffic-light span:nth-child(3) {
+  box-shadow:
+    0 0 0 3px rgb(255 255 255 / 70%),
+    0 0 16px currentColor;
+}
+
+.urgency-red .traffic-light span:nth-child(1) {
+  background: #e35347;
+  color: #e35347;
+}
+
+.urgency-yellow .traffic-light span:nth-child(2) {
+  background: var(--yellow);
+  color: var(--yellow);
+}
+
+.urgency-green .traffic-light span:nth-child(3) {
+  background: var(--turquoise);
+  color: var(--turquoise);
+}
+
+.urgency-card h3 {
+  font-size: clamp(1.35rem, 5vw, 2rem);
+}
+
+.urgency-card p:not(.eyebrow) {
+  margin: 0;
+  color: #334b52;
+  font-size: 1.04rem;
+  line-height: 1.55;
+}
+
+.urgency-card ul {
+  display: grid;
+  gap: 8px;
+  padding-left: 20px;
+  margin: 0;
+  color: #334b52;
+  line-height: 1.45;
+}
+
 .checklist {
   padding: 18px;
+}
+
+.task-list {
+  padding: 18px;
+}
+
+.task-list h3 {
+  font-size: clamp(1.25rem, 4vw, 1.7rem);
+}
+
+.task-list ul {
+  display: grid;
+  gap: 10px;
+  padding: 0;
+  margin: 16px 0 0;
+  list-style: none;
+}
+
+.task-list li {
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  gap: 10px;
+  align-items: start;
+  border: 1px solid #dce8e7;
+  border-radius: 8px;
+  background: #fbfdfd;
+  padding: 10px;
+}
+
+.task-list input {
+  width: 20px;
+  height: 20px;
+  margin: 2px 0 0;
+  accent-color: var(--turquoise-dark);
+}
+
+.task-list label {
+  color: #334b52;
+  line-height: 1.45;
+}
+
+.task-list .task-done label {
+  color: #73868b;
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  text-decoration-color: #9ab8b5;
 }
 
 .checklist ul {
