@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import CategorySelect from './components/CategorySelect';
 import Footer from './components/Footer';
 import Header from './components/Header';
@@ -6,37 +6,75 @@ import InfoPage from './components/InfoPage';
 import QuestionFlow from './components/QuestionFlow';
 import Results from './components/Results';
 import { useI18n } from './i18n';
+import { getResultExtraTexts } from './i18n/resultExtras';
 import type { Answers, Category } from './types';
+import { deleteSavedCase, loadSavedCase, saveCase, type SavedCase } from './utils/savedCase';
 
 type InfoStep = 'imprint' | 'privacy' | 'help';
 type Step = 'start' | 'questions' | 'results' | InfoStep;
 
 export default function App() {
-  const { t } = useI18n();
+  const { language, t } = useI18n();
+  const extraTexts = getResultExtraTexts(language);
   const [step, setStep] = useState<Step>('start');
   const [category, setCategory] = useState<Category | null>(null);
   const [answers, setAnswers] = useState<Answers>({});
+  const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
+  const [savedCase, setSavedCase] = useState<SavedCase | null>(null);
   const localizedCategory = category
     ? t.categories.find((item) => item.id === category.id) ?? category
     : null;
+
+  useEffect(() => {
+    setSavedCase(loadSavedCase());
+  }, []);
 
   const reset = () => {
     setStep('start');
     setCategory(null);
     setAnswers({});
+    setCheckedItems({});
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const selectCategory = (nextCategory: Category) => {
     setCategory(nextCategory);
+    setCheckedItems({});
     setStep('questions');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const completeQuestions = (nextAnswers: Answers) => {
     setAnswers(nextAnswers);
+    setCheckedItems({});
     setStep('results');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const saveCurrentCase = () => {
+    if (!category) return;
+    saveCase({
+      categoryId: category.id,
+      answers,
+      checkedItems,
+    });
+    setSavedCase(loadSavedCase());
+  };
+
+  const continueSavedCase = () => {
+    if (!savedCase) return;
+    const nextCategory = t.categories.find((item) => item.id === savedCase.categoryId);
+    if (!nextCategory) return;
+    setCategory(nextCategory);
+    setAnswers(savedCase.answers);
+    setCheckedItems(savedCase.checkedItems);
+    setStep('results');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const removeSavedCase = () => {
+    deleteSavedCase();
+    setSavedCase(null);
   };
 
   return (
@@ -71,6 +109,28 @@ export default function App() {
                 {t.ui.showAllHelp}
               </button>
             </section>
+            {savedCase && (
+              <section className="saved-case-panel panel" aria-labelledby="saved-case-heading">
+                <div>
+                  <p className="eyebrow">{extraTexts.savedCaseEyebrow}</p>
+                  <h2 id="saved-case-heading">{extraTexts.savedCaseHeading}</h2>
+                  <p>
+                    {t.categories.find((item) => item.id === savedCase.categoryId)?.title ??
+                      extraTexts.savedCaseFallback}{' '}
+                    - {extraTexts.savedCaseSavedAt}{' '}
+                    {new Date(savedCase.savedAt).toLocaleDateString('de-DE')}
+                  </p>
+                </div>
+                <div className="saved-case-actions">
+                  <button className="primary-button" type="button" onClick={continueSavedCase}>
+                    {extraTexts.savedCaseContinue}
+                  </button>
+                  <button className="ghost-button" type="button" onClick={removeSavedCase}>
+                    {extraTexts.deleteSavedCase}
+                  </button>
+                </div>
+              </section>
+            )}
             <CategorySelect categories={t.categories} onSelect={selectCategory} />
           </>
         )}
@@ -80,7 +140,16 @@ export default function App() {
         )}
 
         {step === 'results' && localizedCategory && (
-          <Results category={localizedCategory} answers={answers} onReset={reset} />
+          <Results
+            category={localizedCategory}
+            answers={answers}
+            checkedItems={checkedItems}
+            savedCaseExists={Boolean(savedCase)}
+            onCheckedItemsChange={setCheckedItems}
+            onDeleteSavedCase={removeSavedCase}
+            onReset={reset}
+            onSaveCase={saveCurrentCase}
+          />
         )}
 
         {(step === 'imprint' || step === 'privacy' || step === 'help') && (

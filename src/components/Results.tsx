@@ -1,8 +1,11 @@
 import { useState } from 'react';
-import { useI18n } from '../i18n';
+import { buildContactChecklist, buildHelpSearchLinks, buildPhoneScript } from '../data/localHelp';
 import { buildActionPlan, buildDocuments, buildUrgency } from '../data/preparation';
+import { useI18n } from '../i18n';
+import { getResultExtraTexts } from '../i18n/resultExtras';
 import type { Answers, Category } from '../types';
 import Checklist from './Checklist';
+import LocalHelp from './LocalHelp';
 import TaskList from './TaskList';
 import TemplateBox from './TemplateBox';
 import UrgencyCard from './UrgencyCard';
@@ -10,36 +13,67 @@ import UrgencyCard from './UrgencyCard';
 interface ResultsProps {
   category: Category;
   answers: Answers;
+  checkedItems: Record<string, boolean>;
+  savedCaseExists: boolean;
+  onCheckedItemsChange: (checkedItems: Record<string, boolean>) => void;
+  onDeleteSavedCase: () => void;
   onReset: () => void;
+  onSaveCase: () => void;
 }
 
-export default function Results({ category, answers, onReset }: ResultsProps) {
-  const { t } = useI18n();
+export default function Results({
+  category,
+  answers,
+  checkedItems,
+  savedCaseExists,
+  onCheckedItemsChange,
+  onDeleteSavedCase,
+  onReset,
+  onSaveCase,
+}: ResultsProps) {
+  const { language, t } = useI18n();
+  const extraTexts = getResultExtraTexts(language);
   const result = t.buildRecommendations(category.id, answers);
   const templates = t.buildAllTemplates(category, answers);
-  const documents = buildDocuments(category.id, answers);
-  const actionPlan = buildActionPlan(category.id, answers);
-  const urgency = buildUrgency(category.id, answers);
+  const documents = buildDocuments(category.id, answers, language);
+  const actionPlan = buildActionPlan(category.id, answers, language);
+  const urgency = buildUrgency(category.id, answers, language);
+  const helpSearchLinks = buildHelpSearchLinks(category.id, answers, language);
+  const phoneScript = buildPhoneScript(category, answers);
+  const contactChecklist = buildContactChecklist(language);
   const [packageCopied, setPackageCopied] = useState(false);
+
+  const deadlineText =
+    answers.deadlineDate ||
+    (answers.writtenDeadline === 'ja' ? extraTexts.deadlineWritten : extraTexts.noDeadline);
 
   const packageLines = [
     t.ui.resultExportTitle(category.title),
     '',
-    'Beratungspaket:',
-    `Kategorie: ${category.title}`,
-    `Ort: ${answers.city || 'nicht angegeben'}`,
-    `Offener Betrag: ${answers.amount ? `${answers.amount} Euro` : 'nicht angegeben'}`,
-    `Frist: ${answers.deadlineDate || (answers.writtenDeadline === 'ja' ? 'schriftliche Frist vorhanden, Datum prüfen' : 'nicht angegeben')}`,
-    `Dringlichkeit: ${urgency.label} - ${urgency.headline}`,
+    `${extraTexts.packageEyebrow}:`,
+    `${extraTexts.packageCategory}: ${category.title}`,
+    `${extraTexts.packagePlace}: ${answers.city || extraTexts.noPlace}`,
+    `${extraTexts.packageAmount}: ${answers.amount ? `${answers.amount} Euro` : extraTexts.amountUnknown}`,
+    `${extraTexts.packageDeadline}: ${deadlineText}`,
+    `${extraTexts.urgencyEyebrow}: ${urgency.label} - ${urgency.headline}`,
     '',
-    'Warum diese Einschätzung:',
+    `${extraTexts.packageWhy}:`,
     ...urgency.reasons.map((item) => `- ${item}`),
     '',
-    'Aktionsplan:',
+    `${extraTexts.taskNextTitle}:`,
     ...actionPlan.map((item) => `- ${item}`),
     '',
-    'Unterlagen:',
+    `${extraTexts.taskDocumentsTitle}:`,
     ...documents.map((item) => `- ${item}`),
+    '',
+    `${extraTexts.packageSearchTitle}:`,
+    ...helpSearchLinks.map((item) => `- ${item.label}: ${item.url}`),
+    '',
+    `${extraTexts.packageScriptTitle}:`,
+    phoneScript,
+    '',
+    `${extraTexts.contactTitle}:`,
+    ...contactChecklist.map((item) => `- ${item}`),
     '',
     `${t.ui.situationTitle}:`,
     ...result.situation.map((item) => `- ${item}`),
@@ -84,61 +118,80 @@ export default function Results({ category, answers, onReset }: ResultsProps) {
           <button className="primary-button" type="button" onClick={copyAll}>
             {t.ui.copyAll}
           </button>
-          <button className="secondary-button" type="button" onClick={() => window.print()}>
-            Druck / PDF
+          <button className="secondary-button" type="button" onClick={onSaveCase}>
+            {savedCaseExists ? extraTexts.savedUpdate : extraTexts.saveCase}
           </button>
+          <button className="secondary-button" type="button" onClick={() => window.print()}>
+            {extraTexts.printPdf}
+          </button>
+          {savedCaseExists && (
+            <button className="ghost-button" type="button" onClick={onDeleteSavedCase}>
+              {extraTexts.deleteSavedCase}
+            </button>
+          )}
           <button className="ghost-button" type="button" onClick={onReset}>
             {t.ui.reset}
           </button>
         </div>
       </div>
 
-      <UrgencyCard urgency={urgency} />
+      <UrgencyCard eyebrowLabel={extraTexts.urgencyEyebrow} urgency={urgency} />
 
       <section className="panel package-card" aria-labelledby="package-heading">
         <div>
-          <p className="eyebrow">Beratungspaket</p>
-          <h3 id="package-heading">Für Gespräch, Termin oder Ausdruck</h3>
+          <p className="eyebrow">{extraTexts.packageEyebrow}</p>
+          <h3 id="package-heading">{extraTexts.packageHeading}</h3>
           <p>
-            {category.title} · {answers.city || 'Ort nicht angegeben'} · {urgency.label} -{' '}
-            {urgency.headline}
+            {category.title} - {answers.city || extraTexts.noPlace} - {urgency.label} - {urgency.headline}
           </p>
         </div>
         <dl>
           <div>
-            <dt>Frist</dt>
-            <dd>
-              {answers.deadlineDate ||
-                (answers.writtenDeadline === 'ja'
-                  ? 'Schriftliche Frist vorhanden'
-                  : 'Nicht angegeben')}
-            </dd>
+            <dt>{extraTexts.packageDeadline}</dt>
+            <dd>{deadlineText}</dd>
           </div>
           <div>
-            <dt>Betrag</dt>
-            <dd>{answers.amount ? `${answers.amount} Euro` : 'Nicht angegeben'}</dd>
+            <dt>{extraTexts.packageAmount}</dt>
+            <dd>{answers.amount ? `${answers.amount} Euro` : extraTexts.amountUnknown}</dd>
           </div>
           <div>
-            <dt>Kontakt</dt>
+            <dt>{extraTexts.packageContact}</dt>
             <dd>{category.primaryContact}</dd>
           </div>
         </dl>
         <div className="package-actions">
           <button className="secondary-button" type="button" onClick={copyPackage}>
-            {packageCopied ? t.ui.copied : 'Beratungspaket kopieren'}
+            {packageCopied ? extraTexts.copied : extraTexts.copyPackage}
           </button>
           <button className="secondary-button" type="button" onClick={() => window.print()}>
-            Als PDF speichern / drucken
+            {extraTexts.printPdf}
           </button>
         </div>
       </section>
 
+      <LocalHelp
+        checkedItems={checkedItems}
+        links={helpSearchLinks}
+        onCheckedItemsChange={onCheckedItemsChange}
+        phoneScript={phoneScript}
+        tasks={contactChecklist}
+        texts={extraTexts}
+      />
+
       <div className="results-grid priority-grid">
-        <TaskList title="Dein nächster Aktionsplan" eyebrow="Jetzt konkret werden" items={actionPlan} />
         <TaskList
-          title="Unterlagen bereitlegen"
-          eyebrow="Damit Gespräche leichter werden"
+          title={extraTexts.taskNextTitle}
+          eyebrow={extraTexts.taskNextEyebrow}
+          items={actionPlan}
+          checkedItems={checkedItems}
+          onCheckedItemsChange={onCheckedItemsChange}
+        />
+        <TaskList
+          title={extraTexts.taskDocumentsTitle}
+          eyebrow={extraTexts.taskDocumentsEyebrow}
           items={documents}
+          checkedItems={checkedItems}
+          onCheckedItemsChange={onCheckedItemsChange}
         />
       </div>
 

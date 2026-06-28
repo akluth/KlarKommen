@@ -1,24 +1,27 @@
-import { useEffect, useId, useState } from 'react';
+import { useId } from 'react';
 
 interface TaskListProps {
   title: string;
   items: string[];
   eyebrow?: string;
+  checkedItems: Record<string, boolean>;
+  onCheckedItemsChange: (checkedItems: Record<string, boolean>) => void;
 }
 
-export default function TaskList({ title, items, eyebrow }: TaskListProps) {
+export default function TaskList({
+  title,
+  items,
+  eyebrow,
+  checkedItems,
+  onCheckedItemsChange,
+}: TaskListProps) {
   const id = useId();
-  const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
-
-  useEffect(() => {
-    setCheckedItems({});
-  }, [items]);
 
   const toggleItem = (item: string) => {
-    setCheckedItems((current) => ({
-      ...current,
-      [item]: !current[item],
-    }));
+    onCheckedItemsChange({
+      ...checkedItems,
+      [item]: !checkedItems[item],
+    });
   };
 
   return (

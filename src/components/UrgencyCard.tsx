@@ -1,10 +1,11 @@
 import type { UrgencyResult } from '../data/preparation';
 
 interface UrgencyCardProps {
+  eyebrowLabel: string;
   urgency: UrgencyResult;
 }
 
-export default function UrgencyCard({ urgency }: UrgencyCardProps) {
+export default function UrgencyCard({ eyebrowLabel, urgency }: UrgencyCardProps) {
   return (
     <section className={`panel urgency-card urgency-${urgency.level}`} aria-labelledby="urgency-heading">
       <div className="urgency-top">
@@ -14,7 +15,9 @@ export default function UrgencyCard({ urgency }: UrgencyCardProps) {
           <span className={urgency.level === 'green' ? 'active' : undefined} />
         </div>
         <div>
-          <p className="eyebrow">Dringlichkeit: {urgency.label}</p>
+          <p className="eyebrow">
+            {eyebrowLabel}: {urgency.label}
+          </p>
           <h3 id="urgency-heading">{urgency.headline}</h3>
         </div>
       </div>
