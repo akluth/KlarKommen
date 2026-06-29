@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import CategorySelect from './components/CategorySelect';
 import Footer from './components/Footer';
+import GuidedChatbot from './components/GuidedChatbot';
 import Header from './components/Header';
 import InfoPage from './components/InfoPage';
 import QuestionFlow from './components/QuestionFlow';
@@ -45,6 +46,14 @@ export default function App() {
   };
 
   const completeQuestions = (nextAnswers: Answers) => {
+    setAnswers(nextAnswers);
+    setCheckedItems({});
+    setStep('results');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const completeGuidedChat = (nextCategory: Category, nextAnswers: Answers) => {
+    setCategory(nextCategory);
     setAnswers(nextAnswers);
     setCheckedItems({});
     setStep('results');
@@ -131,6 +140,7 @@ export default function App() {
                 </div>
               </section>
             )}
+            <GuidedChatbot categories={t.categories} onComplete={completeGuidedChat} />
             <CategorySelect categories={t.categories} onSelect={selectCategory} />
           </>
         )}
