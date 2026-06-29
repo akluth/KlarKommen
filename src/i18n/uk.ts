@@ -969,30 +969,30 @@ export const uk = {
       case 'debtCourt':
         return {
           situation: [
-            `Art des Schreibens: ${answers.debtLetterType || 'nicht angegeben'}.`,
-            `Offener Betrag: ${amount}.`,
-            `Zur Frist: ${deadline}.`,
+            `Тип листа: ${answers.debtLetterType || 'не вказано'}.`,
+            `Відкрита сума: ${amount}.`,
+            `Щодо строку: ${deadline}.`,
             has(answers, 'debtLetterType', 'mahnbescheid') ||
             has(answers, 'debtLetterType', 'vollstreckungsbescheid') ||
             has(answers, 'courtYellowEnvelope', 'ja')
-              ? 'Gerichtspost oder ein gerichtliches Mahnverfahren ist ein starkes Warnsignal.'
-              : 'Es wurde keine eindeutige Gerichtspost angegeben.',
+              ? 'Лист із суду або судове наказне провадження є сильним попереджувальним сигналом.'
+              : 'Чіткого листа із суду не вказано.',
           ],
           today: [
             ...sharedToday,
-            'Prüfen, ob das Schreiben vom Gericht, Inkasso oder Gläubiger kommt.',
-            'Bei Gerichtspost Zustelldatum notieren und sofort Beratung suchen.',
+            'Перевірте, чи лист надійшов із суду, від колекторів або від кредитора.',
+            'Якщо це судовий лист, запишіть дату вручення і негайно зверніться по консультацію.',
           ],
           tomorrow: [
             ...sharedTomorrow,
-            'Schuldnerberatung oder Verbraucherzentrale kontaktieren.',
-            'Forderungsaufstellung, Vollmacht und Nachweise schriftlich anfordern.',
+            'Зверніться до консультації з боргів або центру захисту прав споживачів.',
+            'Письмово запросіть розрахунок вимоги, довіреність і докази.',
           ],
-          help: [...commonHelp(city), 'Verbraucherzentrale', 'Mahngericht oder Amtsgericht'],
+          help: [...commonHelp(city), 'Центр захисту прав споживачів', 'Суд у справах платіжних наказів або місцевий суд'],
           avoid: [
             ...commonAvoid,
-            'Gerichtliche Mahnbescheide nicht wie normale Inkassobriefe behandeln.',
-            'Keine unklare Forderung vorschnell anerkennen.',
+            'Не ставтеся до судових платіжних наказів як до звичайних колекторських листів.',
+            'Не визнавайте неясну вимогу поспіхом.',
           ],
         };
       case 'family':

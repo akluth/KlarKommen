@@ -969,30 +969,30 @@ export const tr = {
       case 'debtCourt':
         return {
           situation: [
-            `Art des Schreibens: ${answers.debtLetterType || 'nicht angegeben'}.`,
-            `Offener Betrag: ${amount}.`,
-            `Zur Frist: ${deadline}.`,
+            `Yazının türü: ${answers.debtLetterType || 'belirtilmedi'}.`,
+            `Açık tutar: ${amount}.`,
+            `Süre bilgisi: ${deadline}.`,
             has(answers, 'debtLetterType', 'mahnbescheid') ||
             has(answers, 'debtLetterType', 'vollstreckungsbescheid') ||
             has(answers, 'courtYellowEnvelope', 'ja')
-              ? 'Gerichtspost oder ein gerichtliches Mahnverfahren ist ein starkes Warnsignal.'
-              : 'Es wurde keine eindeutige Gerichtspost angegeben.',
+              ? 'Mahkemeden gelen posta veya resmi ödeme emri süreci güçlü bir uyarı işaretidir.'
+              : 'Açık bir mahkeme yazısı belirtilmedi.',
           ],
           today: [
             ...sharedToday,
-            'Prüfen, ob das Schreiben vom Gericht, Inkasso oder Gläubiger kommt.',
-            'Bei Gerichtspost Zustelldatum notieren und sofort Beratung suchen.',
+            'Yazının mahkemeden, tahsilat şirketinden veya alacaklıdan gelip gelmediğini kontrol edin.',
+            'Mahkeme postası varsa tebliğ tarihini not edin ve hemen danışmanlık alın.',
           ],
           tomorrow: [
             ...sharedTomorrow,
-            'Schuldnerberatung oder Verbraucherzentrale kontaktieren.',
-            'Forderungsaufstellung, Vollmacht und Nachweise schriftlich anfordern.',
+            'Borç danışmanlığı veya tüketici danışma merkeziyle iletişime geçin.',
+            'Alacak dökümünü, yetki belgesini ve kanıtları yazılı olarak isteyin.',
           ],
-          help: [...commonHelp(city), 'Verbraucherzentrale', 'Mahngericht oder Amtsgericht'],
+          help: [...commonHelp(city), 'Tüketici danışma merkezi', 'Ödeme emri mahkemesi veya sulh mahkemesi'],
           avoid: [
             ...commonAvoid,
-            'Gerichtliche Mahnbescheide nicht wie normale Inkassobriefe behandeln.',
-            'Keine unklare Forderung vorschnell anerkennen.',
+            'Mahkeme ödeme emirlerini normal tahsilat mektupları gibi görmeyin.',
+            'Belirsiz bir borcu aceleyle kabul etmeyin.',
           ],
         };
       case 'family':

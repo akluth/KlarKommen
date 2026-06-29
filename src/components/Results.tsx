@@ -39,7 +39,7 @@ export default function Results({
   const actionPlan = buildActionPlan(category.id, answers, language);
   const urgency = buildUrgency(category.id, answers, language);
   const helpSearchLinks = buildHelpSearchLinks(category.id, answers, language);
-  const phoneScript = buildPhoneScript(category, answers);
+  const phoneScript = buildPhoneScript(category, answers, language);
   const contactChecklist = buildContactChecklist(language);
   const [packageCopied, setPackageCopied] = useState(false);
 

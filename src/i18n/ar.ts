@@ -961,30 +961,30 @@ export const ar = {
       case 'debtCourt':
         return {
           situation: [
-            `Art des Schreibens: ${answers.debtLetterType || 'nicht angegeben'}.`,
-            `Offener Betrag: ${amount}.`,
-            `Zur Frist: ${deadline}.`,
+            `نوع الخطاب: ${answers.debtLetterType || 'غير مذكور'}.`,
+            `المبلغ المفتوح: ${amount}.`,
+            `بخصوص المهلة: ${deadline}.`,
             has(answers, 'debtLetterType', 'mahnbescheid') ||
             has(answers, 'debtLetterType', 'vollstreckungsbescheid') ||
             has(answers, 'courtYellowEnvelope', 'ja')
-              ? 'Gerichtspost oder ein gerichtliches Mahnverfahren ist ein starkes Warnsignal.'
-              : 'Es wurde keine eindeutige Gerichtspost angegeben.',
+              ? 'البريد من المحكمة أو إجراء أمر الدفع القضائي إشارة تحذير قوية.'
+              : 'لم يتم ذكر بريد واضح من المحكمة.',
           ],
           today: [
             ...sharedToday,
-            'Prüfen, ob das Schreiben vom Gericht, Inkasso oder Gläubiger kommt.',
-            'Bei Gerichtspost Zustelldatum notieren und sofort Beratung suchen.',
+            'تحقق هل الخطاب من المحكمة أو شركة تحصيل أو من الدائن.',
+            'إذا كان البريد من المحكمة، دوّن تاريخ التبليغ واطلب استشارة فورا.',
           ],
           tomorrow: [
             ...sharedTomorrow,
-            'Schuldnerberatung oder Verbraucherzentrale kontaktieren.',
-            'Forderungsaufstellung, Vollmacht und Nachweise schriftlich anfordern.',
+            'تواصل مع استشارة الديون أو مركز حماية المستهلك.',
+            'اطلب كشف المطالبة، والتوكيل، والأدلة كتابة.',
           ],
-          help: [...commonHelp(city), 'Verbraucherzentrale', 'Mahngericht oder Amtsgericht'],
+          help: [...commonHelp(city), 'مركز حماية المستهلك', 'محكمة أمر الدفع أو المحكمة المحلية'],
           avoid: [
             ...commonAvoid,
-            'Gerichtliche Mahnbescheide nicht wie normale Inkassobriefe behandeln.',
-            'Keine unklare Forderung vorschnell anerkennen.',
+            'لا تتعامل مع أوامر الدفع القضائية كأنها رسائل تحصيل عادية.',
+            'لا تعترف بسرعة بمطالبة غير واضحة.',
           ],
         };
       case 'family':
