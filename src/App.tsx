@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import CategorySelect from './components/CategorySelect';
 import Footer from './components/Footer';
-import GuidedChatbot from './components/GuidedChatbot';
 import Header from './components/Header';
 import InfoPage from './components/InfoPage';
 import QuestionFlow from './components/QuestionFlow';
+import QuickHelpFlow from './components/QuickHelpFlow';
+import QuickHelpResults from './components/QuickHelpResults';
 import Results from './components/Results';
 import { useI18n } from './i18n';
 import { getResultExtraTexts } from './i18n/resultExtras';
@@ -12,10 +13,17 @@ import type { Answers, Category } from './types';
 import { deleteSavedCase, loadSavedCase, saveCase, type SavedCase } from './utils/savedCase';
 
 type InfoStep = 'imprint' | 'privacy' | 'help';
-type Step = 'start' | 'questions' | 'results' | InfoStep;
+type Step = 'start' | 'quickHelp' | 'quickResults' | 'questions' | 'results' | InfoStep;
+
+const scrollToTop = () => {
+  const prefersReducedMotion =
+    typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+};
 
 export default function App() {
   const { language, t } = useI18n();
+  const locale = { ar: 'ar', de: 'de-DE', tr: 'tr-TR', uk: 'uk-UA' }[language];
   const extraTexts = getResultExtraTexts(language);
   const [step, setStep] = useState<Step>('start');
   const [category, setCategory] = useState<Category | null>(null);
@@ -35,29 +43,31 @@ export default function App() {
     setCategory(null);
     setAnswers({});
     setCheckedItems({});
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollToTop();
   };
 
   const selectCategory = (nextCategory: Category) => {
     setCategory(nextCategory);
+    setAnswers({});
     setCheckedItems({});
-    setStep('questions');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setStep('quickHelp');
+    scrollToTop();
+  };
+
+  const completeQuickHelp = (nextAnswers: Answers) => {
+    setAnswers(nextAnswers);
+    setCheckedItems({});
+    setStep('quickResults');
+    scrollToTop();
   };
 
   const completeQuestions = (nextAnswers: Answers) => {
-    setAnswers(nextAnswers);
+    const completedAnswers = { ...nextAnswers };
+    if (completedAnswers.writtenDeadline) delete completedAnswers.quickDeadlineWindow;
+    setAnswers(completedAnswers);
     setCheckedItems({});
     setStep('results');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const completeGuidedChat = (nextCategory: Category, nextAnswers: Answers) => {
-    setCategory(nextCategory);
-    setAnswers(nextAnswers);
-    setCheckedItems({});
-    setStep('results');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollToTop();
   };
 
   const saveCurrentCase = () => {
@@ -78,7 +88,7 @@ export default function App() {
     setAnswers(savedCase.answers);
     setCheckedItems(savedCase.checkedItems);
     setStep('results');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollToTop();
   };
 
   const removeSavedCase = () => {
@@ -127,7 +137,7 @@ export default function App() {
                     {t.categories.find((item) => item.id === savedCase.categoryId)?.title ??
                       extraTexts.savedCaseFallback}{' '}
                     - {extraTexts.savedCaseSavedAt}{' '}
-                    {new Date(savedCase.savedAt).toLocaleDateString('de-DE')}
+                    {new Date(savedCase.savedAt).toLocaleDateString(locale)}
                   </p>
                 </div>
                 <div className="saved-case-actions">
@@ -140,13 +150,44 @@ export default function App() {
                 </div>
               </section>
             )}
-            <GuidedChatbot categories={t.categories} onComplete={completeGuidedChat} />
             <CategorySelect categories={t.categories} onSelect={selectCategory} />
           </>
         )}
 
+        {step === 'quickHelp' && localizedCategory && (
+          <QuickHelpFlow
+            category={localizedCategory}
+            initialAnswers={answers}
+            onBack={reset}
+            onComplete={completeQuickHelp}
+          />
+        )}
+
+        {step === 'quickResults' && localizedCategory && (
+          <QuickHelpResults
+            answers={answers}
+            category={localizedCategory}
+            onContinue={() => {
+              setStep('questions');
+              scrollToTop();
+            }}
+            onEdit={() => {
+              setStep('quickHelp');
+              scrollToTop();
+            }}
+          />
+        )}
+
         {step === 'questions' && localizedCategory && (
-          <QuestionFlow category={localizedCategory} onComplete={completeQuestions} onBack={reset} />
+          <QuestionFlow
+            category={localizedCategory}
+            initialAnswers={answers}
+            onComplete={completeQuestions}
+            onBack={() => {
+              setStep('quickResults');
+              scrollToTop();
+            }}
+          />
         )}
 
         {step === 'results' && localizedCategory && (
@@ -166,7 +207,12 @@ export default function App() {
           <InfoPage page={step} onBack={reset} />
         )}
       </main>
-      <Footer onNavigate={(page) => setStep(page)} />
+      <Footer
+        onNavigate={(page) => {
+          setStep(page);
+          scrollToTop();
+        }}
+      />
     </div>
   );
 }

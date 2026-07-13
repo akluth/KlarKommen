@@ -43,7 +43,7 @@ export function buildRecommendations(categoryId: CategoryId, answers: Answers): 
 
   const sharedTomorrow = [
     'Bei einer passenden Beratungsstelle einen Termin anfragen.',
-    'Prüfen, ob Bürgergeld, Sozialhilfe, Wohngeld oder ein Darlehen infrage kommt.',
+    'Prüfen, ob Grundsicherungsgeld, Sozialhilfe, Wohngeld oder ein Darlehen infrage kommt.',
     'Eine realistische Zahlungs- oder Fristaufschubbitte vorbereiten.',
   ];
 

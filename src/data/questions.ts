@@ -43,7 +43,7 @@ export const commonQuestions: Question[] = [
   },
   {
     id: 'benefits',
-    text: 'Beziehst du Bürgergeld oder Sozialhilfe?',
+    text: 'Beziehst du Grundsicherungsgeld oder Sozialhilfe?',
     type: 'select',
     options: [
       { value: 'ja', label: 'Ja' },
@@ -253,7 +253,7 @@ export const categoryQuestions: Record<CategoryId, Question[]> = {
       category: 'health',
       text: 'Welche Einkünfte hast du aktuell?',
       type: 'textarea',
-      placeholder: 'z. B. Lohn, Bürgergeld, selbstständig, kein Einkommen',
+      placeholder: 'z. B. Lohn, Grundsicherungsgeld, selbstständig, kein Einkommen',
     },
   ],
   garnishment: [
@@ -293,11 +293,11 @@ export const categoryQuestions: Record<CategoryId, Question[]> = {
     {
       id: 'moneyOnAccount',
       category: 'garnishment',
-      text: 'Geht Gehalt, Bürgergeld oder Rente auf dieses Konto?',
+      text: 'Geht Gehalt, Grundsicherungsgeld oder Rente auf dieses Konto?',
       type: 'select',
       options: [
         { value: 'Gehalt', label: 'Gehalt' },
-        { value: 'Bürgergeld', label: 'Bürgergeld' },
+        { value: 'Grundsicherungsgeld', label: 'Grundsicherungsgeld' },
         { value: 'Rente', label: 'Rente' },
         { value: 'Mehreres', label: 'Mehreres' },
         { value: 'nein', label: 'Nein' },

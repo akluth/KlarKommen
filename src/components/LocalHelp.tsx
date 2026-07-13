@@ -38,8 +38,8 @@ export default function LocalHelp({
         </div>
         <div className="search-link-grid">
           {links.map((link) => (
-            <a key={link.query} className="search-link" href={link.url} target="_blank" rel="noreferrer">
-              {link.label}
+            <a key={link.query} className="search-link" href={link.url} target="_blank" rel="noopener noreferrer">
+              {link.label} <span className="visually-hidden">({texts.newTab})</span>
             </a>
           ))}
         </div>

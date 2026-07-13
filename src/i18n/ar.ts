@@ -1,4 +1,5 @@
 import type { Answers, Category, CategoryId, Question, ResultContent } from '../types';
+import { formatDateForLanguage, formatEuroForLanguage } from '../utils/formatters';
 
 const has = (answers: Answers, key: string, value: string) => answers[key] === value;
 const filled = (answers: Answers, key: string) => Boolean(answers[key]?.trim());
@@ -7,24 +8,22 @@ const line = (value?: string, fallback = '[يرجى الإضافة]') => value?.
 
 const formatMoney = (value?: string) => {
   if (!value) return 'لم يتم ذكر مبلغ';
-  const number = Number(value);
-  if (Number.isNaN(number)) return `${value} يورو`;
-  return `${number.toLocaleString('ar-DE', { maximumFractionDigits: 2 })} يورو`;
+  return formatEuroForLanguage(value, 'ar');
 };
 
 const amountText = (answers: Answers) => {
   const value = answers.amount?.trim();
-  return value ? `${value} يورو` : '[أضف المبلغ]';
+  return value ? formatEuroForLanguage(value, 'ar') : '[أضف المبلغ]';
 };
 
 const deadlineText = (answers: Answers) => {
-  if (filled(answers, 'deadlineDate')) return `المهلة حتى ${answers.deadlineDate}`;
+  if (filled(answers, 'deadlineDate')) return `المهلة حتى ${formatDateForLanguage(answers.deadlineDate!, 'ar')}`;
   if (has(answers, 'writtenDeadline', 'ja')) return 'توجد مهلة مكتوبة، يرجى التحقق من التاريخ';
   return 'لم يتم ذكر مهلة مكتوبة واضحة';
 };
 
 const templateDeadlineText = (answers: Answers) => {
-  if (answers.deadlineDate) return answers.deadlineDate;
+  if (answers.deadlineDate) return formatDateForLanguage(answers.deadlineDate, 'ar');
   if (answers.writtenDeadline === 'ja') return '[أضف تاريخ المهلة]';
   return '[أضف التاريخ إن وجد]';
 };
@@ -63,7 +62,7 @@ const sharedToday = [
 
 const sharedTomorrow = [
   'اطلب موعدا من جهة استشارة مناسبة.',
-  'تحقق هل يمكن الحصول على Bürgergeld / دعم المعيشة الأساسي، مساعدة اجتماعية، بدل سكن أو قرض مساعدة.',
+  'تحقق هل يمكن الحصول على Grundsicherungsgeld أو مساعدة اجتماعية أو بدل سكن أو قرض مساعدة.',
   'حضّر طلبا واقعيا للتقسيط أو تمديد المهلة.',
 ];
 
@@ -88,7 +87,7 @@ const categoryOpening: Record<CategoryId, string> = {
   garnishment: 'أتواصل بسبب حجز على الحساب أو بسبب الحماية عبر P-Konto (حساب محمي من الحجز).',
   schufa: 'أتواصل بسبب ضائقة مالية ومشكلة محتملة مع Schufa / سجل الائتمان.',
   debtCourt:
-    'ich melde mich wegen einer Inkasso-Forderung beziehungsweise eines gerichtlichen Mahnverfahrens.',
+    'أتواصل بسبب مطالبة من شركة تحصيل ديون أو إجراء قضائي لأمر بالدفع.',
   family: 'أتواصل بسبب تغيير عائلي وأريد ترتيب الخطوات التالية بهدوء.',
 };
 
@@ -99,7 +98,7 @@ const recipientByCategory: Record<CategoryId, string> = {
   health: 'شركة التأمين الصحي',
   garnishment: 'البنك',
   schufa: 'استشارة الديون',
-  debtCourt: 'Inkassounternehmen / Gläubiger / Mahngericht',
+  debtCourt: 'شركة تحصيل الديون / الدائن / محكمة أمر الدفع',
   family: 'استشارة اجتماعية / استشارة عائلية',
 };
 
@@ -149,7 +148,7 @@ export const ar = {
     imprint: 'بيانات الموقع',
     privacy: 'حماية البيانات',
     realHelp: 'متى تطلب مساعدة حقيقية؟',
-    localDataNotice: 'كل البيانات تبقى في هذا المتصفح. لا يوجد Backend ولا تسجيل دخول.',
+    localDataNotice: 'تبقى إدخالاتك في هذا المتصفح. لا تحصل الجهة الخارجية على طلب البحث الظاهر إلا عند فتح رابط خارجي.',
     backToStart: 'العودة إلى البداية',
     legalEyebrow: 'معلومات قانونية',
     imprintDetails: 'بيانات وفقا للمادة 5 TMG',
@@ -182,9 +181,9 @@ export const ar = {
     },
     {
       id: 'jobcenter',
-      title: 'Bürgergeld / Jobcenter',
+      title: 'Grundsicherung / Jobcenter',
       shortTitle: 'Jobcenter',
-      description: 'فهم الطلب، التجديد، العقوبة، طلب الاسترداد أو القرار الرسمي.',
+      description: 'فهم Grundsicherungsgeld (المعروف سابقا باسم Bürgergeld) أو الطلب أو التجديد أو العقوبة أو طلب الاسترداد أو القرار الرسمي.',
       primaryContact: 'Jobcenter أو مكتب الشؤون الاجتماعية',
     },
     {
@@ -213,8 +212,8 @@ export const ar = {
       title: 'Inkasso / Mahnbescheid',
       shortTitle: 'Inkasso',
       description:
-        'Inkassoschreiben, Forderung, gerichtlichen Mahnbescheid oder Vollstreckungsbescheid sortieren.',
-      primaryContact: 'Inkassounternehmen, Gläubiger oder Mahngericht',
+        'ترتيب خطاب التحصيل أو المطالبة أو Mahnbescheid أو Vollstreckungsbescheid الصادر من المحكمة.',
+      primaryContact: 'شركة تحصيل الديون أو الدائن أو محكمة أمر الدفع',
     },
     {
       id: 'family',
@@ -267,7 +266,7 @@ export const ar = {
     },
     {
       id: 'benefits',
-      text: 'هل تحصل على Bürgergeld / دعم المعيشة الأساسي أو مساعدة اجتماعية؟',
+      text: 'هل تحصل على Grundsicherungsgeld أو مساعدة اجتماعية؟',
       type: 'select',
       options: [
         { value: 'ja', label: 'نعم' },
@@ -476,7 +475,7 @@ export const ar = {
         category: 'health',
         text: 'ما الدخل الذي لديك حاليا؟',
         type: 'textarea',
-        placeholder: 'مثلا راتب، Bürgergeld، عمل حر، لا يوجد دخل',
+        placeholder: 'مثلا راتب، Grundsicherungsgeld، عمل حر، لا يوجد دخل',
       },
     ],
     garnishment: [
@@ -516,11 +515,11 @@ export const ar = {
       {
         id: 'moneyOnAccount',
         category: 'garnishment',
-        text: 'هل يدخل الراتب، Bürgergeld أو التقاعد إلى هذا الحساب؟',
+        text: 'هل يدخل الراتب أو Grundsicherungsgeld أو التقاعد إلى هذا الحساب؟',
         type: 'select',
         options: [
           { value: 'Gehalt', label: 'راتب' },
-          { value: 'Bürgergeld', label: 'Bürgergeld' },
+          { value: 'Grundsicherungsgeld', label: 'Grundsicherungsgeld' },
           { value: 'Rente', label: 'تقاعد' },
           { value: 'Mehreres', label: 'أكثر من شيء' },
           { value: 'nein', label: 'لا' },
@@ -585,49 +584,60 @@ export const ar = {
       {
         id: 'debtLetterType',
         category: 'debtCourt',
-        text: 'Was liegt dir vor?',
+        text: 'ما نوع الرسالة التي لديك؟',
         type: 'select',
         options: [
-          { value: 'inkasso', label: 'Inkassoschreiben' },
-          { value: 'mahnbrief', label: 'Mahnung vom Gläubiger' },
-          { value: 'mahnbescheid', label: 'Gerichtlicher Mahnbescheid' },
-          { value: 'vollstreckungsbescheid', label: 'Vollstreckungsbescheid' },
-          { value: 'unklar', label: 'Unklar' },
+          { value: 'inkasso', label: 'رسالة من شركة Inkasso' },
+          { value: 'mahnbrief', label: 'إنذار من الدائن' },
+          { value: 'mahnbescheid', label: 'Mahnbescheid من المحكمة' },
+          { value: 'vollstreckungsbescheid', label: 'Vollstreckungsbescheid من المحكمة' },
+          { value: 'unklar', label: 'غير واضح' },
         ],
       },
       {
         id: 'claimKnown',
         category: 'debtCourt',
-        text: 'Kennst du die Forderung?',
+        text: 'هل تعرف هذه المطالبة؟',
         type: 'select',
         options: [
-          { value: 'ja', label: 'Ja' },
-          { value: 'teilweise', label: 'Teilweise' },
-          { value: 'nein', label: 'Nein' },
-          { value: 'unklar', label: 'Unklar' },
+          { value: 'ja', label: 'نعم' },
+          { value: 'teilweise', label: 'جزئيا' },
+          { value: 'nein', label: 'لا' },
+          { value: 'unklar', label: 'غير واضح' },
         ],
       },
       {
         id: 'claimDisputed',
         category: 'debtCourt',
-        text: 'Hältst du die Forderung für falsch oder zu hoch?',
+        text: 'هل تعتقد أن المطالبة خاطئة أو مرتفعة جدا؟',
         type: 'select',
         options: [
-          { value: 'ja', label: 'Ja' },
-          { value: 'nein', label: 'Nein' },
-          { value: 'teilweise', label: 'Teilweise' },
-          { value: 'unklar', label: 'Unklar' },
+          { value: 'ja', label: 'نعم' },
+          { value: 'nein', label: 'لا' },
+          { value: 'teilweise', label: 'جزئيا' },
+          { value: 'unklar', label: 'غير واضح' },
         ],
       },
       {
         id: 'courtYellowEnvelope',
         category: 'debtCourt',
-        text: 'Kam ein gelber Umschlag vom Gericht?',
+        text: 'هل وصل ظرف أصفر من المحكمة؟',
         type: 'select',
         options: [
-          { value: 'ja', label: 'Ja' },
-          { value: 'nein', label: 'Nein' },
-          { value: 'unklar', label: 'Unklar' },
+          { value: 'ja', label: 'نعم' },
+          { value: 'nein', label: 'لا' },
+          { value: 'unklar', label: 'غير واضح' },
+        ],
+      },
+      {
+        id: 'debtAlreadyPaid',
+        category: 'debtCourt',
+        text: 'هل دفعت شيئا حتى الآن؟',
+        type: 'select',
+        options: [
+          { value: 'ja', label: 'نعم' },
+          { value: 'nein', label: 'لا' },
+          { value: 'teilweise', label: 'جزئيا' },
         ],
       },
     ],
@@ -722,7 +732,7 @@ export const ar = {
       },
       {
         title: 'المسؤول',
-        text: 'Alexander Kluth, Kaistraße 2, 40221 Düsseldorf, Deutschland. البريد الإلكتروني: alex@denkwerk-kluth.de',
+        text: 'Alexander Kluth، Kaistraße 2، 40221 Düsseldorf، ألمانيا. البريد الإلكتروني: alex@denkwerk-kluth.de',
       },
       {
         title: 'ما البيانات التي تتم معالجتها؟',
@@ -730,7 +740,11 @@ export const ar = {
       },
       {
         title: 'لا تخزين على الخادم',
-        text: 'لا تُرسل بيانات الوضع المدخلة إلى خادم KlarKommen ولا يتم تخزينها على الخادم. عند إعادة تحميل الصفحة أو إعادة ضبط التطبيق قد تضيع الإدخالات.',
+        text: 'لا تُرسل بيانات الوضع إلى خادم KlarKommen. عند اختيار «حفظ الحالة» تبقى الحالة في التخزين المحلي لهذا الجهاز حتى تحذفها. قد تضيع الإدخالات غير المحفوظة عند إعادة التحميل.',
+      },
+      {
+        title: 'الروابط الخارجية وبحث Google والهاتف',
+        text: 'لا تحصل الجهات الخارجية على بيانات إلا عندما تفتح رابطا أو تجري اتصالا. تحتوي روابط Google فقط على نوع المساعدة الظاهر والمدينة أو الرمز البريدي، ولا تحتوي على المبلغ أو النص الحر أو تفاصيل أخرى عن الحالة.',
       },
       {
         title: 'الاستضافة والوصول التقني',

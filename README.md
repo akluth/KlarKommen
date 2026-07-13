@@ -9,11 +9,20 @@ Die App ist bewusst ruhig, klar und niedrigschwellig gestaltet. Sie ersetzt kein
 - Auswahl typischer Notlagen:
   - Mietschulden / Kündigung
   - Stromsperre / Energieschulden
-  - Bürgergeld / Jobcenter
+  - Grundsicherung / Jobcenter (früher Bürgergeld)
   - Krankenkasse / Beitragsschulden
   - Pfändung / P-Konto
   - Schufa / Kredit abgelehnt
-- Schrittweiser Fragenbaum mit verständlichen Fragen
+  - Inkasso / Mahnbescheid
+  - Familie / Lebensumbruch
+- Soforthilfe in etwa 60 Sekunden:
+  - Ort oder PLZ kann angegeben oder übersprungen werden
+  - zwei kurze Dringlichkeitseinschätzungen
+  - konservative Ampelbewertung; unklare Angaben werden nie als „grün“ gewertet
+  - drei konkrete Sofortmaßnahmen
+  - drei verifizierte direkte Anlaufstellen mit Telefon oder Website und Quellenangabe
+  - lokale Google-Suchlinks nur als klar gekennzeichneter Fallback
+- Optionale ausführliche Beratung mit vorbefülltem Fragenbaum
 - Ergebnis-Seite mit:
   - kurzer Einordnung der Lage
   - To-dos für heute
@@ -40,7 +49,7 @@ Die App ist bewusst ruhig, klar und niedrigschwellig gestaltet. Sie ersetzt kein
 
 ## Datenschutz und Speicherung
 
-KlarKommen läuft vollständig im Browser. Es gibt kein Backend, keine Nutzerkonten und keine externe API. Personenbezogene Angaben werden nicht an einen Server gesendet.
+KlarKommen verarbeitet Situationsangaben vollständig im Browser. Es gibt kein Backend und keine Nutzerkonten. Nur wenn eine Person selbst einen externen Link öffnet oder anruft, erhält der jeweilige Anbieter die dort sichtbaren Daten. Google-Suchlinks enthalten ausschließlich Hilfsart und den eingegebenen Ort oder die PLZ – niemals Betrag, Freitext oder andere Falldetails.
 
 ## Rechtlicher Hinweis
 
@@ -71,6 +80,12 @@ Produktionsbuild erstellen:
 npm run build
 ```
 
+Automatisierte Tests ausführen:
+
+```bash
+npm test
+```
+
 ## Tech-Stack
 
 - React
@@ -86,14 +101,17 @@ src/
   main.tsx
   App.tsx
   data/
-    categories.ts
-    questions.ts
-    recommendations.ts
-    templates.ts
+    directHelp.ts
+    localHelp.ts
+    preparation.ts
+    quickHelp.ts
   components/
     Header.tsx
     Footer.tsx
     CategorySelect.tsx
+    QuickHelpFlow.tsx
+    QuickHelpResults.tsx
+    DirectHelpContacts.tsx
     QuestionFlow.tsx
     Results.tsx
     Checklist.tsx
@@ -107,4 +125,3 @@ src/
 ## Ziel
 
 Ruhig sortieren. Heute anfangen.
-

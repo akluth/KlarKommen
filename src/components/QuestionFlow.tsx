@@ -1,25 +1,34 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useI18n } from '../i18n';
 import type { Answers, Category, Question } from '../types';
 
 interface QuestionFlowProps {
   category: Category;
+  initialAnswers?: Answers;
   onComplete: (answers: Answers) => void;
   onBack: () => void;
 }
 
-export default function QuestionFlow({ category, onComplete, onBack }: QuestionFlowProps) {
+export default function QuestionFlow({ category, initialAnswers = {}, onComplete, onBack }: QuestionFlowProps) {
   const { t } = useI18n();
   const questions = useMemo(
-    () => [...t.commonQuestions, ...t.categoryQuestions[category.id]],
-    [category.id, t],
+    () =>
+      [...t.commonQuestions, ...t.categoryQuestions[category.id]].filter(
+        (question) => question.id !== 'city' || !Object.prototype.hasOwnProperty.call(initialAnswers, 'city'),
+      ),
+    [category.id, initialAnswers, t],
   );
   const [index, setIndex] = useState(0);
-  const [answers, setAnswers] = useState<Answers>({});
+  const [answers, setAnswers] = useState<Answers>(initialAnswers);
+  const headingRef = useRef<HTMLHeadingElement>(null);
   const current = questions[index];
   const progress = Math.round(((index + 1) / questions.length) * 100);
   const value = answers[current.id] ?? '';
   const canContinue = !current.required || value.trim().length > 0;
+
+  useEffect(() => {
+    headingRef.current?.focus();
+  }, [index]);
 
   const updateAnswer = (question: Question, nextValue: string) => {
     setAnswers((previous) => ({ ...previous, [question.id]: nextValue }));
@@ -49,24 +58,43 @@ export default function QuestionFlow({ category, onComplete, onBack }: QuestionF
           <p className="eyebrow">
             {t.ui.questionStep} · {category.title}
           </p>
-          <h2 id="question-heading">{t.ui.questionHeading}</h2>
+          <h2 id="question-heading" ref={headingRef} tabIndex={-1}>{t.ui.questionHeading}</h2>
         </div>
         <span className="progress-label">{t.ui.progressLabel(index + 1, questions.length)}</span>
       </div>
 
-      <div className="progress-track" aria-label={t.ui.progressAria(progress)}>
+      <div
+        className="progress-track"
+        aria-label={t.ui.progressAria(progress)}
+        aria-valuemax={100}
+        aria-valuemin={0}
+        aria-valuenow={progress}
+        role="progressbar"
+      >
         <span style={{ width: `${progress}%` }} />
       </div>
 
-      <article className="question-card">
-        <label htmlFor={current.id}>{current.text}</label>
-        {current.help && <p className="field-help">{current.help}</p>}
-        <QuestionInput
-          question={current}
-          value={value}
-          onChange={(nextValue) => updateAnswer(current, nextValue)}
-        />
-      </article>
+      {current.type === 'select' ? (
+        <fieldset className="question-card">
+          <legend>{current.text}</legend>
+          {current.help && <p className="field-help" id={`${current.id}-help`}>{current.help}</p>}
+          <QuestionInput
+            question={current}
+            value={value}
+            onChange={(nextValue) => updateAnswer(current, nextValue)}
+          />
+        </fieldset>
+      ) : (
+        <article className="question-card">
+          <label htmlFor={current.id}>{current.text}</label>
+          {current.help && <p className="field-help" id={`${current.id}-help`}>{current.help}</p>}
+          <QuestionInput
+            question={current}
+            value={value}
+            onChange={(nextValue) => updateAnswer(current, nextValue)}
+          />
+        </article>
+      )}
 
       <div className="flow-actions">
         <button className="secondary-button" type="button" onClick={previous}>
@@ -91,14 +119,19 @@ function QuestionInput({ question, value, onChange }: QuestionInputProps) {
     return (
       <div className="option-list">
         {question.options?.map((option) => (
-          <button
+          <label
             className={value === option.value ? 'option-button active' : 'option-button'}
             key={option.value}
-            type="button"
-            onClick={() => onChange(option.value)}
           >
-            {option.label}
-          </button>
+            <input
+              checked={value === option.value}
+              name={question.id}
+              type="radio"
+              value={option.value}
+              onChange={() => onChange(option.value)}
+            />
+            <span>{option.label}</span>
+          </label>
         ))}
       </div>
     );
@@ -107,7 +140,9 @@ function QuestionInput({ question, value, onChange }: QuestionInputProps) {
   if (question.type === 'textarea') {
     return (
       <textarea
+        aria-describedby={question.help ? `${question.id}-help` : undefined}
         id={question.id}
+        required={question.required}
         value={value}
         placeholder={question.placeholder}
         rows={5}
@@ -118,12 +153,14 @@ function QuestionInput({ question, value, onChange }: QuestionInputProps) {
 
   return (
     <input
+      aria-describedby={question.help ? `${question.id}-help` : undefined}
       id={question.id}
       min={question.type === 'number' ? '0' : undefined}
       type={question.type}
       inputMode={question.type === 'number' ? 'decimal' : undefined}
       value={value}
       placeholder={question.placeholder}
+      required={question.required}
       onChange={(event) => onChange(event.target.value)}
     />
   );

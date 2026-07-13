@@ -21,7 +21,13 @@ export default function InfoPage({ page, onBack }: InfoPageProps) {
 }
 
 function Imprint() {
-  const { t } = useI18n();
+  const { language, t } = useI18n();
+  const labels = {
+    ar: { country: 'ألمانيا', email: 'البريد الإلكتروني', mobile: 'الهاتف المحمول' },
+    de: { country: 'Deutschland', email: 'E-Mail', mobile: 'Mobil' },
+    tr: { country: 'Almanya', email: 'E-posta', mobile: 'Cep telefonu' },
+    uk: { country: 'Німеччина', email: 'Електронна пошта', mobile: 'Мобільний телефон' },
+  }[language];
 
   return (
     <article className="panel info-panel">
@@ -36,15 +42,15 @@ function Imprint() {
           <br />
           40221 Düsseldorf
           <br />
-          Deutschland
+          {labels.country}
         </p>
       </div>
       <div className="legal-block">
         <h2>{t.ui.contact}</h2>
         <p>
-          Mobil: <a href="tel:+491782870806">01 78 / 287 08 06</a>
+          {labels.mobile}: <a href="tel:+491782870806">01 78 / 287 08 06</a>
           <br />
-          E-Mail: <a href="mailto:alex@denkwerk-kluth.de">alex@denkwerk-kluth.de</a>
+          {labels.email}: <a href="mailto:alex@denkwerk-kluth.de">alex@denkwerk-kluth.de</a>
         </p>
       </div>
       <div className="legal-block">

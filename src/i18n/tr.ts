@@ -1,4 +1,5 @@
 import type { Answers, Category, CategoryId, Question, ResultContent } from '../types';
+import { formatDateForLanguage, formatEuroForLanguage } from '../utils/formatters';
 
 const has = (answers: Answers, key: string, value: string) => answers[key] === value;
 const filled = (answers: Answers, key: string) => Boolean(answers[key]?.trim());
@@ -7,24 +8,22 @@ const line = (value?: string, fallback = '[lütfen tamamlayın]') => value?.trim
 
 const formatMoney = (value?: string) => {
   if (!value) return 'tutar belirtilmedi';
-  const number = Number(value);
-  if (Number.isNaN(number)) return `${value} Euro`;
-  return `${number.toLocaleString('tr-TR', { maximumFractionDigits: 2 })} Euro`;
+  return formatEuroForLanguage(value, 'tr');
 };
 
 const amountText = (answers: Answers) => {
   const value = answers.amount?.trim();
-  return value ? `${value} Euro` : '[tutarı ekleyin]';
+  return value ? formatEuroForLanguage(value, 'tr') : '[tutarı ekleyin]';
 };
 
 const deadlineText = (answers: Answers) => {
-  if (filled(answers, 'deadlineDate')) return `son tarih: ${answers.deadlineDate}`;
+  if (filled(answers, 'deadlineDate')) return `son tarih: ${formatDateForLanguage(answers.deadlineDate!, 'tr')}`;
   if (has(answers, 'writtenDeadline', 'ja')) return 'yazılı süre var, tarihi kontrol edin';
   return 'net bir yazılı süre belirtilmedi';
 };
 
 const templateDeadlineText = (answers: Answers) => {
-  if (answers.deadlineDate) return answers.deadlineDate;
+  if (answers.deadlineDate) return formatDateForLanguage(answers.deadlineDate, 'tr');
   if (answers.writtenDeadline === 'ja') return '[son tarih tarihini ekleyin]';
   return '[varsa tarihi ekleyin]';
 };
@@ -63,7 +62,7 @@ const sharedToday = [
 
 const sharedTomorrow = [
   'Uygun bir danışma yerinden randevu isteyin.',
-  'Bürgergeld / temel geçim desteği, sosyal yardım, kira yardımı veya borç desteği mümkün mü kontrol edin.',
+  'Grundsicherungsgeld, sosyal yardım, kira yardımı veya borç desteği mümkün mü kontrol edin.',
   'Gerçekçi bir ödeme planı veya süre uzatma talebi hazırlayın.',
 ];
 
@@ -94,7 +93,7 @@ const categoryOpening: Record<CategoryId, string> = {
   schufa:
     'maddi bir sıkışma ve olası Schufa / kredi geçmişi sorunu nedeniyle yazıyorum.',
   debtCourt:
-    'ich melde mich wegen einer Inkasso-Forderung beziehungsweise eines gerichtlichen Mahnverfahrens.',
+    'bir Inkasso alacağı veya mahkeme ödeme emri süreci nedeniyle yazıyorum.',
   family:
     'aileyle ilgili bir değişiklik nedeniyle yazıyorum ve sonraki adımları sakin şekilde düzenlemek istiyorum.',
 };
@@ -106,7 +105,7 @@ const recipientByCategory: Record<CategoryId, string> = {
   health: 'Sağlık sigortası',
   garnishment: 'Banka',
   schufa: 'Borç danışmanlığı',
-  debtCourt: 'Inkassounternehmen / Gläubiger / Mahngericht',
+  debtCourt: 'Inkasso şirketi / alacaklı / ödeme emri mahkemesi',
   family: 'Sosyal danışmanlık / aile danışmanlığı',
 };
 
@@ -156,7 +155,7 @@ export const tr = {
     imprint: 'Künye',
     privacy: 'Gizlilik',
     realHelp: 'Ne zaman gerçek destek?',
-    localDataNotice: 'Tüm bilgiler bu tarayıcıda kalır. Backend ve giriş yoktur.',
+    localDataNotice: 'Girişlerin bu tarayıcıda kalır. Yalnızca harici bir bağlantıyı açtığında sağlayıcı gösterilen sorguyu alır.',
     backToStart: 'Başlangıca dön',
     legalEyebrow: 'Yasal bilgiler',
     imprintDetails: 'TMG § 5 uyarınca bilgiler',
@@ -189,9 +188,9 @@ export const tr = {
     },
     {
       id: 'jobcenter',
-      title: 'Bürgergeld / Jobcenter',
+      title: 'Grundsicherung / Jobcenter',
       shortTitle: 'Jobcenter',
-      description: 'Başvuru, devam onayı, yaptırım, geri ödeme veya kararı anlamlandır.',
+      description: 'Grundsicherungsgeld (eski Bürgergeld), başvuru, devam onayı, yaptırım, geri ödeme veya kararı anlamlandır.',
       primaryContact: 'Jobcenter veya Sosyal Yardım Dairesi',
     },
     {
@@ -221,8 +220,8 @@ export const tr = {
       title: 'Inkasso / Mahnbescheid',
       shortTitle: 'Inkasso',
       description:
-        'Inkassoschreiben, Forderung, gerichtlichen Mahnbescheid oder Vollstreckungsbescheid sortieren.',
-      primaryContact: 'Inkassounternehmen, Gläubiger oder Mahngericht',
+        'Inkasso yazısını, alacağı, mahkemeden gelen Mahnbescheid veya Vollstreckungsbescheid belgesini düzenle.',
+      primaryContact: 'Inkasso şirketi, alacaklı veya ödeme emri mahkemesi',
     },
     {
       id: 'family',
@@ -275,7 +274,7 @@ export const tr = {
     },
     {
       id: 'benefits',
-      text: 'Bürgergeld / temel geçim desteği veya sosyal yardım alıyor musun?',
+      text: 'Grundsicherungsgeld veya sosyal yardım alıyor musun?',
       type: 'select',
       options: [
         { value: 'ja', label: 'Evet' },
@@ -484,7 +483,7 @@ export const tr = {
         category: 'health',
         text: 'Şu an hangi gelirlerin var?',
         type: 'textarea',
-        placeholder: 'örn. maaş, Bürgergeld, serbest çalışma, gelir yok',
+        placeholder: 'örn. maaş, Grundsicherungsgeld, serbest çalışma, gelir yok',
       },
     ],
     garnishment: [
@@ -524,11 +523,11 @@ export const tr = {
       {
         id: 'moneyOnAccount',
         category: 'garnishment',
-        text: 'Maaş, Bürgergeld veya emekli maaşı bu hesaba mı geliyor?',
+        text: 'Maaş, Grundsicherungsgeld veya emekli maaşı bu hesaba mı geliyor?',
         type: 'select',
         options: [
           { value: 'Gehalt', label: 'Maaş' },
-          { value: 'Bürgergeld', label: 'Bürgergeld' },
+          { value: 'Grundsicherungsgeld', label: 'Grundsicherungsgeld' },
           { value: 'Rente', label: 'Emekli maaşı' },
           { value: 'Mehreres', label: 'Birden fazla' },
           { value: 'nein', label: 'Hayır' },
@@ -593,49 +592,60 @@ export const tr = {
       {
         id: 'debtLetterType',
         category: 'debtCourt',
-        text: 'Was liegt dir vor?',
+        text: 'Elinde hangi yazı var?',
         type: 'select',
         options: [
-          { value: 'inkasso', label: 'Inkassoschreiben' },
-          { value: 'mahnbrief', label: 'Mahnung vom Gläubiger' },
-          { value: 'mahnbescheid', label: 'Gerichtlicher Mahnbescheid' },
-          { value: 'vollstreckungsbescheid', label: 'Vollstreckungsbescheid' },
-          { value: 'unklar', label: 'Unklar' },
+          { value: 'inkasso', label: 'Inkasso yazısı' },
+          { value: 'mahnbrief', label: 'Alacaklıdan ihtar' },
+          { value: 'mahnbescheid', label: 'Mahkemeden Mahnbescheid' },
+          { value: 'vollstreckungsbescheid', label: 'Mahkemeden Vollstreckungsbescheid' },
+          { value: 'unklar', label: 'Belirsiz' },
         ],
       },
       {
         id: 'claimKnown',
         category: 'debtCourt',
-        text: 'Kennst du die Forderung?',
+        text: 'Bu alacağı biliyor musun?',
         type: 'select',
         options: [
-          { value: 'ja', label: 'Ja' },
-          { value: 'teilweise', label: 'Teilweise' },
-          { value: 'nein', label: 'Nein' },
-          { value: 'unklar', label: 'Unklar' },
+          { value: 'ja', label: 'Evet' },
+          { value: 'teilweise', label: 'Kısmen' },
+          { value: 'nein', label: 'Hayır' },
+          { value: 'unklar', label: 'Belirsiz' },
         ],
       },
       {
         id: 'claimDisputed',
         category: 'debtCourt',
-        text: 'Hältst du die Forderung für falsch oder zu hoch?',
+        text: 'Alacağın yanlış veya fazla olduğunu düşünüyor musun?',
         type: 'select',
         options: [
-          { value: 'ja', label: 'Ja' },
-          { value: 'nein', label: 'Nein' },
-          { value: 'teilweise', label: 'Teilweise' },
-          { value: 'unklar', label: 'Unklar' },
+          { value: 'ja', label: 'Evet' },
+          { value: 'nein', label: 'Hayır' },
+          { value: 'teilweise', label: 'Kısmen' },
+          { value: 'unklar', label: 'Belirsiz' },
         ],
       },
       {
         id: 'courtYellowEnvelope',
         category: 'debtCourt',
-        text: 'Kam ein gelber Umschlag vom Gericht?',
+        text: 'Mahkemeden sarı bir zarf geldi mi?',
         type: 'select',
         options: [
-          { value: 'ja', label: 'Ja' },
-          { value: 'nein', label: 'Nein' },
-          { value: 'unklar', label: 'Unklar' },
+          { value: 'ja', label: 'Evet' },
+          { value: 'nein', label: 'Hayır' },
+          { value: 'unklar', label: 'Belirsiz' },
+        ],
+      },
+      {
+        id: 'debtAlreadyPaid',
+        category: 'debtCourt',
+        text: 'Şimdiye kadar ödeme yaptın mı?',
+        type: 'select',
+        options: [
+          { value: 'ja', label: 'Evet' },
+          { value: 'nein', label: 'Hayır' },
+          { value: 'teilweise', label: 'Kısmen' },
         ],
       },
     ],
@@ -738,7 +748,11 @@ export const tr = {
       },
       {
         title: 'Sunucuda kayıt yok',
-        text: 'Girilen durum bilgileri KlarKommen sunucusuna gönderilmez ve sunucuda saklanmaz. Sayfa yenilenirse veya uygulama sıfırlanırsa girişler kaybolabilir.',
+        text: 'Girilen durum bilgileri KlarKommen sunucusuna gönderilmez. “Durumu kaydet” seçilirse kayıt silinene kadar bu cihazın yerel hafızasında kalır. Kaydedilmeyen girişler yenilemede kaybolabilir.',
+      },
+      {
+        title: 'Harici bağlantılar, Google araması ve telefon',
+        text: 'Harici sağlayıcılar yalnızca bağlantıyı açtığında veya aradığında veri alır. Google bağlantıları sadece görünen yardım türünü ve şehir ya da posta kodunu içerir; tutar, serbest metin veya başka durum bilgisi içermez.',
       },
       {
         title: 'Hosting ve teknik erişimler',

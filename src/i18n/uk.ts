@@ -1,4 +1,5 @@
 import type { Answers, Category, CategoryId, Question, ResultContent } from '../types';
+import { formatDateForLanguage, formatEuroForLanguage } from '../utils/formatters';
 
 const has = (answers: Answers, key: string, value: string) => answers[key] === value;
 const filled = (answers: Answers, key: string) => Boolean(answers[key]?.trim());
@@ -8,24 +9,22 @@ const line = (value?: string, fallback = '[будь ласка, доповніт
 
 const formatMoney = (value?: string) => {
   if (!value) return 'сума не вказана';
-  const number = Number(value);
-  if (Number.isNaN(number)) return `${value} євро`;
-  return `${number.toLocaleString('uk-UA', { maximumFractionDigits: 2 })} євро`;
+  return formatEuroForLanguage(value, 'uk');
 };
 
 const amountText = (answers: Answers) => {
   const value = answers.amount?.trim();
-  return value ? `${value} євро` : '[додайте суму]';
+  return value ? formatEuroForLanguage(value, 'uk') : '[додайте суму]';
 };
 
 const deadlineText = (answers: Answers) => {
-  if (filled(answers, 'deadlineDate')) return `строк до ${answers.deadlineDate}`;
+  if (filled(answers, 'deadlineDate')) return `строк до ${formatDateForLanguage(answers.deadlineDate!, 'uk')}`;
   if (has(answers, 'writtenDeadline', 'ja')) return 'є письмовий строк, перевірте дату';
   return 'чіткий письмовий строк не вказано';
 };
 
 const templateDeadlineText = (answers: Answers) => {
-  if (answers.deadlineDate) return answers.deadlineDate;
+  if (answers.deadlineDate) return formatDateForLanguage(answers.deadlineDate, 'uk');
   if (answers.writtenDeadline === 'ja') return '[додайте дату строку]';
   return '[якщо є: додайте дату]';
 };
@@ -64,7 +63,7 @@ const sharedToday = [
 
 const sharedTomorrow = [
   'Запитайте про запис у відповідну консультаційну службу.',
-  'Перевірте, чи можливі Bürgergeld / базова допомога на проживання, соціальна допомога, Wohngeld або позика.',
+  'Перевірте, чи можливі Grundsicherungsgeld, соціальна допомога, Wohngeld або позика.',
   'Підготуйте реалістичне прохання про оплату частинами або продовження строку.',
 ];
 
@@ -95,7 +94,7 @@ const categoryOpening: Record<CategoryId, string> = {
   schufa:
     'звертаюся через фінансову скруту та можливу проблему зі Schufa / кредитною історією.',
   debtCourt:
-    'ich melde mich wegen einer Inkasso-Forderung beziehungsweise eines gerichtlichen Mahnverfahrens.',
+    'звертаюся через вимогу колекторської компанії або судове провадження щодо платіжного наказу.',
   family:
     'звертаюся через сімейну зміну і хочу спокійно впорядкувати наступні кроки.',
 };
@@ -107,7 +106,7 @@ const recipientByCategory: Record<CategoryId, string> = {
   health: 'Медична страхова каса',
   garnishment: 'Банк',
   schufa: 'Консультація з боргів',
-  debtCourt: 'Inkassounternehmen / Gläubiger / Mahngericht',
+  debtCourt: 'Колекторська компанія / кредитор / суд платіжного наказу',
   family: 'Соціальна консультація / сімейна консультація',
 };
 
@@ -157,7 +156,7 @@ export const uk = {
     imprint: 'Імпресум',
     privacy: 'Захист даних',
     realHelp: 'Коли шукати реальну допомогу?',
-    localDataNotice: 'Усі дані залишаються в цьому браузері. Немає backend і входу.',
+    localDataNotice: 'Ваші введені дані залишаються в цьому браузері. Лише після відкриття зовнішнього посилання постачальник отримує показаний запит.',
     backToStart: 'Повернутися на старт',
     legalEyebrow: 'Правова інформація',
     imprintDetails: 'Дані відповідно до § 5 TMG',
@@ -190,9 +189,9 @@ export const uk = {
     },
     {
       id: 'jobcenter',
-      title: 'Bürgergeld / Jobcenter',
+      title: 'Grundsicherung / Jobcenter',
       shortTitle: 'Jobcenter',
-      description: 'Розібратися із заявою, продовженням, санкцією, поверненням коштів або рішенням.',
+      description: 'Розібрати Grundsicherungsgeld (раніше Bürgergeld), заяву, продовження, санкцію, повернення коштів або рішення.',
       primaryContact: 'Jobcenter або соціальна служба',
     },
     {
@@ -221,8 +220,8 @@ export const uk = {
       title: 'Inkasso / Mahnbescheid',
       shortTitle: 'Inkasso',
       description:
-        'Inkassoschreiben, Forderung, gerichtlichen Mahnbescheid oder Vollstreckungsbescheid sortieren.',
-      primaryContact: 'Inkassounternehmen, Gläubiger oder Mahngericht',
+        'Упорядкувати лист від колекторів, вимогу, судовий Mahnbescheid або Vollstreckungsbescheid.',
+      primaryContact: 'Колекторська компанія, кредитор або суд платіжного наказу',
     },
     {
       id: 'family',
@@ -275,7 +274,7 @@ export const uk = {
     },
     {
       id: 'benefits',
-      text: 'Чи отримуєте Bürgergeld / базову допомогу на проживання або соціальну допомогу?',
+      text: 'Чи отримуєте Grundsicherungsgeld або соціальну допомогу?',
       type: 'select',
       options: [
         { value: 'ja', label: 'Так' },
@@ -484,7 +483,7 @@ export const uk = {
         category: 'health',
         text: 'Які доходи маєте зараз?',
         type: 'textarea',
-        placeholder: 'наприклад, зарплата, Bürgergeld, самозайнятість, немає доходу',
+        placeholder: 'наприклад, зарплата, Grundsicherungsgeld, самозайнятість, немає доходу',
       },
     ],
     garnishment: [
@@ -524,11 +523,11 @@ export const uk = {
       {
         id: 'moneyOnAccount',
         category: 'garnishment',
-        text: 'Чи надходить зарплата, Bürgergeld або пенсія на цей рахунок?',
+        text: 'Чи надходить зарплата, Grundsicherungsgeld або пенсія на цей рахунок?',
         type: 'select',
         options: [
           { value: 'Gehalt', label: 'Зарплата' },
-          { value: 'Bürgergeld', label: 'Bürgergeld' },
+          { value: 'Grundsicherungsgeld', label: 'Grundsicherungsgeld' },
           { value: 'Rente', label: 'Пенсія' },
           { value: 'Mehreres', label: 'Кілька видів' },
           { value: 'nein', label: 'Ні' },
@@ -593,49 +592,60 @@ export const uk = {
       {
         id: 'debtLetterType',
         category: 'debtCourt',
-        text: 'Was liegt dir vor?',
+        text: 'Який лист ви отримали?',
         type: 'select',
         options: [
-          { value: 'inkasso', label: 'Inkassoschreiben' },
-          { value: 'mahnbrief', label: 'Mahnung vom Gläubiger' },
-          { value: 'mahnbescheid', label: 'Gerichtlicher Mahnbescheid' },
-          { value: 'vollstreckungsbescheid', label: 'Vollstreckungsbescheid' },
-          { value: 'unklar', label: 'Unklar' },
+          { value: 'inkasso', label: 'Лист від Inkasso' },
+          { value: 'mahnbrief', label: 'Нагадування від кредитора' },
+          { value: 'mahnbescheid', label: 'Судовий Mahnbescheid' },
+          { value: 'vollstreckungsbescheid', label: 'Судовий Vollstreckungsbescheid' },
+          { value: 'unklar', label: 'Незрозуміло' },
         ],
       },
       {
         id: 'claimKnown',
         category: 'debtCourt',
-        text: 'Kennst du die Forderung?',
+        text: 'Ви знаєте цю вимогу?',
         type: 'select',
         options: [
-          { value: 'ja', label: 'Ja' },
-          { value: 'teilweise', label: 'Teilweise' },
-          { value: 'nein', label: 'Nein' },
-          { value: 'unklar', label: 'Unklar' },
+          { value: 'ja', label: 'Так' },
+          { value: 'teilweise', label: 'Частково' },
+          { value: 'nein', label: 'Ні' },
+          { value: 'unklar', label: 'Незрозуміло' },
         ],
       },
       {
         id: 'claimDisputed',
         category: 'debtCourt',
-        text: 'Hältst du die Forderung für falsch oder zu hoch?',
+        text: 'Ви вважаєте вимогу помилковою або завеликою?',
         type: 'select',
         options: [
-          { value: 'ja', label: 'Ja' },
-          { value: 'nein', label: 'Nein' },
-          { value: 'teilweise', label: 'Teilweise' },
-          { value: 'unklar', label: 'Unklar' },
+          { value: 'ja', label: 'Так' },
+          { value: 'nein', label: 'Ні' },
+          { value: 'teilweise', label: 'Частково' },
+          { value: 'unklar', label: 'Незрозуміло' },
         ],
       },
       {
         id: 'courtYellowEnvelope',
         category: 'debtCourt',
-        text: 'Kam ein gelber Umschlag vom Gericht?',
+        text: 'Чи надійшов жовтий конверт із суду?',
         type: 'select',
         options: [
-          { value: 'ja', label: 'Ja' },
-          { value: 'nein', label: 'Nein' },
-          { value: 'unklar', label: 'Unklar' },
+          { value: 'ja', label: 'Так' },
+          { value: 'nein', label: 'Ні' },
+          { value: 'unklar', label: 'Незрозуміло' },
+        ],
+      },
+      {
+        id: 'debtAlreadyPaid',
+        category: 'debtCourt',
+        text: 'Ви вже щось сплатили?',
+        type: 'select',
+        options: [
+          { value: 'ja', label: 'Так' },
+          { value: 'nein', label: 'Ні' },
+          { value: 'teilweise', label: 'Частково' },
         ],
       },
     ],
@@ -730,7 +740,7 @@ export const uk = {
       },
       {
         title: 'Відповідальна особа',
-        text: 'Alexander Kluth, Kaistraße 2, 40221 Düsseldorf, Deutschland. E-Mail: alex@denkwerk-kluth.de',
+        text: 'Alexander Kluth, Kaistraße 2, 40221 Düsseldorf, Німеччина. Електронна пошта: alex@denkwerk-kluth.de',
       },
       {
         title: 'Які дані обробляються?',
@@ -738,7 +748,11 @@ export const uk = {
       },
       {
         title: 'Немає серверного зберігання',
-        text: 'Введені дані про ситуацію не передаються на сервер KlarKommen і не зберігаються на сервері. При перезавантаженні або скиданні додатка введені дані можуть зникнути.',
+        text: 'Дані про ситуацію не передаються на сервер KlarKommen. Якщо обрати «Зберегти справу», вона залишається в локальному сховищі цього пристрою, доки ви її не видалите. Незбережені дані можуть зникнути після перезавантаження.',
+      },
+      {
+        title: 'Зовнішні посилання, пошук Google і телефон',
+        text: 'Зовнішні постачальники отримують дані лише коли ви відкриваєте посилання або телефонуєте. Google-посилання містять тільки вид допомоги та місто чи індекс, але не суму, вільний текст або інші дані справи.',
       },
       {
         title: 'Хостинг і технічні доступи',
@@ -779,12 +793,12 @@ export const uk = {
           ],
           tomorrow: [
             ...sharedTomorrow,
-            'Зв’яжіться з Mieterverein, допомогою при житловій кризі або соціальною консультацією.',
+            'Зв’яжіться з об’єднанням орендарів (Mieterverein), допомогою при житловій кризі або соціальною консультацією.',
             'Якщо є позов: негайно перевірте строки з судового листа.',
           ],
           help: [
             ...commonHelp(city),
-            'Mieterverein',
+            'Об’єднання орендарів (Mieterverein)',
             'Житлова кризова допомога міста або громади',
             'Jobcenter або соціальна служба щодо можливого покриття боргів за оренду',
           ],

@@ -32,7 +32,7 @@ const categoryKeywords: Record<CategoryId, string[]> = {
   family: ['trennung', 'scheidung', 'geburt', 'tod', 'kind', 'unterhalt', 'familie', 'jugendamt'],
   garnishment: ['pfaendung', 'pfändung', 'p-konto', 'pkonto', 'freibetrag', 'bank', 'konto blockiert'],
   health: ['krankenkasse', 'krankenversicherung', 'beitrag', 'beitragsschulden', 'leistung ruht'],
-  jobcenter: ['jobcenter', 'buergergeld', 'bürgergeld', 'sozialamt', 'bescheid', 'sanktion'],
+  jobcenter: ['jobcenter', 'grundsicherungsgeld', 'grundsicherung', 'buergergeld', 'bürgergeld', 'sozialamt', 'bescheid', 'sanktion'],
   rent: ['miete', 'mietschulden', 'vermieter', 'kuendigung', 'kündigung', 'raeumung', 'räumung', 'wohnung'],
   schufa: ['schufa', 'kredit', 'bonitaet', 'bonität', 'ablehnung', 'darlehen', 'sofortkredit'],
 };
@@ -386,7 +386,7 @@ function analyzeSituation(input: string): AnalysisResult {
     answers.contacted = 'nein';
   }
 
-  if (containsAny(normalized, ['buergergeld', 'bürgergeld', 'sozialhilfe', 'jobcenter'])) answers.benefits = 'ja';
+  if (containsAny(normalized, ['grundsicherungsgeld', 'grundsicherung', 'buergergeld', 'bürgergeld', 'sozialhilfe', 'jobcenter'])) answers.benefits = 'ja';
   if (containsAny(normalized, ['kein einkommen', 'arbeitslos', 'ohne einkommen'])) answers.income = 'nein';
   if (containsAny(normalized, ['lohn', 'gehalt', 'rente'])) answers.income = 'regelmäßig';
 
@@ -434,7 +434,7 @@ function applyCategoryAnswers(
       answers.garnishmentOrder = 'ja';
     }
     if (containsAny(normalized, ['gehalt', 'lohn'])) answers.moneyOnAccount = 'Gehalt';
-    if (containsAny(normalized, ['buergergeld', 'bürgergeld'])) answers.moneyOnAccount = 'Bürgergeld';
+    if (containsAny(normalized, ['grundsicherungsgeld', 'buergergeld', 'bürgergeld'])) answers.moneyOnAccount = 'Grundsicherungsgeld';
     if (containsAny(normalized, ['rente'])) answers.moneyOnAccount = 'Rente';
   }
 

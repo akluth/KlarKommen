@@ -12,6 +12,7 @@ export interface ResultExtraTexts {
   helpExternalNotice: string;
   helpSearchTitle: string;
   localHelpEyebrow: string;
+  newTab: string;
   noDeadline: string;
   noPlace: string;
   packageAmount: string;
@@ -57,9 +58,10 @@ const de: ResultExtraTexts = {
   deadlineWritten: 'schriftliche Frist vorhanden, Datum prüfen',
   deleteSavedCase: 'Gespeicherten Fall löschen',
   helpExternalNotice:
-    'Diese Suchlinks öffnen eine externe Suche. Es wird nichts automatisch an KlarKommen gesendet.',
-  helpSearchTitle: 'Hilfe in deiner Nähe suchen',
+    'Erst beim Öffnen wird Hilfsart plus Ort oder PLZ als Suchanfrage an Google übertragen. KlarKommen lädt Google nicht automatisch und sendet keine weiteren Fallangaben.',
+  helpSearchTitle: 'Weitere lokale Hilfe mit Google suchen',
   localHelpEyebrow: 'Echte Hilfe finden',
+  newTab: 'öffnet in einem neuen Tab',
   noDeadline: 'nicht angegeben',
   noPlace: 'Ort nicht angegeben',
   packageAmount: 'Betrag',
@@ -105,9 +107,10 @@ const tr: ResultExtraTexts = {
   deadlineWritten: 'yazılı süre var, tarihi kontrol et',
   deleteSavedCase: 'Kaydedilen durumu sil',
   helpExternalNotice:
-    'Bu bağlantılar harici bir arama açar. KlarKommen otomatik olarak hiçbir şey göndermez.',
-  helpSearchTitle: 'Yakınında yardım ara',
+    'Yalnızca bağlantıyı açtığında yardım türü ile şehir veya posta kodu Google’a aktarılır. KlarKommen Google’ı otomatik yüklemez ve başka durum bilgisi göndermez.',
+  helpSearchTitle: 'Google ile başka yerel yardım ara',
   localHelpEyebrow: 'Gerçek yardım bul',
+  newTab: 'yeni sekmede açılır',
   noDeadline: 'belirtilmedi',
   noPlace: 'şehir belirtilmedi',
   packageAmount: 'Tutar',
@@ -153,9 +156,10 @@ const ar: ResultExtraTexts = {
   deadlineWritten: 'توجد مهلة مكتوبة، افحص التاريخ',
   deleteSavedCase: 'حذف الحالة المحفوظة',
   helpExternalNotice:
-    'هذه الروابط تفتح بحثا خارجيا. لا يرسل KlarKommen أي شيء تلقائيا.',
-  helpSearchTitle: 'البحث عن مساعدة قريبة',
+    'فقط عند فتح الرابط يُنقل نوع المساعدة والمدينة أو الرمز البريدي إلى Google. لا يحمّل KlarKommen خدمات Google تلقائيا ولا يرسل تفاصيل أخرى عن الحالة.',
+  helpSearchTitle: 'البحث عن مساعدة محلية أخرى عبر Google',
   localHelpEyebrow: 'العثور على مساعدة حقيقية',
+  newTab: 'يفتح في علامة تبويب جديدة',
   noDeadline: 'غير محدد',
   noPlace: 'لم يتم تحديد المدينة',
   packageAmount: 'المبلغ',
@@ -201,9 +205,10 @@ const uk: ResultExtraTexts = {
   deadlineWritten: 'є письмовий строк, перевірте дату',
   deleteSavedCase: 'Видалити збережену справу',
   helpExternalNotice:
-    'Ці посилання відкривають зовнішній пошук. KlarKommen нічого автоматично не надсилає.',
-  helpSearchTitle: 'Знайти допомогу поруч',
+    'Лише при відкритті посилання вид допомоги та місто або індекс передаються Google. KlarKommen не завантажує Google автоматично й не передає інших даних справи.',
+  helpSearchTitle: 'Шукати іншу місцеву допомогу через Google',
   localHelpEyebrow: 'Знайти реальну допомогу',
+  newTab: 'відкриється в новій вкладці',
   noDeadline: 'не вказано',
   noPlace: 'місто не вказано',
   packageAmount: 'Сума',

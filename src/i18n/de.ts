@@ -1,4 +1,5 @@
 import type { Answers, Category, CategoryId, Question, ResultContent } from '../types';
+import { formatDateForLanguage, formatEuroForLanguage } from '../utils/formatters';
 
 const has = (answers: Answers, key: string, value: string) => answers[key] === value;
 const filled = (answers: Answers, key: string) => Boolean(answers[key]?.trim());
@@ -7,24 +8,22 @@ const line = (value?: string, fallback = '[bitte ergänzen]') => value?.trim() |
 
 const formatMoney = (value?: string) => {
   if (!value) return 'kein Betrag angegeben';
-  const number = Number(value);
-  if (Number.isNaN(number)) return `${value} Euro`;
-  return `${number.toLocaleString('de-DE', { maximumFractionDigits: 2 })} Euro`;
+  return formatEuroForLanguage(value, 'de');
 };
 
 const amountText = (answers: Answers) => {
   const value = answers.amount?.trim();
-  return value ? `${value} Euro` : '[Betrag ergänzen]';
+  return value ? formatEuroForLanguage(value, 'de') : '[Betrag ergänzen]';
 };
 
 const deadlineText = (answers: Answers) => {
-  if (filled(answers, 'deadlineDate')) return `Frist bis ${answers.deadlineDate}`;
+  if (filled(answers, 'deadlineDate')) return `Frist bis ${formatDateForLanguage(answers.deadlineDate!, 'de')}`;
   if (has(answers, 'writtenDeadline', 'ja')) return 'schriftliche Frist vorhanden, Datum bitte prüfen';
   return 'keine klare schriftliche Frist angegeben';
 };
 
 const templateDeadlineText = (answers: Answers) => {
-  if (answers.deadlineDate) return answers.deadlineDate;
+  if (answers.deadlineDate) return formatDateForLanguage(answers.deadlineDate, 'de');
   if (answers.writtenDeadline === 'ja') return '[Datum der Frist ergänzen]';
   return '[falls vorhanden: Datum ergänzen]';
 };
@@ -63,7 +62,7 @@ const sharedToday = [
 
 const sharedTomorrow = [
   'Bei einer passenden Beratungsstelle einen Termin anfragen.',
-  'Prüfen, ob Bürgergeld, Sozialhilfe, Wohngeld oder ein Darlehen infrage kommt.',
+  'Prüfen, ob Grundsicherungsgeld, Sozialhilfe, Wohngeld oder ein Darlehen infrage kommt.',
   'Eine realistische Zahlungs- oder Fristaufschubbitte vorbereiten.',
 ];
 
@@ -157,7 +156,7 @@ export const de = {
     privacy: 'Datenschutz',
     realHelp: 'Wann echte Hilfe suchen?',
     localDataNotice:
-      'Alle Angaben bleiben in diesem Browser. Es gibt kein Backend und keine Anmeldung.',
+      'Deine Eingaben bleiben in diesem Browser. Erst beim Öffnen eines externen Links erhält der jeweilige Anbieter die dort gezeigte Anfrage.',
     backToStart: 'Zurück zur Startseite',
     legalEyebrow: 'Rechtliches',
     imprintDetails: 'Angaben gemäß § 5 TMG',
@@ -190,9 +189,9 @@ export const de = {
     },
     {
       id: 'jobcenter',
-      title: 'Bürgergeld / Jobcenter',
+      title: 'Grundsicherung / Jobcenter',
       shortTitle: 'Jobcenter',
-      description: 'Antrag, Weiterbewilligung, Sanktion, Rückforderung oder Bescheid einordnen.',
+      description: 'Grundsicherungsgeld (früher Bürgergeld), Antrag, Weiterbewilligung, Sanktion, Rückforderung oder Bescheid einordnen.',
       primaryContact: 'Jobcenter oder Sozialamt',
     },
     {
@@ -277,7 +276,7 @@ export const de = {
     },
     {
       id: 'benefits',
-      text: 'Beziehst du Bürgergeld oder Sozialhilfe?',
+      text: 'Beziehst du Grundsicherungsgeld oder Sozialhilfe?',
       type: 'select',
       options: [
         { value: 'ja', label: 'Ja' },
@@ -486,7 +485,7 @@ export const de = {
         category: 'health',
         text: 'Welche Einkünfte hast du aktuell?',
         type: 'textarea',
-        placeholder: 'z. B. Lohn, Bürgergeld, selbstständig, kein Einkommen',
+        placeholder: 'z. B. Lohn, Grundsicherungsgeld, selbstständig, kein Einkommen',
       },
     ],
     garnishment: [
@@ -526,11 +525,11 @@ export const de = {
       {
         id: 'moneyOnAccount',
         category: 'garnishment',
-        text: 'Geht Gehalt, Bürgergeld oder Rente auf dieses Konto?',
+        text: 'Geht Gehalt, Grundsicherungsgeld oder Rente auf dieses Konto?',
         type: 'select',
         options: [
           { value: 'Gehalt', label: 'Gehalt' },
-          { value: 'Bürgergeld', label: 'Bürgergeld' },
+          { value: 'Grundsicherungsgeld', label: 'Grundsicherungsgeld' },
           { value: 'Rente', label: 'Rente' },
           { value: 'Mehreres', label: 'Mehreres' },
           { value: 'nein', label: 'Nein' },
@@ -751,7 +750,11 @@ export const de = {
       },
       {
         title: 'Keine Server-Speicherung',
-        text: 'Die eingegebenen Situationsdaten werden nicht an einen KlarKommen-Server übertragen und nicht serverseitig gespeichert. Beim Neuladen oder Zurücksetzen der App können Eingaben verloren gehen.',
+        text: 'Die eingegebenen Situationsdaten werden nicht an einen KlarKommen-Server übertragen. Wenn du „Fall speichern“ wählst, bleibt der Fall im lokalen Speicher dieses Geräts, bis du ihn löschst. Nicht gespeicherte Eingaben können beim Neuladen verloren gehen.',
+      },
+      {
+        title: 'Externe Links, Google-Suche und Telefon',
+        text: 'Externe Anbieter erhalten erst Daten, wenn du einen Link öffnest oder anrufst. Google-Suchlinks enthalten nur die sichtbare Hilfsart und den eingegebenen Ort oder die PLZ, niemals Betrag, Freitext oder andere Fallangaben.',
       },
       {
         title: 'Hosting und technische Zugriffe',

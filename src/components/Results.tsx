@@ -1,10 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { buildDirectHelpContacts } from '../data/directHelp';
 import { buildContactChecklist, buildHelpSearchLinks, buildPhoneScript } from '../data/localHelp';
 import { buildActionPlan, buildDocuments, buildUrgency } from '../data/preparation';
 import { useI18n } from '../i18n';
 import { getResultExtraTexts } from '../i18n/resultExtras';
+import { getQuickHelpTexts } from '../i18n/quickHelp';
 import type { Answers, Category } from '../types';
+import { formatDateForLanguage, formatEuroForLanguage } from '../utils/formatters';
 import Checklist from './Checklist';
+import DirectHelpContacts from './DirectHelpContacts';
+import EmergencyContacts from './EmergencyContacts';
 import LocalHelp from './LocalHelp';
 import TaskList from './TaskList';
 import TemplateBox from './TemplateBox';
@@ -33,6 +38,7 @@ export default function Results({
 }: ResultsProps) {
   const { language, t } = useI18n();
   const extraTexts = getResultExtraTexts(language);
+  const quickTexts = getQuickHelpTexts(language);
   const result = t.buildRecommendations(category.id, answers);
   const templates = t.buildAllTemplates(category, answers);
   const documents = buildDocuments(category.id, answers, language);
@@ -41,11 +47,20 @@ export default function Results({
   const helpSearchLinks = buildHelpSearchLinks(category.id, answers, language);
   const phoneScript = buildPhoneScript(category, answers, language);
   const contactChecklist = buildContactChecklist(language);
+  const directContacts = buildDirectHelpContacts(category.id, language, answers);
   const [packageCopied, setPackageCopied] = useState(false);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+
+  useEffect(() => {
+    headingRef.current?.focus();
+  }, []);
 
   const deadlineText =
-    answers.deadlineDate ||
+    (answers.deadlineDate && formatDateForLanguage(answers.deadlineDate, language)) ||
     (answers.writtenDeadline === 'ja' ? extraTexts.deadlineWritten : extraTexts.noDeadline);
+  const amountText = answers.amount
+    ? formatEuroForLanguage(answers.amount, language)
+    : extraTexts.amountUnknown;
 
   const packageLines = [
     t.ui.resultExportTitle(category.title),
@@ -53,7 +68,7 @@ export default function Results({
     `${extraTexts.packageEyebrow}:`,
     `${extraTexts.packageCategory}: ${category.title}`,
     `${extraTexts.packagePlace}: ${answers.city || extraTexts.noPlace}`,
-    `${extraTexts.packageAmount}: ${answers.amount ? `${answers.amount} Euro` : extraTexts.amountUnknown}`,
+    `${extraTexts.packageAmount}: ${amountText}`,
     `${extraTexts.packageDeadline}: ${deadlineText}`,
     `${extraTexts.urgencyEyebrow}: ${urgency.label} - ${urgency.headline}`,
     '',
@@ -67,6 +82,11 @@ export default function Results({
     ...documents.map((item) => `- ${item}`),
     '',
     `${extraTexts.packageSearchTitle}:`,
+    ...directContacts.map((contact) =>
+      `- ${contact.name}: ${contact.phoneDisplay ? `${contact.phoneDisplay} · ` : ''}${contact.websiteUrl}`,
+    ),
+    '',
+    `${quickTexts.googleHeading}:`,
     ...helpSearchLinks.map((item) => `- ${item.label}: ${item.url}`),
     '',
     `${extraTexts.packageScriptTitle}:`,
@@ -112,7 +132,7 @@ export default function Results({
     <section className="results" aria-labelledby="results-heading">
       <div className="results-hero">
         <p className="eyebrow">{t.ui.resultStep}</p>
-        <h2 id="results-heading">{t.ui.resultHeading}</h2>
+        <h2 id="results-heading" ref={headingRef} tabIndex={-1}>{t.ui.resultHeading}</h2>
         <p>{t.ui.resultIntro}</p>
         <div className="results-actions">
           <button className="primary-button" type="button" onClick={copyAll}>
@@ -135,6 +155,14 @@ export default function Results({
         </div>
       </div>
 
+      {(answers.safetyAtRisk === 'ja' || category.id === 'family') && (
+        <EmergencyContacts
+          danger={answers.safetyAtRisk === 'ja'}
+          headingId="detailed-result-emergency-heading"
+          texts={quickTexts}
+        />
+      )}
+
       <UrgencyCard eyebrowLabel={extraTexts.urgencyEyebrow} urgency={urgency} />
 
       <section className="panel package-card" aria-labelledby="package-heading">
@@ -152,7 +180,7 @@ export default function Results({
           </div>
           <div>
             <dt>{extraTexts.packageAmount}</dt>
-            <dd>{answers.amount ? `${answers.amount} Euro` : extraTexts.amountUnknown}</dd>
+            <dd>{amountText}</dd>
           </div>
           <div>
             <dt>{extraTexts.packageContact}</dt>
@@ -168,6 +196,8 @@ export default function Results({
           </button>
         </div>
       </section>
+
+      <DirectHelpContacts contacts={directContacts} language={language} texts={quickTexts} />
 
       <LocalHelp
         checkedItems={checkedItems}

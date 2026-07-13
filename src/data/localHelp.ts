@@ -1,5 +1,6 @@
 import type { Language } from '../i18n';
 import type { Answers, Category, CategoryId } from '../types';
+import { formatDateForLanguage, formatEuroForLanguage } from '../utils/formatters';
 
 export interface HelpSearchLink {
   label: string;
@@ -7,7 +8,7 @@ export interface HelpSearchLink {
   url: string;
 }
 
-const searchUrl = (query: string) => `https://duckduckgo.com/?q=${encodeURIComponent(query)}`;
+const searchUrl = (query: string) => `https://www.google.com/search?q=${encodeURIComponent(query)}`;
 
 const withCity = (query: string, city?: string) => [query, city].filter(Boolean).join(' ');
 
@@ -62,44 +63,71 @@ const queriesByCategory: Record<CategoryId, string[]> = {
   ],
 };
 
-const placeWord: Record<Language, string> = {
-  ar: 'في',
-  de: 'in',
-  tr: 'içinde',
-  uk: 'у',
+const queryLabels: Record<Language, Record<CategoryId, string[]>> = {
+  de: queriesByCategory,
+  tr: {
+    rent: ['Konut acil yardımı', 'Kira borcu danışması', 'Sozialamt kira borcu desteği', 'Jobcenter kira borcu desteği'],
+    energy: ['Enerji borcu tüketici danışması', 'Sozialamt enerji borcu desteği', 'Jobcenter elektrik borcu desteği', 'Enerji borcu danışması'],
+    jobcenter: ['İşsizler danışması', 'Jobcenter sosyal danışması', 'Sosyal mahkeme başvuru birimi', 'Sosyal hukuk adli yardım'],
+    health: ['Sağlık sigortası borcu sosyal danışması', 'Bağımsız hasta danışması', 'Sağlık sigortası borcu danışması', 'Sozialamt sağlık sigortası'],
+    garnishment: ['P-Konto belgesi borç danışması', 'P-Konto muafiyet danışması', 'İcra mahkemesi hesap haczi', 'Hesap haczi borç danışması'],
+    schufa: ['Schufa borç danışması', 'Schufa tüketici danışması', 'Ücretsiz Schufa veri kopyası', 'Kredi reddi borç danışması'],
+    debtCourt: ['Inkasso tüketici danışması', 'Mahnbescheid borç danışması', 'Mahnbescheid yerel mahkeme', 'Inkasso talebi kontrolü'],
+    family: ['Aile danışması', 'Çocuk yetiştirme danışması', 'Jugendamt danışması', 'Aile sosyal danışması'],
+  },
+  ar: {
+    rent: ['مساعدة طوارئ السكن', 'استشارة ديون الإيجار', 'مساعدة Sozialamt لديون الإيجار', 'مساعدة Jobcenter لديون الإيجار'],
+    energy: ['استشارة المستهلك لديون الطاقة', 'مساعدة Sozialamt لديون الطاقة', 'مساعدة Jobcenter لديون الكهرباء', 'استشارة ديون الطاقة'],
+    jobcenter: ['استشارة العاطلين عن العمل', 'استشارة اجتماعية حول Jobcenter', 'مكتب الطلبات في المحكمة الاجتماعية', 'مساعدة قضائية في القانون الاجتماعي'],
+    health: ['استشارة اجتماعية لديون التأمين الصحي', 'استشارة مستقلة للمرضى', 'استشارة ديون التأمين الصحي', 'Sozialamt والتأمين الصحي'],
+    garnishment: ['استشارة ديون لشهادة P-Konto', 'استشارة الحد المعفى في P-Konto', 'محكمة التنفيذ وحجز الحساب', 'استشارة ديون حجز الحساب'],
+    schufa: ['استشارة ديون Schufa', 'استشارة المستهلك حول Schufa', 'نسخة Schufa مجانية', 'استشارة ديون بعد رفض القرض'],
+    debtCourt: ['استشارة المستهلك حول Inkasso', 'استشارة ديون Mahnbescheid', 'المحكمة المحلية وMahnbescheid', 'فحص مطالبة Inkasso'],
+    family: ['استشارة أسرية', 'استشارة تربية الأطفال', 'استشارة Jugendamt', 'استشارة اجتماعية للأسرة'],
+  },
+  uk: {
+    rent: ['Житлова екстрена допомога', 'Консультація щодо боргу за оренду', 'Допомога Sozialamt з боргом за оренду', 'Допомога Jobcenter з боргом за оренду'],
+    energy: ['Споживча консультація щодо енергоборгу', 'Допомога Sozialamt з енергоборгом', 'Допомога Jobcenter з боргом за електрику', 'Консультація щодо енергоборгу'],
+    jobcenter: ['Консультація для безробітних', 'Соціальна консультація Jobcenter', 'Приймальня соціального суду', 'Юридична допомога із соціального права'],
+    health: ['Соціальна консультація щодо боргу касі', 'Незалежна консультація пацієнтів', 'Консультація щодо боргу медичній касі', 'Sozialamt і медичне страхування'],
+    garnishment: ['Боргова консультація для довідки P-Konto', 'Консультація щодо ліміту P-Konto', 'Виконавчий суд і арешт рахунку', 'Боргова консультація при арешті рахунку'],
+    schufa: ['Боргова консультація Schufa', 'Споживча консультація Schufa', 'Безкоштовна копія даних Schufa', 'Боргова консультація після відмови у кредиті'],
+    debtCourt: ['Споживча консультація Inkasso', 'Боргова консультація Mahnbescheid', 'Місцевий суд і Mahnbescheid', 'Перевірка вимоги Inkasso'],
+    family: ['Сімейна консультація', 'Консультація з виховання', 'Консультація Jugendamt', 'Соціальна консультація сім’ї'],
+  },
 };
 
 const phoneAmountText: Record<Language, (value?: string) => string> = {
-  de: (value?: string) => (value ? `${value} Euro` : 'einen noch zu klärenden Betrag'),
-  tr: (value?: string) => (value ? `${value} Euro` : 'henüz netleşmemiş bir tutar'),
-  ar: (value?: string) => (value ? `${value} Euro` : 'مبلغ لم يتضح بعد'),
-  uk: (value?: string) => (value ? `${value} Euro` : 'суму, яку ще потрібно уточнити'),
+  de: (value?: string) => (value ? formatEuroForLanguage(value, 'de') : 'einen noch zu klärenden Betrag'),
+  tr: (value?: string) => (value ? formatEuroForLanguage(value, 'tr') : 'henüz netleşmemiş bir tutar'),
+  ar: (value?: string) => (value ? formatEuroForLanguage(value, 'ar') : 'مبلغ لم يتضح بعد'),
+  uk: (value?: string) => (value ? formatEuroForLanguage(value, 'uk') : 'суму, яку ще потрібно уточнити'),
 };
 
 const phoneDeadlineText: Record<Language, (answers: Answers) => string> = {
   de: (answers: Answers) => {
-    if (answers.deadlineDate) return `Die Frist läuft bis ${answers.deadlineDate}.`;
+    if (answers.deadlineDate) return `Die Frist läuft bis ${formatDateForLanguage(answers.deadlineDate, 'de')}.`;
     if (answers.writtenDeadline === 'ja') {
       return 'Es gibt eine schriftliche Frist; das genaue Datum prüfe ich gerade.';
     }
     return 'Eine klare Frist ist mir bisher nicht bekannt.';
   },
   tr: (answers: Answers) => {
-    if (answers.deadlineDate) return `Son tarih ${answers.deadlineDate}.`;
+    if (answers.deadlineDate) return `Son tarih ${formatDateForLanguage(answers.deadlineDate, 'tr')}.`;
     if (answers.writtenDeadline === 'ja') {
       return 'Yazılı bir süre var; kesin tarihi şu anda kontrol ediyorum.';
     }
     return 'Şu anda bildiğim net bir süre yok.';
   },
   ar: (answers: Answers) => {
-    if (answers.deadlineDate) return `المهلة تنتهي في ${answers.deadlineDate}.`;
+    if (answers.deadlineDate) return `المهلة تنتهي في ${formatDateForLanguage(answers.deadlineDate, 'ar')}.`;
     if (answers.writtenDeadline === 'ja') {
       return 'توجد مهلة مكتوبة؛ وأنا أتحقق حاليا من التاريخ الدقيق.';
     }
     return 'لا أعرف حاليا بوجود مهلة واضحة.';
   },
   uk: (answers: Answers) => {
-    if (answers.deadlineDate) return `Строк спливає ${answers.deadlineDate}.`;
+    if (answers.deadlineDate) return `Строк спливає ${formatDateForLanguage(answers.deadlineDate, 'uk')}.`;
     if (answers.writtenDeadline === 'ja') {
       return 'Є письмовий строк; точну дату я зараз перевіряю.';
     }
@@ -108,12 +136,14 @@ const phoneDeadlineText: Record<Language, (answers: Answers) => string> = {
 };
 
 export function buildHelpSearchLinks(categoryId: CategoryId, answers: Answers, language: Language): HelpSearchLink[] {
-  const city = answers.city?.trim();
+  const city = answers.city?.replace(/[\r\n\t]+/g, ' ').replace(/\s{2,}/g, ' ').trim().slice(0, 80);
 
-  return queriesByCategory[categoryId].map((query) => {
+  return queriesByCategory[categoryId].map((query, index) => {
     const fullQuery = withCity(query, city);
     return {
-      label: city ? `${query} ${placeWord[language]} ${city}` : query,
+      label: city
+        ? `${queryLabels[language][categoryId][index]} — ${city}`
+        : queryLabels[language][categoryId][index],
       query: fullQuery,
       url: searchUrl(fullQuery),
     };

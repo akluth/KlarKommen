@@ -45,6 +45,25 @@ button:disabled {
   opacity: 0.55;
 }
 
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+[tabindex="-1"]:focus-visible {
+  outline: 3px solid #8f5b00;
+  outline-offset: 3px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .app-shell {
   position: relative;
   min-height: 100vh;
@@ -195,6 +214,7 @@ html[dir="rtl"] .language-switcher {
 
 html[dir="rtl"] .category-card,
 html[dir="rtl"] .option-button,
+html[dir="rtl"] .triage-option,
 html[dir="rtl"] input,
 html[dir="rtl"] textarea,
 html[dir="rtl"] .template-box pre {
@@ -517,9 +537,27 @@ h3 {
 
 .triage-option {
   display: grid;
+  grid-template-columns: 22px 1fr;
   gap: 5px;
+  align-items: start;
   min-height: 88px;
   padding: 12px;
+}
+
+.triage-option input {
+  width: 20px;
+  height: 20px;
+  margin: 2px 0 0;
+  padding: 0;
+  accent-color: var(--turquoise-dark);
+}
+
+.triage-option .triage-option-copy {
+  display: grid;
+  gap: 5px;
+  color: inherit;
+  font-weight: inherit;
+  line-height: inherit;
 }
 
 .triage-option strong {
@@ -533,10 +571,21 @@ h3 {
   line-height: 1.35;
 }
 
+.triage-option .triage-option-copy strong {
+  color: var(--navy);
+}
+
 .triage-option small {
   color: #526a70;
   font-size: 0.84rem;
+  font-weight: 500;
   line-height: 1.4;
+}
+
+.triage-option.active {
+  border-color: var(--turquoise-dark);
+  background: #e0f6f3;
+  box-shadow: inset 0 0 0 2px rgb(22 125 114 / 14%);
 }
 
 .triage-option:hover,
@@ -740,14 +789,21 @@ h3 {
 .question-card {
   display: grid;
   gap: 16px;
+  min-inline-size: 0;
+  margin: 0;
   padding: 22px;
 }
 
-.question-card label {
+.question-card > label,
+.question-card > legend {
   color: var(--navy);
   font-size: clamp(1.35rem, 5.6vw, 2.15rem);
   font-weight: 850;
   line-height: 1.18;
+}
+
+.question-card > legend {
+  padding: 0;
 }
 
 .field-help {
@@ -783,6 +839,10 @@ textarea:focus {
 }
 
 .option-button {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
   min-height: 58px;
   border: 1px solid #c7d8d7;
   border-radius: 8px;
@@ -790,7 +850,16 @@ textarea:focus {
   color: var(--navy);
   padding: 14px 16px;
   text-align: left;
+  cursor: pointer;
   font-weight: 750;
+}
+
+.option-button input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--turquoise-dark);
 }
 
 .option-button.active {
@@ -1243,6 +1312,319 @@ textarea:focus {
 .legal-block a {
   color: var(--turquoise-dark);
   font-weight: 800;
+}
+
+.quick-help-flow,
+.quick-help-results {
+  padding: 102px 0 52px;
+}
+
+.quick-help-intro {
+  max-width: 850px;
+  margin-bottom: 22px;
+}
+
+.quick-help-intro h1 {
+  font-size: clamp(2.35rem, 9vw, 4.8rem);
+}
+
+.quick-help-intro > p:not(.eyebrow) {
+  max-width: 780px;
+  margin: 16px 0 0;
+  color: #334b52;
+  font-size: 1.08rem;
+  line-height: 1.6;
+}
+
+.emergency-strip {
+  display: grid;
+  gap: 14px;
+  margin: 0 0 18px;
+  border: 2px solid #c47b00;
+  border-radius: 8px;
+  background: #fff9ec;
+  padding: 16px;
+}
+
+.emergency-strip.danger {
+  border-color: #b42318;
+  background: #fff3f1;
+}
+
+.emergency-strip strong {
+  color: var(--navy);
+  font-size: 1.05rem;
+}
+
+.emergency-strip p {
+  margin: 6px 0 0;
+  color: #334b52;
+  line-height: 1.5;
+}
+
+.emergency-actions,
+.direct-contact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.emergency-link,
+.primary-link-button,
+.secondary-link-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  border-radius: 8px;
+  padding: 11px 15px;
+  font-weight: 850;
+  line-height: 1.25;
+  text-decoration: none;
+}
+
+.emergency-link {
+  border: 2px solid #a61b13;
+  background: white;
+  color: #8e1811;
+}
+
+.emergency-link.police {
+  border-color: var(--navy);
+  color: var(--navy);
+}
+
+.quick-help-form {
+  display: grid;
+  gap: 16px;
+}
+
+.triage-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 20px;
+}
+
+.triage-fieldset legend {
+  max-width: calc(100% - 20px);
+  color: var(--navy);
+  padding: 0 8px;
+  font-size: clamp(1.2rem, 4vw, 1.55rem);
+  font-weight: 850;
+  line-height: 1.3;
+}
+
+.location-fieldset {
+  display: grid;
+  gap: 14px;
+}
+
+.skip-location-choice {
+  display: inline-grid;
+  grid-template-columns: 22px 1fr;
+  gap: 9px;
+  align-items: start;
+  width: fit-content;
+  color: #334b52;
+  font-weight: 750;
+}
+
+.skip-location-choice input {
+  width: 20px;
+  height: 20px;
+  margin: 1px 0 0;
+  padding: 0;
+  accent-color: var(--turquoise-dark);
+}
+
+.form-error {
+  margin: 0;
+  border: 2px solid #b42318;
+  border-radius: 8px;
+  background: #fff3f1;
+  color: #7a1710;
+  padding: 12px 14px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.quick-help-actions,
+.quick-result-actions {
+  margin-top: 2px;
+}
+
+.quick-actions-card,
+.google-help-card {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 18px;
+  padding: 20px;
+}
+
+.quick-actions-card h2,
+.google-help-card h2,
+.direct-help-section h2 {
+  font-size: clamp(1.45rem, 5vw, 2.15rem);
+}
+
+.quick-actions-card ol {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding-left: 28px;
+  color: #334b52;
+  line-height: 1.55;
+}
+
+.quick-actions-card li::marker {
+  color: var(--turquoise-dark);
+  font-weight: 900;
+}
+
+.direct-help-section {
+  margin: 30px 0 18px;
+}
+
+.compact-heading {
+  max-width: 830px;
+}
+
+.compact-heading > p:not(.eyebrow) {
+  margin: 12px 0 0;
+  color: #526a70;
+  line-height: 1.55;
+}
+
+.direct-contact-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.direct-contact-card {
+  display: grid;
+  align-content: start;
+  gap: 13px;
+  padding: 18px;
+}
+
+.direct-contact-card h3 {
+  font-size: 1.28rem;
+}
+
+.direct-contact-card p {
+  margin: 0;
+  line-height: 1.48;
+}
+
+.direct-contact-description {
+  margin-top: 8px !important;
+  color: #334b52;
+}
+
+.direct-contact-card dl {
+  margin: 0;
+}
+
+.direct-contact-card dt {
+  color: var(--turquoise-dark);
+  font-size: 0.75rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.direct-contact-card dd {
+  margin: 3px 0 0;
+  color: var(--navy);
+  font-size: 0.9rem;
+  font-weight: 750;
+}
+
+.direct-contact-availability {
+  border-left: 4px solid var(--turquoise);
+  background: #f1faf8;
+  color: #334b52;
+  padding: 9px 10px;
+}
+
+.direct-contact-limitation {
+  color: #5d4a24;
+  font-size: 0.92rem;
+}
+
+.primary-link-button {
+  border: 1px solid var(--navy);
+  background: var(--navy);
+  color: white;
+}
+
+.secondary-link-button {
+  border: 1px solid #b8cecc;
+  background: white;
+  color: var(--navy);
+}
+
+.source-link {
+  width: fit-content;
+  color: var(--turquoise-dark);
+  font-size: 0.84rem;
+  font-weight: 750;
+  overflow-wrap: anywhere;
+}
+
+.google-help-card > div:first-child > p:not(.eyebrow) {
+  margin: 9px 0 0;
+  color: #526a70;
+  line-height: 1.5;
+}
+
+html[dir="rtl"] .direct-contact-availability {
+  border-right: 4px solid var(--turquoise);
+  border-left: 0;
+}
+
+html[dir="rtl"] .quick-actions-card ol {
+  padding-right: 28px;
+  padding-left: 0;
+}
+
+@media (min-width: 760px) {
+  .emergency-strip {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+
+  .triage-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .direct-contact-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .quick-help-flow,
+  .quick-help-results {
+    padding-top: 148px;
+  }
+
+  .quick-help-actions > *,
+  .quick-result-actions > *,
+  .emergency-actions > *,
+  .direct-contact-actions > * {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
 
 @media (min-width: 680px) {

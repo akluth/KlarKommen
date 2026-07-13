@@ -14,6 +14,11 @@ export interface UrgencyResult {
 }
 
 type SignalKey =
+  | 'assessmentIncomplete'
+  | 'basicNeedsAtRisk'
+  | 'careAtRisk'
+  | 'categoryAcute'
+  | 'categoryConcern'
   | 'deadlineMissing'
   | 'deadlinePast'
   | 'deadlineOneDay'
@@ -43,6 +48,17 @@ type SignalKey =
   | 'childrenNoSupport'
   | 'livingChanged';
 
+const criticalAnswerIds: Record<CategoryId, string[]> = {
+  rent: ['evictionClaim', 'immediateTermination', 'rentTerminated'],
+  energy: ['energyBlockStatus'],
+  jobcenter: ['jobcenterIssue', 'decisionAvailable'],
+  health: ['benefitsSuspendedThreat', 'healthWarnings'],
+  garnishment: ['accountGarnished', 'pAccount', 'garnishmentOrder'],
+  schufa: ['urgency', 'acuteDeadline', 'creditRejected'],
+  debtCourt: ['debtLetterType', 'courtYellowEnvelope'],
+  family: ['childrenAffected', 'livingSituationChanged', 'supportNetwork'],
+};
+
 const startOfToday = () => {
   const now = new Date();
   return new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -57,6 +73,11 @@ const daysUntilDeadline = (deadline?: string) => {
 
 const signalTexts: Record<Language, Record<SignalKey, string>> = {
   de: {
+    assessmentIncomplete: 'Wichtige Warnsignale sind noch nicht vollständig geklärt. Das ist keine Entwarnung.',
+    basicNeedsAtRisk: 'Essen, Unterkunft, Energie, Behandlung oder Medikamente sind heute möglicherweise nicht gesichert.',
+    careAtRisk: 'Notwendige Behandlung oder Medikamente sind akut gefährdet.',
+    categoryAcute: 'Du hast ein unmittelbar akutes Warnsignal angegeben.',
+    categoryConcern: 'Du hast ein Warnsignal angegeben, das zeitnah geprüft werden sollte.',
     deadlineMissing: 'Es gibt eine schriftliche Frist, aber das genaue Datum fehlt noch.',
     deadlinePast: 'Die angegebene Frist ist bereits abgelaufen.',
     deadlineOneDay: 'Die Frist läuft heute oder morgen ab.',
@@ -87,6 +108,11 @@ const signalTexts: Record<Language, Record<SignalKey, string>> = {
     livingChanged: 'Die Wohnsituation verändert sich oder könnte sich bald verändern.',
   },
   tr: {
+    assessmentIncomplete: 'Önemli uyarı işaretleri henüz tam açıklığa kavuşmadı. Bu, tehlike yok anlamına gelmez.',
+    basicNeedsAtRisk: 'Yemek, konut, enerji, tedavi veya ilaç bugün güvence altında olmayabilir.',
+    careAtRisk: 'Gerekli tedavi veya ilaçlar akut biçimde tehlikede.',
+    categoryAcute: 'Doğrudan akut bir uyarı işareti belirttin.',
+    categoryConcern: 'Yakında kontrol edilmesi gereken bir uyarı işareti belirttin.',
     deadlineMissing: 'Yazılı bir süre var, ancak kesin tarih henüz eksik.',
     deadlinePast: 'Belirtilen süre zaten geçmiş.',
     deadlineOneDay: 'Süre bugün veya yarın doluyor.',
@@ -117,6 +143,11 @@ const signalTexts: Record<Language, Record<SignalKey, string>> = {
     livingChanged: 'Yaşam veya konut durumu değişiyor ya da yakında değişebilir.',
   },
   ar: {
+    assessmentIncomplete: 'لم يتم توضيح إشارات تحذير مهمة بالكامل بعد. هذا لا يعني أن الوضع آمن.',
+    basicNeedsAtRisk: 'قد لا يكون الطعام أو السكن أو الطاقة أو العلاج أو الدواء مؤمنا اليوم.',
+    careAtRisk: 'العلاج أو الدواء الضروري مهدد بشكل عاجل.',
+    categoryAcute: 'ذكرت إشارة تحذير عاجلة مباشرة.',
+    categoryConcern: 'ذكرت إشارة تحذير ينبغي فحصها قريبا.',
     deadlineMissing: 'توجد مهلة مكتوبة، لكن التاريخ الدقيق غير معروف بعد.',
     deadlinePast: 'المهلة المذكورة انتهت بالفعل.',
     deadlineOneDay: 'المهلة تنتهي اليوم أو غدا.',
@@ -147,6 +178,11 @@ const signalTexts: Record<Language, Record<SignalKey, string>> = {
     livingChanged: 'وضع السكن يتغير أو قد يتغير قريبا.',
   },
   uk: {
+    assessmentIncomplete: 'Важливі сигнали ризику ще не з’ясовані повністю. Це не означає, що небезпеки немає.',
+    basicNeedsAtRisk: 'Їжа, житло, енергія, лікування або ліки сьогодні можуть бути не забезпечені.',
+    careAtRisk: 'Необхідне лікування або ліки гостро під загрозою.',
+    categoryAcute: 'Ви вказали безпосередньо гострий сигнал ризику.',
+    categoryConcern: 'Ви вказали сигнал, який слід перевірити найближчим часом.',
     deadlineMissing: 'Є письмовий строк, але точна дата ще відсутня.',
     deadlinePast: 'Вказаний строк уже минув.',
     deadlineOneDay: 'Строк спливає сьогодні або завтра.',
@@ -199,10 +235,10 @@ const urgencyText: Record<
     },
     green: {
       label: 'Grün',
-      headline: 'Sortieren und dranbleiben',
+      headline: 'In der Kurzprüfung kein akuter Hinweis',
       summary:
-        'Es gibt aus deinen Angaben keine unmittelbaren Alarmsignale. Trotzdem solltest du Unterlagen sichern und den nächsten Schritt schriftlich festhalten.',
-      fallbackReason: 'Keine akute Frist oder besonders dringliche Eskalation wurde angegeben.',
+        'Deine ausdrücklich gewählten Angaben zeigen kein unmittelbares Alarmsignal. Das ist keine Garantie; sichere trotzdem Unterlagen und halte den nächsten Schritt schriftlich fest.',
+      fallbackReason: 'In den ausdrücklich beantworteten Warnfragen wurde kein akutes Signal angegeben.',
     },
   },
   tr: {
@@ -220,9 +256,9 @@ const urgencyText: Record<
     },
     green: {
       label: 'Yeşil',
-      headline: 'Sırala ve takipte kal',
-      summary: 'Yanıtlarında doğrudan alarm işareti görünmüyor. Yine de belgeleri sakla ve sonraki adımı yazılı olarak belirle.',
-      fallbackReason: 'Acil bir süre veya özellikle acil bir tırmanma belirtilmedi.',
+      headline: 'Kısa kontrolde akut işaret yok',
+      summary: 'Açıkça seçtiğin yanıtlarda doğrudan alarm işareti yok. Bu bir garanti değildir; belgeleri sakla ve sonraki adımı yazılı belirle.',
+      fallbackReason: 'Açıkça yanıtlanan uyarı sorularında akut işaret belirtilmedi.',
     },
   },
   ar: {
@@ -240,9 +276,9 @@ const urgencyText: Record<
     },
     green: {
       label: 'أخضر',
-      headline: 'رتّب الأمور وابق متابعا',
-      summary: 'لا تظهر من إجاباتك إشارات إنذار مباشرة. مع ذلك احفظ المستندات وثبّت الخطوة التالية كتابيا.',
-      fallbackReason: 'لم يتم ذكر مهلة عاجلة أو تصعيد شديد الاستعجال.',
+      headline: 'لا توجد إشارة عاجلة في الفحص السريع',
+      summary: 'لا تظهر في الإجابات التي اخترتها بوضوح إشارة إنذار مباشرة. هذا ليس ضمانا؛ احفظ المستندات وثبّت الخطوة التالية كتابة.',
+      fallbackReason: 'لم تُذكر إشارة عاجلة في أسئلة التحذير التي تمت الإجابة عنها بوضوح.',
     },
   },
   uk: {
@@ -260,9 +296,9 @@ const urgencyText: Record<
     },
     green: {
       label: 'Зелений',
-      headline: 'Впорядкувати і не відкладати',
-      summary: 'З ваших відповідей не видно негайних сигналів тривоги. Але варто зберегти документи і письмово зафіксувати наступний крок.',
-      fallbackReason: 'Не вказано гострого строку або особливо термінового загострення.',
+      headline: 'У короткій перевірці немає гострого сигналу',
+      summary: 'У чітко обраних відповідях немає безпосереднього сигналу тривоги. Це не гарантія; збережіть документи й письмово зафіксуйте наступний крок.',
+      fallbackReason: 'У чітко заповнених питаннях ризику гострого сигналу не вказано.',
     },
   },
 };
@@ -287,6 +323,38 @@ export function buildUrgency(categoryId: CategoryId, answers: Answers, language:
   const deadline = deadlineReason(answers);
 
   if (deadline) signals.push(deadline);
+
+  switch (answers.quickDeadlineWindow) {
+    case 'immediateNeeds':
+      signals.push({ score: 3, key: 'basicNeedsAtRisk' });
+      break;
+    case 'today':
+      signals.push({ score: 3, key: 'deadlineOneDay' });
+      break;
+    case 'threeDays':
+      signals.push({ score: 2, key: 'deadlineThreeDays' });
+      break;
+    case 'week':
+      signals.push({ score: 1, key: 'deadlineWeek' });
+      break;
+    case 'unclear':
+      signals.push({ score: 1, key: 'assessmentIncomplete' });
+      break;
+  }
+
+  if (has(answers, 'basicNeedsAtRisk', 'ja')) signals.push({ score: 3, key: 'basicNeedsAtRisk' });
+  if (has(answers, 'careAtRisk', 'ja')) signals.push({ score: 3, key: 'careAtRisk' });
+  if (has(answers, 'safetyAtRisk', 'ja')) signals.push({ score: 3, key: 'categoryAcute' });
+  if (has(answers, 'quickCategoryAcute', 'ja')) signals.push({ score: 3, key: 'categoryAcute' });
+  if (has(answers, 'quickCategoryConcern', 'ja')) signals.push({ score: 1, key: 'categoryConcern' });
+  if (has(answers, 'quickRiskUnclear', 'ja')) signals.push({ score: 1, key: 'assessmentIncomplete' });
+
+  if (
+    answers.triageCompleted !== 'ja' &&
+    criticalAnswerIds[categoryId].some((answerId) => answers[answerId] === undefined)
+  ) {
+    signals.push({ score: 1, key: 'assessmentIncomplete' });
+  }
 
   switch (categoryId) {
     case 'rent':
@@ -355,14 +423,17 @@ export function buildUrgency(categoryId: CategoryId, answers: Answers, language:
   const text = urgencyText[language][level];
   const relevantSignals =
     level === 'red' ? signals.filter((signal) => signal.score >= 2) : level === 'yellow' ? signals : [];
+  const uniqueSignals = relevantSignals.filter(
+    (signal, index) => relevantSignals.findIndex((candidate) => candidate.key === signal.key) === index,
+  );
 
   return {
     level,
     label: text.label,
     headline: text.headline,
     summary: text.summary,
-    reasons: relevantSignals.length
-      ? relevantSignals.map((signal) => signalTexts[language][signal.key])
+    reasons: uniqueSignals.length
+      ? uniqueSignals.map((signal) => signalTexts[language][signal.key])
       : [text.fallbackReason],
   };
 }
@@ -371,28 +442,28 @@ const sharedDocuments: Record<Language, string[]> = {
   de: [
     'Personalausweis oder anderes Ausweisdokument',
     'Alle aktuellen Schreiben, Mahnungen und Bescheide',
-    'Nachweise zu Einkommen, Bürgergeld, Sozialhilfe, Rente oder Unterhalt',
+    'Nachweise zu Einkommen, Grundsicherungsgeld, Sozialhilfe, Rente oder Unterhalt',
     'Kontoauszüge der letzten Wochen',
     'Notizen zu Telefonaten, Namen, Datum und Uhrzeit',
   ],
   tr: [
     'Kimlik kartı veya başka bir kimlik belgesi',
     'Tüm güncel yazılar, ihtarlar ve kararlar',
-    'Gelir, Bürgergeld, sosyal yardım, emeklilik veya nafaka belgeleri',
+    'Gelir, Grundsicherungsgeld, sosyal yardım, emeklilik veya nafaka belgeleri',
     'Son haftalara ait banka hesap dökümleri',
     'Telefon görüşmeleri, isimler, tarih ve saat notları',
   ],
   ar: [
     'بطاقة الهوية أو وثيقة تعريف أخرى',
     'كل الخطابات الحالية والإنذارات والقرارات',
-    'إثباتات الدخل أو Bürgergeld أو المساعدة الاجتماعية أو المعاش أو النفقة',
+    'إثباتات الدخل أو Grundsicherungsgeld أو المساعدة الاجتماعية أو المعاش أو النفقة',
     'كشوف الحساب البنكي للأسابيع الأخيرة',
     'ملاحظات عن المكالمات والأسماء والتاريخ والوقت',
   ],
   uk: [
     'Посвідчення особи або інший документ',
     'Усі актуальні листи, нагадування та рішення',
-    'Підтвердження доходу, Bürgergeld, соціальної допомоги, пенсії або аліментів',
+    'Підтвердження доходу, Grundsicherungsgeld, соціальної допомоги, пенсії або аліментів',
     'Виписки з рахунку за останні тижні',
     'Нотатки про телефонні розмови, імена, дати та час',
   ],
@@ -404,7 +475,7 @@ const documentsByCategory: Record<Language, Record<CategoryId, string[]>> = {
     energy: ['Sperrandrohung oder Sperrmitteilung', 'Kundennummer, Zählernummer und letzte Jahresabrechnung', 'Übersicht über Abschläge, Rückstand und angebotene Raten'],
     jobcenter: ['Bescheid, Antrag, Weiterbewilligungsantrag oder Rückforderung', 'Nachweise, wann Schreiben angekommen oder abgegeben wurden', 'Mietvertrag, Kontoauszüge und Einkommensnachweise'],
     health: ['Schreiben der Krankenkasse und Forderungsaufstellung', 'Nachweise zu Einkommen, Selbstständigkeit oder Leistungsbezug', 'Versichertenkarte und Versicherungsnummer'],
-    garnishment: ['Pfändungs- und Überweisungsbeschluss, falls vorhanden', 'Schreiben der Bank zur Kontopfändung oder zum P-Konto', 'Nachweise über Gehalt, Bürgergeld, Rente oder Unterhalt'],
+    garnishment: ['Pfändungs- und Überweisungsbeschluss, falls vorhanden', 'Schreiben der Bank zur Kontopfändung oder zum P-Konto', 'Nachweise über Gehalt, Grundsicherungsgeld, Rente oder Unterhalt'],
     schufa: ['Ablehnungsschreiben oder Nachricht zum Kredit', 'Schreiben des eigentlichen Gläubigers oder Vertragspartners', 'Unterlagen zur Forderung und zum Verwendungszweck des Geldes'],
     debtCourt: ['Inkassoschreiben, Mahnung, Mahnbescheid oder Vollstreckungsbescheid', 'Gelber Umschlag mit Zustelldatum, falls vorhanden', 'Vertrag, Rechnung, Kündigung oder frühere Schreiben zur Forderung'],
     family: ['Urkunden, Bescheinigungen oder gerichtliche Schreiben', 'Unterlagen zu Wohnung, Konto, Versicherungen und gemeinsamen Verträgen', 'Nachweise zu Kindern, Betreuung, Schule oder Kita'],
@@ -414,7 +485,7 @@ const documentsByCategory: Record<Language, Record<CategoryId, string[]>> = {
     energy: ['Kesinti tehdidi veya kesinti bildirimi', 'Müşteri numarası, sayaç numarası ve son yıllık hesap', 'Avans ödemeleri, borç ve teklif edilen taksitler listesi'],
     jobcenter: ['Karar, başvuru, devam başvurusu veya geri ödeme talebi', 'Yazıların ne zaman geldiğini veya teslim edildiğini gösteren belgeler', 'Kira sözleşmesi, hesap dökümleri ve gelir belgeleri'],
     health: ['Sağlık sigortası yazıları ve borç dökümü', 'Gelir, serbest çalışma veya yardım alma belgeleri', 'Sigorta kartı ve sigorta numarası'],
-    garnishment: ['Varsa haciz ve havale kararı', 'Bankadan hesap haczi veya P-Konto yazıları', 'Maaş, Bürgergeld, emeklilik veya nafaka belgeleri'],
+    garnishment: ['Varsa haciz ve havale kararı', 'Bankadan hesap haczi veya P-Konto yazıları', 'Maaş, Grundsicherungsgeld, emeklilik veya nafaka belgeleri'],
     schufa: ['Kredi reddi yazısı veya mesajı', 'Asıl alacaklı veya sözleşme ortağından yazılar', 'Alacak ve paranın kullanım amacıyla ilgili belgeler'],
     debtCourt: ['İnkasso yazısı, ihtar, ödeme emri veya icra emri', 'Varsa tebliğ tarihli sarı zarf', 'Sözleşme, fatura, fesih veya alacakla ilgili eski yazılar'],
     family: ['Resmi belgeler, sertifikalar veya mahkeme yazıları', 'Konut, hesap, sigorta ve ortak sözleşme belgeleri', 'Çocuklar, bakım, okul veya kreş belgeleri'],
@@ -424,7 +495,7 @@ const documentsByCategory: Record<Language, Record<CategoryId, string[]>> = {
     energy: ['تهديد بالقطع أو إشعار بالقطع', 'رقم العميل ورقم العداد وآخر فاتورة سنوية', 'نظرة عامة على الدفعات والمتأخرات والأقساط المعروضة'],
     jobcenter: ['قرار أو طلب أو طلب تمديد أو مطالبة استرداد', 'إثباتات موعد وصول أو تسليم الخطابات', 'عقد الإيجار وكشوف الحساب وإثباتات الدخل'],
     health: ['خطابات شركة التأمين الصحي وكشف المطالبة', 'إثباتات الدخل أو العمل الحر أو تلقي المساعدات', 'بطاقة التأمين ورقم التأمين'],
-    garnishment: ['قرار الحجز والتحويل إن وجد', 'خطابات البنك حول حجز الحساب أو P-Konto', 'إثباتات الراتب أو Bürgergeld أو المعاش أو النفقة'],
+    garnishment: ['قرار الحجز والتحويل إن وجد', 'خطابات البنك حول حجز الحساب أو P-Konto', 'إثباتات الراتب أو Grundsicherungsgeld أو المعاش أو النفقة'],
     schufa: ['خطاب أو رسالة رفض القرض', 'خطابات الدائن الأصلي أو الشريك التعاقدي', 'مستندات المطالبة والغرض من المال'],
     debtCourt: ['خطاب تحصيل أو إنذار أو أمر دفع أو أمر تنفيذ', 'الظرف الأصفر مع تاريخ التسليم إن وجد', 'العقد أو الفاتورة أو الإنهاء أو خطابات سابقة عن المطالبة'],
     family: ['وثائق أو شهادات أو خطابات محكمة', 'مستندات السكن والحسابات والتأمينات والعقود المشتركة', 'إثباتات تخص الأطفال أو الرعاية أو المدرسة أو الحضانة'],
@@ -434,7 +505,7 @@ const documentsByCategory: Record<Language, Record<CategoryId, string[]>> = {
     energy: ['Попередження про відключення або повідомлення про відключення', 'Номер клієнта, номер лічильника та останній річний рахунок', 'Огляд авансових платежів, боргу та запропонованих розстрочок'],
     jobcenter: ['Рішення, заява, продовження заяви або вимога повернення', 'Докази, коли листи надійшли або були подані', 'Договір оренди, виписки з рахунку та підтвердження доходу'],
     health: ['Листи від медичної страхової каси та розрахунок вимоги', 'Підтвердження доходу, самозайнятості або отримання допомоги', 'Страхова картка та страховий номер'],
-    garnishment: ['Рішення про арешт і переказ коштів, якщо є', 'Листи банку щодо арешту рахунку або P-Konto', 'Підтвердження зарплати, Bürgergeld, пенсії або аліментів'],
+    garnishment: ['Рішення про арешт і переказ коштів, якщо є', 'Листи банку щодо арешту рахунку або P-Konto', 'Підтвердження зарплати, Grundsicherungsgeld, пенсії або аліментів'],
     schufa: ['Лист або повідомлення про відмову в кредиті', 'Листи від первинного кредитора або договірного партнера', 'Документи щодо вимоги та цілі використання грошей'],
     debtCourt: ['Лист інкасо, нагадування, Mahnbescheid або Vollstreckungsbescheid', 'Жовтий конверт із датою вручення, якщо є', 'Договір, рахунок, розірвання або попередні листи щодо вимоги'],
     family: ['Свідоцтва, довідки або судові листи', 'Документи щодо житла, рахунку, страхування та спільних договорів', 'Підтвердження щодо дітей, догляду, школи або дитсадка'],

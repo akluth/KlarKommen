@@ -17,7 +17,7 @@ export const categories: Category[] = [
   },
   {
     id: 'jobcenter',
-    title: 'Bürgergeld / Jobcenter',
+    title: 'Grundsicherung / Jobcenter',
     shortTitle: 'Jobcenter',
     description: 'Antrag, Weiterbewilligung, Sanktion, Rückforderung oder Bescheid einordnen.',
     primaryContact: 'Jobcenter oder Sozialamt',
