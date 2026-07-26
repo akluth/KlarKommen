@@ -19,13 +19,13 @@ interface QuickHelpResultsProps {
 }
 
 export default function QuickHelpResults({ answers, category, onContinue, onEdit }: QuickHelpResultsProps) {
-  const { language } = useI18n();
-  const texts = getQuickHelpTexts(language);
+  const { country, language } = useI18n();
+  const texts = getQuickHelpTexts(language, country);
   const extraTexts = getResultExtraTexts(language);
-  const urgency = buildUrgency(category.id, answers, language);
-  const actions = buildQuickActions(category.id, language);
-  const contacts = buildDirectHelpContacts(category.id, language, answers);
-  const searchLinks = buildHelpSearchLinks(category.id, answers, language);
+  const urgency = buildUrgency(category.id, answers, language, country);
+  const actions = buildQuickActions(category.id, language, country);
+  const contacts = buildDirectHelpContacts(category.id, language, answers, country);
+  const searchLinks = buildHelpSearchLinks(category.id, answers, language, country);
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {

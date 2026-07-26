@@ -25,9 +25,12 @@ const isDeadlineWindow = (value?: string): value is QuickDeadlineWindow =>
   Boolean(value && deadlineValues.includes(value as QuickDeadlineWindow));
 
 export default function QuickHelpFlow({ category, initialAnswers, onBack, onComplete }: QuickHelpFlowProps) {
-  const { language } = useI18n();
-  const texts = getQuickHelpTexts(language);
-  const riskOptions = useMemo(() => getQuickRiskOptions(category.id, language), [category.id, language]);
+  const { country, language } = useI18n();
+  const texts = getQuickHelpTexts(language, country);
+  const riskOptions = useMemo(
+    () => getQuickRiskOptions(category.id, language, country),
+    [category.id, country, language],
+  );
   const headingRef = useRef<HTMLHeadingElement>(null);
   const errorRef = useRef<HTMLParagraphElement>(null);
   const [location, setLocation] = useState(initialAnswers.city ?? '');

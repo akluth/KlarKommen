@@ -1,5 +1,5 @@
 import type { DirectHelpContact } from '../data/directHelp';
-import type { Language } from '../i18n';
+import { useI18n, type Language } from '../i18n';
 import type { QuickHelpTexts } from '../i18n/quickHelp';
 import { localeByLanguage } from '../utils/formatters';
 
@@ -10,7 +10,9 @@ interface DirectHelpContactsProps {
 }
 
 export default function DirectHelpContacts({ contacts, language, texts }: DirectHelpContactsProps) {
-  const dateFormatter = new Intl.DateTimeFormat(localeByLanguage[language], {
+  const { country } = useI18n();
+  const locale = language === 'de' && country === 'at' ? 'de-AT' : localeByLanguage[language];
+  const dateFormatter = new Intl.DateTimeFormat(locale, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',

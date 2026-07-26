@@ -22,14 +22,17 @@ const scrollToTop = () => {
 };
 
 export default function App() {
-  const { language, t } = useI18n();
-  const locale = { ar: 'ar', de: 'de-DE', tr: 'tr-TR', uk: 'uk-UA' }[language];
+  const { country, language, t } = useI18n();
+  const locale = language === 'de' && country === 'at'
+    ? 'de-AT'
+    : { ar: 'ar', de: 'de-DE', tr: 'tr-TR', uk: 'uk-UA' }[language];
   const extraTexts = getResultExtraTexts(language);
   const [step, setStep] = useState<Step>('start');
   const [category, setCategory] = useState<Category | null>(null);
   const [answers, setAnswers] = useState<Answers>({});
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
   const [savedCase, setSavedCase] = useState<SavedCase | null>(null);
+  const visibleSavedCase = savedCase?.country === country ? savedCase : null;
   const localizedCategory = category
     ? t.categories.find((item) => item.id === category.id) ?? category
     : null;
@@ -73,6 +76,7 @@ export default function App() {
   const saveCurrentCase = () => {
     if (!category) return;
     saveCase({
+      country,
       categoryId: category.id,
       answers,
       checkedItems,
@@ -81,12 +85,12 @@ export default function App() {
   };
 
   const continueSavedCase = () => {
-    if (!savedCase) return;
-    const nextCategory = t.categories.find((item) => item.id === savedCase.categoryId);
+    if (!visibleSavedCase) return;
+    const nextCategory = t.categories.find((item) => item.id === visibleSavedCase.categoryId);
     if (!nextCategory) return;
     setCategory(nextCategory);
-    setAnswers(savedCase.answers);
-    setCheckedItems(savedCase.checkedItems);
+    setAnswers(visibleSavedCase.answers);
+    setCheckedItems(visibleSavedCase.checkedItems);
     setStep('results');
     scrollToTop();
   };
@@ -128,16 +132,16 @@ export default function App() {
                 {t.ui.showAllHelp}
               </button>
             </section>
-            {savedCase && (
+            {visibleSavedCase && (
               <section className="saved-case-panel panel" aria-labelledby="saved-case-heading">
                 <div>
                   <p className="eyebrow">{extraTexts.savedCaseEyebrow}</p>
                   <h2 id="saved-case-heading">{extraTexts.savedCaseHeading}</h2>
                   <p>
-                    {t.categories.find((item) => item.id === savedCase.categoryId)?.title ??
+                    {t.categories.find((item) => item.id === visibleSavedCase.categoryId)?.title ??
                       extraTexts.savedCaseFallback}{' '}
                     - {extraTexts.savedCaseSavedAt}{' '}
-                    {new Date(savedCase.savedAt).toLocaleDateString(locale)}
+                    {new Date(visibleSavedCase.savedAt).toLocaleDateString(locale)}
                   </p>
                 </div>
                 <div className="saved-case-actions">
@@ -195,7 +199,7 @@ export default function App() {
             category={localizedCategory}
             answers={answers}
             checkedItems={checkedItems}
-            savedCaseExists={Boolean(savedCase)}
+            savedCaseExists={Boolean(visibleSavedCase)}
             onCheckedItemsChange={setCheckedItems}
             onDeleteSavedCase={removeSavedCase}
             onReset={reset}

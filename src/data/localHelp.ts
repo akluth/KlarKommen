@@ -1,5 +1,5 @@
 import type { Language } from '../i18n';
-import type { Answers, Category, CategoryId } from '../types';
+import type { Answers, Category, CategoryId, Country } from '../types';
 import { formatDateForLanguage, formatEuroForLanguage } from '../utils/formatters';
 
 export interface HelpSearchLink {
@@ -63,6 +63,17 @@ const queriesByCategory: Record<CategoryId, string[]> = {
   ],
 };
 
+const austrianQueriesByCategory: Record<CategoryId, string[]> = {
+  rent: ['WOHNSCHIRM Miete Beratungsstelle', 'Mietervereinigung Mietschulden', 'Wohnbeihilfe Beratung', 'staatlich anerkannte Schuldenberatung'],
+  energy: ['WOHNSCHIRM Energie Beratungsstelle', 'E-Control Energieberatung', 'Arbeiterkammer Energieschulden', 'Energieschuldenberatung'],
+  jobcenter: ['Sozialhilfe Mindestsicherung Antrag', 'AMS Beratung Bescheid', 'Arbeitslosenberatung', 'Verfahrenshilfe Verwaltungsgericht'],
+  health: ['ÖGK Beitragsschulden Beratung', 'Patientenanwaltschaft', 'Krankenversicherung Sozialberatung', 'staatlich anerkannte Schuldenberatung'],
+  garnishment: ['staatlich anerkannte Schuldenberatung Kontopfändung', 'Existenzminimum Kontopfändung', 'Bezirksgericht Exekution Amtstag', 'unpfändbare Leistungen Kontopfändung'],
+  schufa: ['KSV1870 Auskunft Art 15 DSGVO', 'CRIF Selbstauskunft kostenlos', 'Arbeiterkammer Bonitätsdaten', 'Datenschutzbehörde Beschwerde Bonitätsauskunft'],
+  debtCourt: ['Arbeiterkammer Inkasso Beratung', 'Schuldenberatung bedingter Zahlungsbefehl', 'Bezirksgericht Amtstag Zahlungsbefehl', 'Inkasso Forderung prüfen Österreich'],
+  family: ['geförderte Familienberatung', 'Kinder und Jugendhilfe Beratung', 'Familiengerichtshilfe', 'Sozialberatung Familie'],
+};
+
 const queryLabels: Record<Language, Record<CategoryId, string[]>> = {
   de: queriesByCategory,
   tr: {
@@ -94,6 +105,40 @@ const queryLabels: Record<Language, Record<CategoryId, string[]>> = {
     schufa: ['Боргова консультація Schufa', 'Споживча консультація Schufa', 'Безкоштовна копія даних Schufa', 'Боргова консультація після відмови у кредиті'],
     debtCourt: ['Споживча консультація Inkasso', 'Боргова консультація Mahnbescheid', 'Місцевий суд і Mahnbescheid', 'Перевірка вимоги Inkasso'],
     family: ['Сімейна консультація', 'Консультація з виховання', 'Консультація Jugendamt', 'Соціальна консультація сім’ї'],
+  },
+};
+
+const austrianQueryLabels: Record<Language, Record<CategoryId, string[]>> = {
+  de: austrianQueriesByCategory,
+  tr: {
+    rent: ['WOHNSCHIRM kira yardımı', 'Kira borcu danışması', 'Konut yardımı danışması', 'Devletçe tanınan borç danışması'],
+    energy: ['WOHNSCHIRM enerji yardımı', 'E-Control enerji danışması', 'Arbeiterkammer enerji borcu', 'Enerji borcu danışması'],
+    jobcenter: ['Sosyal yardım / Mindestsicherung başvurusu', 'AMS kararı danışması', 'İşsizler danışması', 'İdare mahkemesi Verfahrenshilfe'],
+    health: ['ÖGK prim borcu danışması', 'Hasta hakları birimi', 'Sağlık sigortası sosyal danışması', 'Devletçe tanınan borç danışması'],
+    garnishment: ['Hesap haczi borç danışması', 'Hacizde geçim asgarisi', 'Bezirksgericht icra Amtstag', 'Haczedilemez ödemeler'],
+    schufa: ['KSV1870 ücretsiz DSGVO bilgisi', 'CRIF ücretsiz öz bilgi', 'Arbeiterkammer kredi verileri', 'Veri koruma şikâyeti'],
+    debtCourt: ['Arbeiterkammer tahsilat danışması', 'Şartlı ödeme emri borç danışması', 'Bezirksgericht ödeme emri', 'Tahsilat talebi kontrolü'],
+    family: ['Desteklenen aile danışması', 'Çocuk ve gençlik yardımı', 'Aile mahkemesi yardımı', 'Aile sosyal danışması'],
+  },
+  ar: {
+    rent: ['مساعدة WOHNSCHIRM للإيجار', 'استشارة ديون الإيجار', 'استشارة إعانة السكن', 'استشارة ديون معترف بها رسميا'],
+    energy: ['مساعدة WOHNSCHIRM للطاقة', 'استشارة E-Control للطاقة', 'Arbeiterkammer وديون الطاقة', 'استشارة ديون الطاقة'],
+    jobcenter: ['طلب المساعدة الاجتماعية / Mindestsicherung', 'استشارة قرار AMS', 'استشارة العاطلين', 'Verfahrenshilfe للمحكمة الإدارية'],
+    health: ['استشارة ديون اشتراكات ÖGK', 'مكتب حقوق المرضى', 'استشارة اجتماعية للتأمين الصحي', 'استشارة ديون معترف بها رسميا'],
+    garnishment: ['استشارة ديون حجز الحساب', 'الحد الأدنى للمعيشة عند الحجز', 'Bezirksgericht والتنفيذ', 'المدفوعات غير القابلة للحجز'],
+    schufa: ['معلومات KSV1870 المجانية وفق DSGVO', 'معلومات CRIF الذاتية المجانية', 'Arbeiterkammer وبيانات الائتمان', 'شكوى حماية البيانات'],
+    debtCourt: ['Arbeiterkammer واستشارة التحصيل', 'استشارة ديون لأمر الدفع المشروط', 'Bezirksgericht وأمر الدفع', 'فحص مطالبة التحصيل'],
+    family: ['استشارة أسرية مدعومة', 'مساعدة الأطفال والشباب', 'مساعدة محكمة الأسرة', 'استشارة اجتماعية للأسرة'],
+  },
+  uk: {
+    rent: ['Допомога WOHNSCHIRM з орендою', 'Консультація щодо боргу за оренду', 'Консультація з житлової допомоги', 'Державна визнана боргова консультація'],
+    energy: ['Допомога WOHNSCHIRM з енергією', 'Енергоконсультація E-Control', 'Arbeiterkammer та енергоборги', 'Консультація щодо енергоборгу'],
+    jobcenter: ['Заява на соціальну допомогу / Mindestsicherung', 'Консультація щодо рішення AMS', 'Консультація для безробітних', 'Verfahrenshilfe в адміністративному суді'],
+    health: ['Консультація ÖGK щодо боргу', 'Пацієнтський омбудсман', 'Соціальна консультація зі страхування', 'Державна визнана боргова консультація'],
+    garnishment: ['Боргова консультація при арешті рахунку', 'Прожитковий мінімум при арешті', 'Bezirksgericht та виконання', 'Недоторканні виплати'],
+    schufa: ['Безкоштовна інформація KSV1870 за GDPR', 'Безкоштовна інформація CRIF', 'Arbeiterkammer і кредитні дані', 'Скарга до органу захисту даних'],
+    debtCourt: ['Arbeiterkammer та інкасо', 'Боргова консультація щодо платіжного наказу', 'Bezirksgericht і платіжний наказ', 'Перевірка вимоги інкасо'],
+    family: ['Субсидована сімейна консультація', 'Допомога дітям і молоді', 'Сімейна судова допомога', 'Соціальна консультація сім’ї'],
   },
 };
 
@@ -135,15 +180,22 @@ const phoneDeadlineText: Record<Language, (answers: Answers) => string> = {
   },
 };
 
-export function buildHelpSearchLinks(categoryId: CategoryId, answers: Answers, language: Language): HelpSearchLink[] {
+export function buildHelpSearchLinks(
+  categoryId: CategoryId,
+  answers: Answers,
+  language: Language,
+  country: Country = 'de',
+): HelpSearchLink[] {
   const city = answers.city?.replace(/[\r\n\t]+/g, ' ').replace(/\s{2,}/g, ' ').trim().slice(0, 80);
+  const queries = country === 'at' ? austrianQueriesByCategory : queriesByCategory;
+  const labels = country === 'at' ? austrianQueryLabels : queryLabels;
 
-  return queriesByCategory[categoryId].map((query, index) => {
+  return queries[categoryId].map((query, index) => {
     const fullQuery = withCity(query, city);
     return {
       label: city
-        ? `${queryLabels[language][categoryId][index]} — ${city}`
-        : queryLabels[language][categoryId][index],
+        ? `${labels[language][categoryId][index]} — ${city}`
+        : labels[language][categoryId][index],
       query: fullQuery,
       url: searchUrl(fullQuery),
     };

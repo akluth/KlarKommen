@@ -1,5 +1,6 @@
 import type { Language } from './index';
-import type { CategoryId } from '../types';
+import type { CategoryId, Country } from '../types';
+import { adaptTextForAustria } from './austria';
 
 export type QuickDeadlineWindow =
   | 'immediateNeeds'
@@ -328,6 +329,181 @@ const ar: QuickHelpTexts = {
 
 const quickTexts: Record<Language, QuickHelpTexts> = { ar, de, tr, uk };
 
-export function getQuickHelpTexts(language: Language) {
-  return quickTexts[language] ?? de;
+const austrianEmergency: Record<Language, Pick<QuickHelpTexts, 'emergencyCall' | 'emergencyPolice' | 'emergencyText' | 'directContactIntro' | 'locationPlaceholder'>> = {
+  de: {
+    emergencyCall: 'Rettung 144 anrufen',
+    emergencyPolice: 'Polizei 133 anrufen',
+    emergencyText: 'Bei Lebensgefahr oder einem medizinischen Notfall rufe die Rettung 144. Bei akuter Bedrohung oder Gewalt rufe die Polizei 133. Der Euro-Notruf 112 funktioniert ebenfalls. Finanzielle Dringlichkeit allein ist kein Fall für den Notruf.',
+    directContactIntro: 'Diese Stellen sind österreichweit erreichbar oder führen dich zu einer zuständigen Stelle vor Ort. Ein Anruf oder eine Nachricht wahrt keine rechtliche Frist.',
+    locationPlaceholder: 'z. B. 1010 oder Wien',
+  },
+  tr: {
+    emergencyCall: '144 ambulansı ara',
+    emergencyPolice: '133 polisi ara',
+    emergencyText: 'Hayati tehlike veya tıbbi acil durumda 144 ambulansı ara. Akut tehdit ya da şiddette 133 polisi ara. Avrupa acil numarası 112 de çalışır. Yalnızca mali aciliyet acil çağrı nedeni değildir.',
+    directContactIntro: 'Bu kurumlara Avusturya genelinde ulaşılabilir veya seni yerel yetkili kuruma yönlendirirler. Arama ya da mesaj yasal süreyi durdurmaz.',
+    locationPlaceholder: 'örn. 1010 veya Wien',
+  },
+  ar: {
+    emergencyCall: 'اتصل بالإسعاف 144',
+    emergencyPolice: 'اتصل بالشرطة 133',
+    emergencyText: 'عند خطر على الحياة أو حالة طبية طارئة اتصل بالإسعاف 144. عند تهديد أو عنف حاد اتصل بالشرطة 133. يعمل أيضا رقم الطوارئ الأوروبي 112. الضيق المالي وحده ليس سببا للاتصال بالطوارئ.',
+    directContactIntro: 'هذه الجهات متاحة في كل النمسا أو تساعدك في الوصول إلى الجهة المحلية المختصة. الاتصال أو الرسالة لا يوقفان أي مهلة قانونية.',
+    locationPlaceholder: 'مثلا 1010 أو Wien',
+  },
+  uk: {
+    emergencyCall: 'Зателефонувати 144',
+    emergencyPolice: 'Зателефонувати 133',
+    emergencyText: 'За загрози життю або медичної невідкладної ситуації телефонуйте 144. За гострої загрози чи насильства — 133. Європейський номер 112 також працює. Сама фінансова терміновість не є підставою для екстреного виклику.',
+    directContactIntro: 'Ці служби доступні по всій Австрії або допоможуть знайти місцеву установу. Дзвінок чи повідомлення не зупиняє юридичний строк.',
+    locationPlaceholder: 'наприклад 1010 або Wien',
+  },
+};
+
+const austrianGermanRisks: Partial<Record<CategoryId, QuickRiskText>> = {
+  jobcenter: {
+    legend: 'Was ist bei Sozialhilfe oder AMS gerade am dringendsten?',
+    options: {
+      noMoney: { label: 'Geld für den Lebensunterhalt fehlt jetzt', help: 'Essen, Wohnen oder Medikamente sind aktuell nicht gesichert.' },
+      stopped: { label: 'Leistung wurde gekürzt oder eingestellt', help: 'Zum Beispiel Sozialhilfe, Arbeitslosengeld oder Notstandshilfe.' },
+      deadline: { label: 'Bescheid oder Beschwerdefrist', help: 'Bescheid und Rechtsmittelbelehrung müssen rasch geprüft werden.' },
+      application: { label: 'Antrag oder allgemeine Frage', help: 'Keine akute Versorgungslücke bekannt.' },
+      unclear: { label: 'Unklar', help: 'Du kannst den Bescheid oder den aktuellen Stand nicht sicher einordnen.' },
+    },
+  },
+  garnishment: {
+    legend: 'Was ist mit deinem Konto passiert?',
+    options: {
+      noAccess: { label: 'Gepfändet und kein Geld verfügbar', help: 'Du kommst nicht an Geld für den Lebensunterhalt.' },
+      noPAccount: { label: 'Gepfändet, Schutz noch nicht geklärt', help: 'Unpfändbare Beträge oder das Existenzminimum sind noch nicht freigegeben.' },
+      pAccount: { label: 'Gepfändet, Schutz wurde schon geprüft', help: 'Trotzdem gibt es ein Problem mit Zugriff oder Freigabe.' },
+      order: { label: 'Exekution angekündigt oder bewilligt', help: 'Das Konto ist möglicherweise noch nicht blockiert.' },
+      unclear: { label: 'Unklar', help: 'Du kannst Kontostatus oder Schreiben nicht sicher einordnen.' },
+    },
+  },
+  schufa: {
+    legend: 'Was ist beim Kredit- oder Bonitätsthema passiert?',
+    options: {
+      essential: { label: 'Geld wird heute für etwas Lebensnotwendiges gebraucht', help: 'Zum Beispiel Miete, Energie, Essen oder Medikamente.' },
+      rejected: { label: 'Kredit oder Vertrag wurde abgelehnt', help: 'KSV1870, CRIF oder Bonität wurde als Grund genannt oder vermutet.' },
+      wrongData: { label: 'Bonitätsdaten wirken falsch', help: 'Du möchtest Daten bei KSV1870 oder CRIF prüfen oder berichtigen lassen.' },
+      information: { label: 'Kostenlose Selbstauskunft', help: 'Keine akute Frist oder Versorgungslücke bekannt.' },
+      unclear: { label: 'Unklar', help: 'Du weißt noch nicht, was gespeichert ist oder warum etwas abgelehnt wurde.' },
+    },
+  },
+  debtCourt: {
+    legend: 'Welches Schreiben liegt vor?',
+    options: {
+      enforcement: { label: 'Rechtskräftiger Titel oder Exekution', help: 'Ein rechtskräftiger Zahlungsbefehl oder eine Exekution liegt nahe.' },
+      courtOrder: { label: 'Bedingter Zahlungsbefehl', help: 'Das Schreiben kommt von einem österreichischen Gericht.' },
+      inkasso: { label: 'Inkassoschreiben', help: 'Das Schreiben kommt von einem Inkassounternehmen.' },
+      reminder: { label: 'Mahnung oder unbekannte Forderung', help: 'Kein Gericht als Absender erkennbar.' },
+      unclear: { label: 'Unklar', help: 'Du kannst Absender oder Art des Schreibens nicht sicher erkennen.' },
+    },
+  },
+};
+
+const austrianRiskOverrides: Record<Language, Partial<Record<CategoryId, QuickRiskText>>> = {
+  de: austrianGermanRisks,
+  tr: {
+    jobcenter: { legend: 'Sosyal yardım veya AMS konusunda şu anda en acil olan ne?', options: {
+      noMoney: { label: 'Geçim parası şimdi eksik', help: 'Yemek, konut veya ilaç şu anda güvence altında değil.' },
+      stopped: { label: 'Ödeme azaltıldı veya durduruldu', help: 'Örneğin sosyal yardım, işsizlik parası veya Notstandshilfe.' },
+      deadline: { label: 'Karar veya şikâyet süresi', help: 'Karar ve hukuk yolu açıklaması hızla kontrol edilmeli.' },
+      application: { label: 'Başvuru veya genel soru', help: 'Bilinen akut ihtiyaç açığı yok.' },
+      unclear: { label: 'Belirsiz', help: 'Kararı veya güncel durumu güvenle sınıflandıramıyorsun.' },
+    } },
+    garnishment: { legend: 'Hesabına ne oldu?', options: {
+      noAccess: { label: 'Hacizli ve para kullanılamıyor', help: 'Geçim için gereken paraya ulaşamıyorsun.' },
+      noPAccount: { label: 'Hacizli, koruma henüz net değil', help: 'Haczedilemez tutarlar veya geçim asgarisi serbest bırakılmadı.' },
+      pAccount: { label: 'Hacizli, koruma incelendi', help: 'Yine de erişim veya serbest bırakma sorunu var.' },
+      order: { label: 'İcra bildirildi veya onaylandı', help: 'Hesap henüz bloke olmamış olabilir.' },
+      unclear: { label: 'Belirsiz', help: 'Hesap durumunu veya yazıyı güvenle sınıflandıramıyorsun.' },
+    } },
+    schufa: { legend: 'Kredi veya kredi verileri konusunda ne oldu?', options: {
+      essential: { label: 'Bugün temel ihtiyaç için para gerekli', help: 'Örneğin kira, enerji, yemek veya ilaç.' },
+      rejected: { label: 'Kredi veya sözleşme reddedildi', help: 'KSV1870, CRIF veya kredi notu neden gösterildi.' },
+      wrongData: { label: 'Kredi verileri yanlış görünüyor', help: 'KSV1870 veya CRIF verilerini kontrol ya da düzelttirmek istiyorsun.' },
+      information: { label: 'Ücretsiz öz bilgi', help: 'Bilinen akut süre veya ihtiyaç açığı yok.' },
+      unclear: { label: 'Belirsiz', help: 'Neyin kayıtlı olduğunu veya red nedenini bilmiyorsun.' },
+    } },
+    debtCourt: { legend: 'Hangi yazı var?', options: {
+      enforcement: { label: 'Kesinleşmiş belge veya icra', help: 'Kesinleşmiş ödeme emri ya da icra söz konusu olabilir.' },
+      courtOrder: { label: 'Şartlı ödeme emri', help: 'Yazı Avusturya mahkemesinden geliyor.' },
+      inkasso: { label: 'Tahsilat yazısı', help: 'Yazı bir tahsilat şirketinden geliyor.' },
+      reminder: { label: 'İhtar veya bilinmeyen talep', help: 'Gönderen olarak mahkeme görünmüyor.' },
+      unclear: { label: 'Belirsiz', help: 'Göndereni veya yazı türünü güvenle tanıyamıyorsun.' },
+    } },
+  },
+  ar: {
+    jobcenter: { legend: 'ما الأكثر إلحاحا في المساعدة الاجتماعية أو AMS؟', options: {
+      noMoney: { label: 'مال المعيشة مفقود الآن', help: 'الطعام أو السكن أو الدواء غير مؤمّن حاليا.' },
+      stopped: { label: 'تم خفض أو إيقاف المساعدة', help: 'مثلا المساعدة الاجتماعية أو بدل البطالة أو Notstandshilfe.' },
+      deadline: { label: 'قرار أو مهلة شكوى', help: 'يجب فحص القرار وبيان طرق الطعن بسرعة.' },
+      application: { label: 'طلب أو سؤال عام', help: 'لا توجد فجوة معيشية عاجلة معروفة.' },
+      unclear: { label: 'غير واضح', help: 'لا تستطيع تصنيف القرار أو الوضع بثقة.' },
+    } },
+    garnishment: { legend: 'ماذا حدث للحساب؟', options: {
+      noAccess: { label: 'الحساب محجوز والمال غير متاح', help: 'لا تستطيع الوصول إلى مال المعيشة.' },
+      noPAccount: { label: 'الحساب محجوز والحماية غير واضحة', help: 'لم يتم الإفراج عن المبالغ غير القابلة للحجز أو الحد الأدنى للمعيشة.' },
+      pAccount: { label: 'الحساب محجوز والحماية فُحصت', help: 'ما زالت هناك مشكلة في الوصول أو الإفراج.' },
+      order: { label: 'تم إعلان التنفيذ أو الموافقة عليه', help: 'قد لا يكون الحساب محظورا بعد.' },
+      unclear: { label: 'غير واضح', help: 'لا تستطيع تصنيف حالة الحساب أو الخطاب بثقة.' },
+    } },
+    schufa: { legend: 'ماذا حدث بخصوص القرض أو بيانات الائتمان؟', options: {
+      essential: { label: 'المال مطلوب اليوم لحاجة أساسية', help: 'مثلا الإيجار أو الطاقة أو الطعام أو الدواء.' },
+      rejected: { label: 'تم رفض قرض أو عقد', help: 'ذُكر KSV1870 أو CRIF أو تقييم الجدارة الائتمانية.' },
+      wrongData: { label: 'تبدو بيانات الائتمان خاطئة', help: 'تريد فحص أو تصحيح البيانات لدى KSV1870 أو CRIF.' },
+      information: { label: 'معلومات ذاتية مجانية', help: 'لا توجد مهلة أو فجوة معيشية عاجلة معروفة.' },
+      unclear: { label: 'غير واضح', help: 'لا تعرف ما هو مخزن أو سبب الرفض.' },
+    } },
+    debtCourt: { legend: 'أي خطاب لديك؟', options: {
+      enforcement: { label: 'سند نهائي أو تنفيذ', help: 'قد يوجد أمر دفع نهائي أو إجراء تنفيذ.' },
+      courtOrder: { label: 'أمر دفع مشروط', help: 'الخطاب من محكمة نمساوية.' },
+      inkasso: { label: 'خطاب تحصيل', help: 'الخطاب من شركة تحصيل.' },
+      reminder: { label: 'إنذار أو مطالبة غير معروفة', help: 'لا تظهر محكمة كمرسل.' },
+      unclear: { label: 'غير واضح', help: 'لا تستطيع معرفة المرسل أو نوع الخطاب بثقة.' },
+    } },
+  },
+  uk: {
+    jobcenter: { legend: 'Що найтерміновіше щодо соціальної допомоги або AMS?', options: {
+      noMoney: { label: 'Зараз бракує коштів на життя', help: 'Їжа, житло або ліки не забезпечені.' },
+      stopped: { label: 'Виплату зменшено або припинено', help: 'Наприклад соціальну допомогу, допомогу з безробіття або Notstandshilfe.' },
+      deadline: { label: 'Рішення або строк скарги', help: 'Рішення й роз’яснення про оскарження треба швидко перевірити.' },
+      application: { label: 'Заява або загальне питання', help: 'Про гостру нестачу коштів невідомо.' },
+      unclear: { label: 'Незрозуміло', help: 'Ви не можете впевнено визначити рішення або стан справи.' },
+    } },
+    garnishment: { legend: 'Що сталося з рахунком?', options: {
+      noAccess: { label: 'Арештовано й гроші недоступні', help: 'Немає доступу до коштів на життя.' },
+      noPAccount: { label: 'Арештовано, захист ще не з’ясовано', help: 'Недоторканні суми або прожитковий мінімум не розблоковано.' },
+      pAccount: { label: 'Арештовано, захист уже перевірено', help: 'Усе одно є проблема з доступом або розблокуванням.' },
+      order: { label: 'Виконання оголошено або дозволено', help: 'Рахунок, можливо, ще не заблоковано.' },
+      unclear: { label: 'Незрозуміло', help: 'Ви не можете впевнено визначити стан рахунку або лист.' },
+    } },
+    schufa: { legend: 'Що сталося з кредитом або кредитними даними?', options: {
+      essential: { label: 'Гроші сьогодні потрібні на життєво необхідне', help: 'Наприклад оренду, енергію, їжу або ліки.' },
+      rejected: { label: 'Кредит або договір відхилено', help: 'Причиною названо KSV1870, CRIF або кредитну оцінку.' },
+      wrongData: { label: 'Кредитні дані здаються неправильними', help: 'Ви хочете перевірити або виправити дані KSV1870 чи CRIF.' },
+      information: { label: 'Безкоштовна власна інформація', help: 'Про гострий строк або нестачу необхідного невідомо.' },
+      unclear: { label: 'Незрозуміло', help: 'Ви не знаєте, що збережено або чому відмовлено.' },
+    } },
+    debtCourt: { legend: 'Який лист ви отримали?', options: {
+      enforcement: { label: 'Остаточний документ або виконання', help: 'Можливий остаточний платіжний наказ або виконання.' },
+      courtOrder: { label: 'Умовний платіжний наказ', help: 'Лист надійшов від австрійського суду.' },
+      inkasso: { label: 'Лист інкасо', help: 'Лист надійшов від інкасо-компанії.' },
+      reminder: { label: 'Нагадування або невідома вимога', help: 'Суд не вказаний як відправник.' },
+      unclear: { label: 'Незрозуміло', help: 'Ви не можете впевнено визначити відправника або вид листа.' },
+    } },
+  },
+};
+
+export function getQuickHelpTexts(language: Language, country: Country = 'de') {
+  const texts = quickTexts[language] ?? de;
+  if (country === 'de') return texts;
+  const adapted = adaptTextForAustria(texts, language);
+  return {
+    ...adapted,
+    ...austrianEmergency[language],
+    risks: { ...adapted.risks, ...austrianRiskOverrides[language] },
+  };
 }

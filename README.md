@@ -1,11 +1,13 @@
 # KlarKommen
 
-KlarKommen ist eine deutsche Web-App/PWA, die Menschen in akuten bürokratischen und finanziellen Notlagen dabei hilft, ihre Situation zu sortieren, nächste Schritte zu planen und passende Textvorlagen zu erstellen.
+KlarKommen ist eine Web-App/PWA für Deutschland und Österreich, die Menschen in akuten bürokratischen und finanziellen Notlagen dabei hilft, ihre Situation zu sortieren, nächste Schritte zu planen und passende Textvorlagen zu erstellen.
 
 Die App ist bewusst ruhig, klar und niedrigschwellig gestaltet. Sie ersetzt keine Rechtsberatung, sondern bietet eine erste Orientierung, wenn gerade vieles gleichzeitig drückt.
 
 ## Funktionen
 
+- Länderwechsel zwischen Deutschland und Österreich mit Landesflaggen; Begriffe, Behörden, Fristen, Notrufnummern, Hilfsangebote und Textvorlagen werden landesspezifisch ausgegeben
+- Sprachen: Deutsch, Türkisch, Arabisch und Ukrainisch – jeweils für beide Länder
 - Auswahl typischer Notlagen:
   - Mietschulden / Kündigung
   - Stromsperre / Energieschulden
@@ -15,6 +17,12 @@ Die App ist bewusst ruhig, klar und niedrigschwellig gestaltet. Sie ersetzt kein
   - Schufa / Kredit abgelehnt
   - Inkasso / Mahnbescheid
   - Familie / Lebensumbruch
+- Österreichische Entsprechungen, darunter:
+  - Sozialhilfe / Mindestsicherung und AMS
+  - Kontopfändung / Existenzminimum
+  - KSV1870 / CRIF
+  - Inkasso / bedingter Zahlungsbefehl
+  - WOHNSCHIRM, staatlich anerkannte Schuldenberatung, Arbeiterkammer und weitere offizielle Anlaufstellen
 - Soforthilfe in etwa 60 Sekunden:
   - Ort oder PLZ kann angegeben oder übersprungen werden
   - zwei kurze Dringlichkeitseinschätzungen
@@ -32,7 +40,7 @@ Die App ist bewusst ruhig, klar und niedrigschwellig gestaltet. Sie ersetzt kein
 - Automatisch erzeugte Textvorlagen, zum Beispiel für:
   - Vermieter
   - Energieversorger
-  - Jobcenter oder Sozialamt
+  - Jobcenter oder Sozialamt beziehungsweise AMS oder zuständige Sozialhilfestelle
   - Krankenkasse
   - Bank
   - Schuldnerberatung

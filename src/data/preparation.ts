@@ -1,5 +1,6 @@
 import type { Language } from '../i18n';
-import type { Answers, CategoryId } from '../types';
+import { adaptTextForAustria } from '../i18n/austria';
+import type { Answers, CategoryId, Country } from '../types';
 
 const has = (answers: Answers, key: string, value: string) => answers[key] === value;
 
@@ -318,7 +319,41 @@ const deadlineReason = (answers: Answers): { score: number; key: SignalKey } | n
   return { score: 0, key: 'deadlineLater' };
 };
 
-export function buildUrgency(categoryId: CategoryId, answers: Answers, language: Language = 'de'): UrgencyResult {
+const refineAustrianPreparation = <T,>(value: T, language: Language): T => {
+  const adapted = adaptTextForAustria(value, language);
+  if (language !== 'de') return adapted;
+
+  const exact: Record<string, string> = {
+    'Das Konto ist gepfändet und ein Schutz unpfändbarer Beträge ist noch nicht sicher eingerichtet.':
+      'Das Konto ist gepfändet und der Schutz unpfändbarer Beträge ist noch nicht geklärt.',
+    'Schreiben der Bank zur Kontopfändung oder zum Schutz unpfändbarer Beträge':
+      'Schreiben der Bank zur Kontopfändung und zur Freigabe unpfändbarer Beträge',
+    'Bank schriftlich um Schutz unpfändbarer Beträge-Umwandlung oder Bestätigung des Schutzes bitten.':
+      'Bank schriftlich um Auskunft zur Pfändung und Freigabe unpfändbarer Beträge bitten.',
+    'Schuldnerberatung wegen Existenzminimum, Bescheinigung und Gläubigerkontakt anfragen.':
+      'Staatlich anerkannte Schuldenberatung wegen Existenzminimum, Kontofreigabe und Gläubigerkontakt anfragen.',
+    'Teure Sofortkredite pausieren und zuerst Forderung, KSV1870 / CRIF-Daten und Beratungsoptionen prüfen.':
+      'Teure Sofortkredite pausieren und zuerst Forderung, KSV1870-/CRIF-Daten sowie Beratungsoptionen prüfen.',
+  };
+
+  const replaceExact = (item: unknown): unknown => {
+    if (typeof item === 'string') return exact[item] ?? item;
+    if (Array.isArray(item)) return item.map(replaceExact);
+    if (typeof item === 'object' && item !== null) {
+      return Object.fromEntries(Object.entries(item).map(([key, child]) => [key, replaceExact(child)]));
+    }
+    return item;
+  };
+
+  return replaceExact(adapted) as T;
+};
+
+export function buildUrgency(
+  categoryId: CategoryId,
+  answers: Answers,
+  language: Language = 'de',
+  country: Country = 'de',
+): UrgencyResult {
   const signals: Array<{ score: number; key: SignalKey }> = [];
   const deadline = deadlineReason(answers);
 
@@ -427,7 +462,7 @@ export function buildUrgency(categoryId: CategoryId, answers: Answers, language:
     (signal, index) => relevantSignals.findIndex((candidate) => candidate.key === signal.key) === index,
   );
 
-  return {
+  const result = {
     level,
     label: text.label,
     headline: text.headline,
@@ -436,6 +471,7 @@ export function buildUrgency(categoryId: CategoryId, answers: Answers, language:
       ? uniqueSignals.map((signal) => signalTexts[language][signal.key])
       : [text.fallbackReason],
   };
+  return country === 'at' ? refineAustrianPreparation(result, language) : result;
 }
 
 const sharedDocuments: Record<Language, string[]> = {
@@ -512,8 +548,14 @@ const documentsByCategory: Record<Language, Record<CategoryId, string[]>> = {
   },
 };
 
-export function buildDocuments(categoryId: CategoryId, _answers: Answers, language: Language = 'de') {
-  return [...documentsByCategory[language][categoryId], ...sharedDocuments[language]];
+export function buildDocuments(
+  categoryId: CategoryId,
+  _answers: Answers,
+  language: Language = 'de',
+  country: Country = 'de',
+) {
+  const documents = [...documentsByCategory[language][categoryId], ...sharedDocuments[language]];
+  return country === 'at' ? refineAustrianPreparation(documents, language) : documents;
 }
 
 const sharedActionPlan: Record<Language, string[]> = {
@@ -593,12 +635,18 @@ const categoryActionPlan: Record<Language, Record<CategoryId, string[]>> = {
   },
 };
 
-export function buildActionPlan(categoryId: CategoryId, answers: Answers, language: Language = 'de') {
+export function buildActionPlan(
+  categoryId: CategoryId,
+  answers: Answers,
+  language: Language = 'de',
+  country: Country = 'de',
+) {
   const plan = [...sharedActionPlan[language]];
 
   if (answers.deadlineDate || answers.writtenDeadline === 'ja') {
     plan.unshift(deadlineStep[language]);
   }
 
-  return [...plan, ...categoryActionPlan[language][categoryId]];
+  const actions = [...plan, ...categoryActionPlan[language][categoryId]];
+  return country === 'at' ? refineAustrianPreparation(actions, language) : actions;
 }

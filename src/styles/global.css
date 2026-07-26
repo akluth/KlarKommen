@@ -91,7 +91,14 @@ main {
   z-index: 2;
 }
 
-.language-switcher {
+.header-switchers {
+  display: grid;
+  justify-items: end;
+  gap: 6px;
+}
+
+.language-switcher,
+.country-switcher {
   display: inline-flex;
   flex-wrap: wrap;
   justify-content: flex-end;
@@ -102,7 +109,8 @@ main {
   background: rgb(255 255 255 / 82%);
 }
 
-.language-switcher button {
+.language-switcher button,
+.country-switcher button {
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -115,7 +123,8 @@ main {
   font-weight: 850;
 }
 
-.language-switcher button.active {
+.language-switcher button.active,
+.country-switcher button.active {
   background: var(--navy);
   color: white;
 }
@@ -133,6 +142,14 @@ main {
 
 .flag-icon-de {
   background: linear-gradient(180deg, #000 0 33.33%, #dd0000 33.33% 66.66%, #ffce00 66.66%);
+}
+
+.flag-icon-country-de {
+  background: linear-gradient(180deg, #000 0 33.33%, #dd0000 33.33% 66.66%, #ffce00 66.66%);
+}
+
+.flag-icon-country-at {
+  background: linear-gradient(180deg, #ed2939 0 33.33%, #fff 33.33% 66.66%, #ed2939 66.66%);
 }
 
 .flag-icon-tr {
@@ -208,7 +225,9 @@ html[dir="rtl"] .footer-links {
   direction: rtl;
 }
 
-html[dir="rtl"] .language-switcher {
+html[dir="rtl"] .header-switchers,
+html[dir="rtl"] .language-switcher,
+html[dir="rtl"] .country-switcher {
   justify-content: flex-start;
 }
 
@@ -258,7 +277,7 @@ html[dir="rtl"] .info-back {
 }
 
 .hero {
-  padding: 20px 0 22px;
+  padding: 132px 0 22px;
 }
 
 .hero-content {
@@ -744,7 +763,7 @@ h3 {
 
 .flow-shell,
 .results {
-  padding: 86px 0 48px;
+  padding: 132px 0 48px;
 }
 
 .flow-top,
@@ -1267,7 +1286,7 @@ textarea:focus {
 }
 
 .info-page {
-  padding: 86px 0 52px;
+  padding: 132px 0 52px;
 }
 
 .info-back {
@@ -1316,7 +1335,7 @@ textarea:focus {
 
 .quick-help-flow,
 .quick-help-results {
-  padding: 102px 0 52px;
+  padding: 132px 0 52px;
 }
 
 .quick-help-intro {
@@ -1603,9 +1622,28 @@ html[dir="rtl"] .quick-actions-card ol {
 }
 
 @media (max-width: 520px) {
+  .site-header {
+    align-items: flex-start;
+  }
+
+  .header-switchers {
+    max-width: calc(100vw - 96px);
+  }
+
+  .language-switcher button,
+  .country-switcher button {
+    min-height: 34px;
+    padding: 6px 8px;
+    font-size: 0.82rem;
+  }
+
+  .hero,
+  .flow-shell,
+  .results,
+  .info-page,
   .quick-help-flow,
   .quick-help-results {
-    padding-top: 148px;
+    padding-top: 190px;
   }
 
   .quick-help-actions > *,

@@ -1,6 +1,7 @@
-import type { Answers, CategoryId } from '../types';
+import type { Answers, CategoryId, Country } from '../types';
 
 export interface SavedCase {
+  country: Country;
   categoryId: CategoryId;
   answers: Answers;
   checkedItems: Record<string, boolean>;
@@ -8,7 +9,7 @@ export interface SavedCase {
 }
 
 const STORAGE_KEY = 'klarkommen-saved-case';
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 
 const isCategoryId = (value: string): value is CategoryId =>
   [
@@ -59,6 +60,7 @@ export function loadSavedCase(): SavedCase | null {
         : new Date().toISOString();
 
     return {
+      country: parsed.country === 'at' ? 'at' : 'de',
       categoryId: parsed.categoryId,
       answers: readStringRecord(parsed.answers),
       checkedItems: readBooleanRecord(parsed.checkedItems),

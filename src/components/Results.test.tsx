@@ -29,4 +29,25 @@ describe('Results safety contacts', () => {
     expect(screen.getByRole('link', { name: /112/ }).getAttribute('href')).toBe('tel:112');
     expect(screen.getByRole('link', { name: /110/ }).getAttribute('href')).toBe('tel:110');
   });
+
+  it('uses the Austrian emergency numbers in an Austrian acute case', () => {
+    window.localStorage.setItem('klarkommen-country', 'at');
+    render(
+      <I18nProvider>
+        <Results
+          category={family}
+          answers={{ safetyAtRisk: 'ja', triageCompleted: 'ja' }}
+          checkedItems={{}}
+          savedCaseExists
+          onCheckedItemsChange={vi.fn()}
+          onDeleteSavedCase={vi.fn()}
+          onReset={vi.fn()}
+          onSaveCase={vi.fn()}
+        />
+      </I18nProvider>,
+    );
+
+    expect(screen.getByRole('link', { name: /144/ }).getAttribute('href')).toBe('tel:144');
+    expect(screen.getByRole('link', { name: /133/ }).getAttribute('href')).toBe('tel:133');
+  });
 });

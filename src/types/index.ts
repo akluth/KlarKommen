@@ -8,6 +8,8 @@ export type CategoryId =
   | 'debtCourt'
   | 'family';
 
+export type Country = 'de' | 'at';
+
 export type QuestionType = 'text' | 'number' | 'date' | 'select' | 'textarea';
 
 export interface Category {

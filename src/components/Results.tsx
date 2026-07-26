@@ -36,18 +36,18 @@ export default function Results({
   onReset,
   onSaveCase,
 }: ResultsProps) {
-  const { language, t } = useI18n();
+  const { country, language, t } = useI18n();
   const extraTexts = getResultExtraTexts(language);
-  const quickTexts = getQuickHelpTexts(language);
+  const quickTexts = getQuickHelpTexts(language, country);
   const result = t.buildRecommendations(category.id, answers);
   const templates = t.buildAllTemplates(category, answers);
-  const documents = buildDocuments(category.id, answers, language);
-  const actionPlan = buildActionPlan(category.id, answers, language);
-  const urgency = buildUrgency(category.id, answers, language);
-  const helpSearchLinks = buildHelpSearchLinks(category.id, answers, language);
+  const documents = buildDocuments(category.id, answers, language, country);
+  const actionPlan = buildActionPlan(category.id, answers, language, country);
+  const urgency = buildUrgency(category.id, answers, language, country);
+  const helpSearchLinks = buildHelpSearchLinks(category.id, answers, language, country);
   const phoneScript = buildPhoneScript(category, answers, language);
   const contactChecklist = buildContactChecklist(language);
-  const directContacts = buildDirectHelpContacts(category.id, language, answers);
+  const directContacts = buildDirectHelpContacts(category.id, language, answers, country);
   const [packageCopied, setPackageCopied] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
 

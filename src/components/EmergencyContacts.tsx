@@ -1,4 +1,5 @@
 import type { QuickHelpTexts } from '../i18n/quickHelp';
+import { useI18n } from '../i18n';
 
 interface EmergencyContactsProps {
   danger?: boolean;
@@ -7,6 +8,9 @@ interface EmergencyContactsProps {
 }
 
 export default function EmergencyContacts({ danger = false, headingId, texts }: EmergencyContactsProps) {
+  const { country } = useI18n();
+  const ambulanceNumber = country === 'at' ? '144' : '112';
+  const policeNumber = country === 'at' ? '133' : '110';
   return (
     <aside
       className={danger ? 'emergency-strip danger' : 'emergency-strip'}
@@ -17,10 +21,10 @@ export default function EmergencyContacts({ danger = false, headingId, texts }: 
         <p>{texts.emergencyText}</p>
       </div>
       <div className="emergency-actions">
-        <a className="emergency-link" href="tel:112">
+        <a className="emergency-link" href={`tel:${ambulanceNumber}`}>
           {texts.emergencyCall}
         </a>
-        <a className="emergency-link police" href="tel:110">
+        <a className="emergency-link police" href={`tel:${policeNumber}`}>
           {texts.emergencyPolice}
         </a>
       </div>

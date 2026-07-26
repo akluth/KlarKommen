@@ -6,7 +6,16 @@ interface HeaderProps {
 }
 
 export default function Header({ onReset, showReset }: HeaderProps) {
-  const { language, languageOptions, setLanguage, t } = useI18n();
+  const {
+    country,
+    countryAriaLabel,
+    countryOptions,
+    language,
+    languageOptions,
+    setCountry,
+    setLanguage,
+    t,
+  } = useI18n();
 
   return (
     <header className="site-header">
@@ -17,19 +26,35 @@ export default function Header({ onReset, showReset }: HeaderProps) {
       ) : (
         <span />
       )}
-      <div className="language-switcher" aria-label={t.ui.languageLabel}>
-        {languageOptions.map((option) => (
-          <button
-            className={language === option.code ? 'active' : ''}
-            key={option.code}
-            type="button"
-            aria-pressed={language === option.code}
-            onClick={() => setLanguage(option.code)}
-          >
-            <span className={`flag-icon flag-icon-${option.code}`} aria-hidden="true" />
-            {option.label}
-          </button>
-        ))}
+      <div className="header-switchers">
+        <div className="country-switcher" aria-label={countryAriaLabel}>
+          {countryOptions.map((option) => (
+            <button
+              className={country === option.code ? 'active' : ''}
+              key={option.code}
+              type="button"
+              aria-pressed={country === option.code}
+              onClick={() => setCountry(option.code)}
+            >
+              <span className={`flag-icon flag-icon-country-${option.code}`} aria-hidden="true" />
+              {option.label}
+            </button>
+          ))}
+        </div>
+        <div className="language-switcher" aria-label={t.ui.languageLabel}>
+          {languageOptions.map((option) => (
+            <button
+              className={language === option.code ? 'active' : ''}
+              key={option.code}
+              type="button"
+              aria-pressed={language === option.code}
+              onClick={() => setLanguage(option.code)}
+            >
+              <span className={`flag-icon flag-icon-${option.code}`} aria-hidden="true" />
+              {option.label}
+            </button>
+          ))}
+        </div>
       </div>
     </header>
   );

@@ -1,5 +1,6 @@
 import type { Language } from '../i18n';
-import type { Answers, CategoryId } from '../types';
+import type { Answers, CategoryId, Country } from '../types';
+import { buildAustrianDirectHelpContacts } from './directHelpAustria';
 
 export interface DirectHelpContact {
   availability: string;
@@ -269,7 +270,9 @@ export function buildDirectHelpContacts(
   categoryId: CategoryId,
   language: Language,
   answers: Answers = {},
+  country: Country = 'de',
 ): DirectHelpContact[] {
+  if (country === 'at') return buildAustrianDirectHelpContacts(categoryId, language, answers);
   let ids = [...contactOrder[categoryId]];
 
   if (categoryId === 'schufa' && answers.basicNeedsAtRisk === 'ja') {

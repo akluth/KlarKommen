@@ -6,6 +6,7 @@ describe('saved case validation', () => {
 
   it('round-trips a current case', () => {
     saveCase({
+      country: 'de',
       categoryId: 'rent',
       answers: { city: '01067', quickRisk: 'eviction' },
       checkedItems: { first: true },
@@ -14,6 +15,7 @@ describe('saved case validation', () => {
     expect(loadSavedCase()).toEqual(
       expect.objectContaining({
         categoryId: 'rent',
+        country: 'de',
         answers: { city: '01067', quickRisk: 'eviction' },
         checkedItems: { first: true },
       }),

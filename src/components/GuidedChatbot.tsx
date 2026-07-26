@@ -22,6 +22,9 @@ const categoryKeywords: Record<CategoryId, string[]> = {
     'inkasso',
     'mahnbescheid',
     'vollstreckungsbescheid',
+    'bedingter zahlungsbefehl',
+    'zahlungsbefehl',
+    'exekution',
     'gelber brief',
     'gericht',
     'forderung',
@@ -29,12 +32,12 @@ const categoryKeywords: Record<CategoryId, string[]> = {
     'gläubiger',
   ],
   energy: ['strom', 'gas', 'energie', 'sperre', 'stromsperre', 'abschlag', 'versorger'],
-  family: ['trennung', 'scheidung', 'geburt', 'tod', 'kind', 'unterhalt', 'familie', 'jugendamt'],
-  garnishment: ['pfaendung', 'pfändung', 'p-konto', 'pkonto', 'freibetrag', 'bank', 'konto blockiert'],
+  family: ['trennung', 'scheidung', 'geburt', 'tod', 'kind', 'unterhalt', 'familie', 'jugendamt', 'kinder- und jugendhilfe'],
+  garnishment: ['pfaendung', 'pfändung', 'p-konto', 'pkonto', 'freibetrag', 'existenzminimum', 'exekutionsbewilligung', 'zahlungsverbot', 'bank', 'konto blockiert'],
   health: ['krankenkasse', 'krankenversicherung', 'beitrag', 'beitragsschulden', 'leistung ruht'],
-  jobcenter: ['jobcenter', 'grundsicherungsgeld', 'grundsicherung', 'buergergeld', 'bürgergeld', 'sozialamt', 'bescheid', 'sanktion'],
+  jobcenter: ['jobcenter', 'ams', 'grundsicherungsgeld', 'grundsicherung', 'buergergeld', 'bürgergeld', 'sozialamt', 'sozialhilfe', 'mindestsicherung', 'notstandshilfe', 'bescheid', 'sanktion'],
   rent: ['miete', 'mietschulden', 'vermieter', 'kuendigung', 'kündigung', 'raeumung', 'räumung', 'wohnung'],
-  schufa: ['schufa', 'kredit', 'bonitaet', 'bonität', 'ablehnung', 'darlehen', 'sofortkredit'],
+  schufa: ['schufa', 'ksv', 'ksv1870', 'crif', 'kredit', 'bonitaet', 'bonität', 'ablehnung', 'darlehen', 'sofortkredit'],
 };
 
 export default function GuidedChatbot({ categories, onComplete }: GuidedChatbotProps) {
@@ -386,9 +389,9 @@ function analyzeSituation(input: string): AnalysisResult {
     answers.contacted = 'nein';
   }
 
-  if (containsAny(normalized, ['grundsicherungsgeld', 'grundsicherung', 'buergergeld', 'bürgergeld', 'sozialhilfe', 'jobcenter'])) answers.benefits = 'ja';
+  if (containsAny(normalized, ['grundsicherungsgeld', 'grundsicherung', 'buergergeld', 'bürgergeld', 'sozialhilfe', 'mindestsicherung', 'jobcenter', 'ams'])) answers.benefits = 'ja';
   if (containsAny(normalized, ['kein einkommen', 'arbeitslos', 'ohne einkommen'])) answers.income = 'nein';
-  if (containsAny(normalized, ['lohn', 'gehalt', 'rente'])) answers.income = 'regelmäßig';
+  if (containsAny(normalized, ['lohn', 'gehalt', 'rente', 'pension'])) answers.income = 'regelmäßig';
 
   applyCategoryAnswers(categoryId, normalized, answers, findings);
 
@@ -428,14 +431,14 @@ function applyCategoryAnswers(
   }
 
   if (categoryId === 'garnishment') {
-    if (containsAny(normalized, ['p-konto', 'pkonto'])) answers.pAccount = 'ja';
+    if (containsAny(normalized, ['p-konto', 'pkonto', 'existenzminimum', 'unpfändbar', 'unpfaendbar'])) answers.pAccount = 'ja';
     if (containsAny(normalized, ['gepfaendet', 'gepfändet', 'pfaendung', 'pfändung', 'blockiert'])) answers.accountGarnished = 'ja';
-    if (containsAny(normalized, ['pfändungs- und überweisungsbeschluss', 'pfaendungs- und ueberweisungsbeschluss', 'pfueb', 'pfüb'])) {
+    if (containsAny(normalized, ['pfändungs- und überweisungsbeschluss', 'pfaendungs- und ueberweisungsbeschluss', 'pfueb', 'pfüb', 'exekutionsbewilligung', 'zahlungsverbot'])) {
       answers.garnishmentOrder = 'ja';
     }
     if (containsAny(normalized, ['gehalt', 'lohn'])) answers.moneyOnAccount = 'Gehalt';
-    if (containsAny(normalized, ['grundsicherungsgeld', 'buergergeld', 'bürgergeld'])) answers.moneyOnAccount = 'Grundsicherungsgeld';
-    if (containsAny(normalized, ['rente'])) answers.moneyOnAccount = 'Rente';
+    if (containsAny(normalized, ['grundsicherungsgeld', 'buergergeld', 'bürgergeld', 'sozialhilfe', 'mindestsicherung'])) answers.moneyOnAccount = 'Grundsicherungsgeld';
+    if (containsAny(normalized, ['rente', 'pension'])) answers.moneyOnAccount = 'Rente';
   }
 
   if (categoryId === 'health') {
@@ -453,8 +456,8 @@ function applyCategoryAnswers(
   }
 
   if (categoryId === 'debtCourt') {
-    if (containsAny(normalized, ['mahnbescheid'])) answers.debtLetterType = 'mahnbescheid';
-    else if (containsAny(normalized, ['vollstreckungsbescheid'])) answers.debtLetterType = 'vollstreckungsbescheid';
+    if (containsAny(normalized, ['mahnbescheid', 'bedingter zahlungsbefehl'])) answers.debtLetterType = 'mahnbescheid';
+    else if (containsAny(normalized, ['vollstreckungsbescheid', 'exekutionstitel', 'rechtskräftiger zahlungsbefehl', 'rechtskraeftiger zahlungsbefehl'])) answers.debtLetterType = 'vollstreckungsbescheid';
     else if (containsAny(normalized, ['inkasso'])) answers.debtLetterType = 'inkasso';
     if (containsAny(normalized, ['gelber brief', 'gelben brief'])) answers.courtYellowEnvelope = 'ja';
     if (containsAny(normalized, ['falsch', 'stimmt nicht', 'bestritten'])) answers.claimDisputed = 'ja';
