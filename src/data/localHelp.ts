@@ -1,6 +1,7 @@
-import type { Language } from '../i18n';
+import { isBaseLanguage, type BaseLanguage, type Language } from '../i18n';
 import type { Answers, Category, CategoryId, Country } from '../types';
 import { formatDateForLanguage, formatEuroForLanguage } from '../utils/formatters';
+import { buildSwissContactChecklist, buildSwissHelpSearchLinks, buildSwissPhoneScript } from './localHelpSwitzerland';
 
 export interface HelpSearchLink {
   label: string;
@@ -74,7 +75,7 @@ const austrianQueriesByCategory: Record<CategoryId, string[]> = {
   family: ['geförderte Familienberatung', 'Kinder und Jugendhilfe Beratung', 'Familiengerichtshilfe', 'Sozialberatung Familie'],
 };
 
-const queryLabels: Record<Language, Record<CategoryId, string[]>> = {
+const queryLabels: Record<BaseLanguage, Record<CategoryId, string[]>> = {
   de: queriesByCategory,
   tr: {
     rent: ['Konut acil yardımı', 'Kira borcu danışması', 'Sozialamt kira borcu desteği', 'Jobcenter kira borcu desteği'],
@@ -108,7 +109,7 @@ const queryLabels: Record<Language, Record<CategoryId, string[]>> = {
   },
 };
 
-const austrianQueryLabels: Record<Language, Record<CategoryId, string[]>> = {
+const austrianQueryLabels: Record<BaseLanguage, Record<CategoryId, string[]>> = {
   de: austrianQueriesByCategory,
   tr: {
     rent: ['WOHNSCHIRM kira yardımı', 'Kira borcu danışması', 'Konut yardımı danışması', 'Devletçe tanınan borç danışması'],
@@ -142,14 +143,14 @@ const austrianQueryLabels: Record<Language, Record<CategoryId, string[]>> = {
   },
 };
 
-const phoneAmountText: Record<Language, (value?: string) => string> = {
+const phoneAmountText: Record<BaseLanguage, (value?: string) => string> = {
   de: (value?: string) => (value ? formatEuroForLanguage(value, 'de') : 'einen noch zu klärenden Betrag'),
   tr: (value?: string) => (value ? formatEuroForLanguage(value, 'tr') : 'henüz netleşmemiş bir tutar'),
   ar: (value?: string) => (value ? formatEuroForLanguage(value, 'ar') : 'مبلغ لم يتضح بعد'),
   uk: (value?: string) => (value ? formatEuroForLanguage(value, 'uk') : 'суму, яку ще потрібно уточнити'),
 };
 
-const phoneDeadlineText: Record<Language, (answers: Answers) => string> = {
+const phoneDeadlineText: Record<BaseLanguage, (answers: Answers) => string> = {
   de: (answers: Answers) => {
     if (answers.deadlineDate) return `Die Frist läuft bis ${formatDateForLanguage(answers.deadlineDate, 'de')}.`;
     if (answers.writtenDeadline === 'ja') {
@@ -186,6 +187,8 @@ export function buildHelpSearchLinks(
   language: Language,
   country: Country = 'de',
 ): HelpSearchLink[] {
+  if (country === 'ch') return buildSwissHelpSearchLinks(categoryId, answers, language);
+  const baseLanguage = isBaseLanguage(language) ? language : 'de';
   const city = answers.city?.replace(/[\r\n\t]+/g, ' ').replace(/\s{2,}/g, ' ').trim().slice(0, 80);
   const queries = country === 'at' ? austrianQueriesByCategory : queriesByCategory;
   const labels = country === 'at' ? austrianQueryLabels : queryLabels;
@@ -194,8 +197,8 @@ export function buildHelpSearchLinks(
     const fullQuery = withCity(query, city);
     return {
       label: city
-        ? `${labels[language][categoryId][index]} — ${city}`
-        : labels[language][categoryId][index],
+        ? `${labels[baseLanguage][categoryId][index]} — ${city}`
+        : labels[baseLanguage][categoryId][index],
       query: fullQuery,
       url: searchUrl(fullQuery),
     };
@@ -236,17 +239,20 @@ const phoneScriptText = {
     ],
   },
 } satisfies Record<
-  Language,
+  BaseLanguage,
   {
     lines: (category: Category, answers: Answers) => string[];
   }
 >;
 
-export function buildPhoneScript(category: Category, answers: Answers, language: Language) {
-  return phoneScriptText[language].lines(category, answers).join('\n');
+export function buildPhoneScript(category: Category, answers: Answers, language: Language, country: Country = 'de') {
+  if (country === 'ch') return buildSwissPhoneScript(category, answers, language);
+  const baseLanguage = isBaseLanguage(language) ? language : 'de';
+  return phoneScriptText[baseLanguage].lines(category, answers).join('\n');
 }
 
-export function buildContactChecklist(language: Language) {
+export function buildContactChecklist(language: Language, country: Country = 'de') {
+  if (country === 'ch') return buildSwissContactChecklist(language);
   const checklist = {
     de: [
       'Einen passenden Suchlink öffnen.',
@@ -276,7 +282,7 @@ export function buildContactChecklist(language: Language) {
       'Скопіювати консультаційний пакет або зберегти як PDF.',
       'Підготувати документи для консультації.',
     ],
-  } satisfies Record<Language, string[]>;
+  } satisfies Record<BaseLanguage, string[]>;
 
-  return checklist[language];
+  return checklist[isBaseLanguage(language) ? language : 'de'];
 }

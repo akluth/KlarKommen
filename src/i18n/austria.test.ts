@@ -10,7 +10,7 @@ import { de } from './de';
 import { getQuickHelpTexts } from './quickHelp';
 import { tr } from './tr';
 import { uk } from './uk';
-import type { Language } from './index';
+import type { BaseLanguage as Language } from './index';
 
 const categoryIds: CategoryId[] = [
   'rent',

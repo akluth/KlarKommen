@@ -1,6 +1,7 @@
-import type { Language } from './index';
+import { isBaseLanguage, type BaseLanguage, type Language } from './index';
 import type { CategoryId, Country } from '../types';
 import { adaptTextForAustria } from './austria';
+import { getSwissQuickHelpTexts } from './quickHelpSwitzerland';
 
 export type QuickDeadlineWindow =
   | 'immediateNeeds'
@@ -327,9 +328,9 @@ const ar: QuickHelpTexts = {
   },
 };
 
-const quickTexts: Record<Language, QuickHelpTexts> = { ar, de, tr, uk };
+const quickTexts: Record<BaseLanguage, QuickHelpTexts> = { ar, de, tr, uk };
 
-const austrianEmergency: Record<Language, Pick<QuickHelpTexts, 'emergencyCall' | 'emergencyPolice' | 'emergencyText' | 'directContactIntro' | 'locationPlaceholder'>> = {
+const austrianEmergency: Record<BaseLanguage, Pick<QuickHelpTexts, 'emergencyCall' | 'emergencyPolice' | 'emergencyText' | 'directContactIntro' | 'locationPlaceholder'>> = {
   de: {
     emergencyCall: 'Rettung 144 anrufen',
     emergencyPolice: 'Polizei 133 anrufen',
@@ -403,7 +404,7 @@ const austrianGermanRisks: Partial<Record<CategoryId, QuickRiskText>> = {
   },
 };
 
-const austrianRiskOverrides: Record<Language, Partial<Record<CategoryId, QuickRiskText>>> = {
+const austrianRiskOverrides: Record<BaseLanguage, Partial<Record<CategoryId, QuickRiskText>>> = {
   de: austrianGermanRisks,
   tr: {
     jobcenter: { legend: 'Sosyal yardım veya AMS konusunda şu anda en acil olan ne?', options: {
@@ -498,12 +499,14 @@ const austrianRiskOverrides: Record<Language, Partial<Record<CategoryId, QuickRi
 };
 
 export function getQuickHelpTexts(language: Language, country: Country = 'de') {
-  const texts = quickTexts[language] ?? de;
+  const baseLanguage = isBaseLanguage(language) ? language : 'de';
+  const texts = quickTexts[baseLanguage];
   if (country === 'de') return texts;
-  const adapted = adaptTextForAustria(texts, language);
+  if (country === 'ch') return getSwissQuickHelpTexts(texts, language);
+  const adapted = adaptTextForAustria(texts, baseLanguage);
   return {
     ...adapted,
-    ...austrianEmergency[language],
-    risks: { ...adapted.risks, ...austrianRiskOverrides[language] },
+    ...austrianEmergency[baseLanguage],
+    risks: { ...adapted.risks, ...austrianRiskOverrides[baseLanguage] },
   };
 }

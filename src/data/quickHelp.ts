@@ -1,6 +1,7 @@
-import type { Language } from '../i18n';
+import { isBaseLanguage, type BaseLanguage, type Language } from '../i18n';
 import { getQuickHelpTexts, type QuickDeadlineWindow } from '../i18n/quickHelp';
 import type { Answers, CategoryId, Country } from '../types';
+import { buildSwissQuickActions } from './quickActionsSwitzerland';
 
 export interface QuickRiskOption {
   answers: Answers;
@@ -102,7 +103,7 @@ export function buildQuickAnswers(
   };
 }
 
-const actions: Record<Language, Record<CategoryId, string[]>> = {
+const actions: Record<BaseLanguage, Record<CategoryId, string[]>> = {
   de: {
     rent: [
       'Sichere Kündigung, Klage, Umschlag und Zustelldatum als Foto oder Kopie.',
@@ -220,7 +221,7 @@ const germanAustrianActions: Record<CategoryId, string[]> = {
   ],
 };
 
-const austrianActions: Record<Language, Record<CategoryId, string[]>> = {
+const austrianActions: Record<BaseLanguage, Record<CategoryId, string[]>> = {
   de: germanAustrianActions,
   tr: {
     rent: ['Fesih, dava, zarf ve teslim tarihini fotoğraf veya kopya olarak sakla.', 'Bugün WOHNSCHIRM, konut danışması veya kiracı kuruluşuyla iletişime geç ve her süreyi açıkça belirt.', 'Ev sahibi veya mahkemeyle görüşmeleri yalnız telefonla bırakma; ayrıca yazılı kaydet.'],
@@ -259,8 +260,10 @@ export function buildQuickActions(
   language: Language,
   country: Country = 'de',
 ) {
-  if (country === 'de') return actions[language][categoryId];
-  return austrianActions[language][categoryId];
+  const baseLanguage = isBaseLanguage(language) ? language : 'de';
+  if (country === 'de') return actions[baseLanguage][categoryId];
+  if (country === 'ch') return buildSwissQuickActions(categoryId, language, actions[baseLanguage][categoryId]);
+  return austrianActions[baseLanguage][categoryId];
 }
 
 export function isQuickChoiceComplete(answers: Answers) {

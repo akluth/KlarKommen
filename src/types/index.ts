@@ -8,7 +8,7 @@ export type CategoryId =
   | 'debtCourt'
   | 'family';
 
-export type Country = 'de' | 'at';
+export type Country = 'de' | 'at' | 'ch';
 
 export type QuestionType = 'text' | 'number' | 'date' | 'select' | 'textarea';
 

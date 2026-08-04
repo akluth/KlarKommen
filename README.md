@@ -1,13 +1,14 @@
 # KlarKommen
 
-KlarKommen ist eine Web-App/PWA für Deutschland und Österreich, die Menschen in akuten bürokratischen und finanziellen Notlagen dabei hilft, ihre Situation zu sortieren, nächste Schritte zu planen und passende Textvorlagen zu erstellen.
+KlarKommen ist eine Web-App/PWA für Deutschland, Österreich und die Schweiz, die Menschen in akuten bürokratischen und finanziellen Notlagen dabei hilft, ihre Situation zu sortieren, nächste Schritte zu planen und passende Textvorlagen zu erstellen.
 
 Die App ist bewusst ruhig, klar und niedrigschwellig gestaltet. Sie ersetzt keine Rechtsberatung, sondern bietet eine erste Orientierung, wenn gerade vieles gleichzeitig drückt.
 
 ## Funktionen
 
-- Länderwechsel zwischen Deutschland und Österreich mit Landesflaggen; Begriffe, Behörden, Fristen, Notrufnummern, Hilfsangebote und Textvorlagen werden landesspezifisch ausgegeben
-- Sprachen: Deutsch, Türkisch, Arabisch und Ukrainisch – jeweils für beide Länder
+- Länderwechsel zwischen Deutschland, Österreich und der Schweiz mit Landesflaggen; Begriffe, Behörden, Fristen, Notrufnummern, Hilfsangebote und Textvorlagen werden landesspezifisch ausgegeben
+- Deutschland und Österreich: Deutsch, Türkisch, Arabisch und Ukrainisch
+- Schweiz: zusätzlich Französisch und überregional verständliches Schweizerdeutsch
 - Auswahl typischer Notlagen:
   - Mietschulden / Kündigung
   - Stromsperre / Energieschulden
@@ -23,6 +24,12 @@ Die App ist bewusst ruhig, klar und niedrigschwellig gestaltet. Sie ersetzt kein
   - KSV1870 / CRIF
   - Inkasso / bedingter Zahlungsbefehl
   - WOHNSCHIRM, staatlich anerkannte Schuldenberatung, Arbeiterkammer und weitere offizielle Anlaufstellen
+- Schweizer Entsprechungen, darunter:
+  - Sozialhilfe, RAV und Arbeitslosenkasse
+  - Betreibungsamt, betreibungsrechtliches Existenzminimum und Rechtsvorschlag
+  - ZEK / IKO / CRIF und Auskunfts- beziehungsweise Berichtigungsrechte
+  - Krankenkassenprämien und kantonale Prämienverbilligung
+  - Schlichtungsbehörden in Mietsachen, Schuldenberatung Schweiz, ElCom, Opferhilfe und weitere landesspezifische Anlaufstellen
 - Soforthilfe in etwa 60 Sekunden:
   - Ort oder PLZ kann angegeben oder übersprungen werden
   - zwei kurze Dringlichkeitseinschätzungen

@@ -1,6 +1,7 @@
-import type { Language } from '../i18n';
+import { isBaseLanguage, type BaseLanguage, type Language } from '../i18n';
 import type { Answers, CategoryId, Country } from '../types';
 import { buildAustrianDirectHelpContacts } from './directHelpAustria';
+import { buildSwissDirectHelpContacts } from './directHelpSwitzerland';
 
 export interface DirectHelpContact {
   availability: string;
@@ -253,7 +254,7 @@ Object.assign(ar, {
   parentPhone: { name: 'Nummer gegen Kummer – هاتف الوالدين', description: 'استشارة مجهولة للوالدين ومقدمي الرعاية عند القلق والضغط والأزمات الأسرية.', availability: 'الاثنين/الأربعاء/الجمعة 9–17، الثلاثاء/الخميس 9–19؛ مجانا.', limitation: 'للوالدين ومقدمي الرعاية؛ لا يعوض الشرطة أو الإسعاف أو المحامي.' },
 });
 
-const copy: Record<Language, Record<ContactId, ContactCopy>> = { ar, de, tr, uk };
+const copy: Record<BaseLanguage, Record<ContactId, ContactCopy>> = { ar, de, tr, uk };
 
 const contactOrder: Record<CategoryId, ContactId[]> = {
   rent: ['publicService115', 'socialPlatform', 'debtHelpline'],
@@ -272,12 +273,14 @@ export function buildDirectHelpContacts(
   answers: Answers = {},
   country: Country = 'de',
 ): DirectHelpContact[] {
-  if (country === 'at') return buildAustrianDirectHelpContacts(categoryId, language, answers);
+  const baseLanguage = isBaseLanguage(language) ? language : 'de';
+  if (country === 'at') return buildAustrianDirectHelpContacts(categoryId, baseLanguage, answers);
+  if (country === 'ch') return buildSwissDirectHelpContacts(categoryId, language, answers);
   let ids = [...contactOrder[categoryId]];
 
   if (categoryId === 'schufa' && answers.basicNeedsAtRisk === 'ja') {
     ids = ['publicService115', 'debtHelpline', 'consumerAdvice'];
   }
 
-  return ids.map((id) => ({ id, ...core[id], ...copy[language][id] }));
+  return ids.map((id) => ({ id, ...core[id], ...copy[baseLanguage][id] }));
 }

@@ -45,8 +45,8 @@ export default function Results({
   const actionPlan = buildActionPlan(category.id, answers, language, country);
   const urgency = buildUrgency(category.id, answers, language, country);
   const helpSearchLinks = buildHelpSearchLinks(category.id, answers, language, country);
-  const phoneScript = buildPhoneScript(category, answers, language);
-  const contactChecklist = buildContactChecklist(language);
+  const phoneScript = buildPhoneScript(category, answers, language, country);
+  const contactChecklist = buildContactChecklist(language, country);
   const directContacts = buildDirectHelpContacts(category.id, language, answers, country);
   const [packageCopied, setPackageCopied] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -93,7 +93,7 @@ export default function Results({
     phoneScript,
     '',
     `${extraTexts.contactTitle}:`,
-    ...contactChecklist.map((item) => `- ${item}`),
+    ...contactChecklist.map((item: string) => `- ${item}`),
     '',
     `${t.ui.situationTitle}:`,
     ...result.situation.map((item) => `- ${item}`),

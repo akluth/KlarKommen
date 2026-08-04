@@ -23,9 +23,9 @@ const scrollToTop = () => {
 
 export default function App() {
   const { country, language, t } = useI18n();
-  const locale = language === 'de' && country === 'at'
-    ? 'de-AT'
-    : { ar: 'ar', de: 'de-DE', tr: 'tr-TR', uk: 'uk-UA' }[language];
+  const locale = language === 'de'
+    ? ({ de: 'de-DE', at: 'de-AT', ch: 'de-CH' } as const)[country]
+    : { ar: 'ar', fr: 'fr-CH', gsw: 'de-CH', tr: 'tr-TR', uk: 'uk-UA' }[language];
   const extraTexts = getResultExtraTexts(language);
   const [step, setStep] = useState<Step>('start');
   const [category, setCategory] = useState<Category | null>(null);

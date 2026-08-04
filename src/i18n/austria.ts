@@ -1,5 +1,5 @@
 import type { Category, Question, ResultContent } from '../types';
-import type { Language } from './index';
+import type { BaseLanguage as Language } from './index';
 import type { de } from './de';
 
 type Translation = typeof de;

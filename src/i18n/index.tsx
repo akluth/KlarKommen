@@ -6,25 +6,36 @@ import { de } from './de';
 import { tr } from './tr';
 import { uk } from './uk';
 import { adaptTranslationForAustria } from './austria';
+import { adaptTranslationForSwitzerland } from './switzerland';
 
-export type Language = 'de' | 'tr' | 'ar' | 'uk';
+export type BaseLanguage = 'de' | 'tr' | 'ar' | 'uk';
+export type Language = BaseLanguage | 'fr' | 'gsw';
 
 const STORAGE_KEY = 'klarkommen-language';
 const COUNTRY_STORAGE_KEY = 'klarkommen-country';
 
-const translations = {
+const translations: Record<BaseLanguage, typeof de> = {
   ar,
   de,
   tr,
   uk,
 };
 
-const languageOptions: Array<{ code: Language; label: string }> = [
+const baseLanguageOptions: Array<{ code: BaseLanguage; label: string }> = [
   { code: 'de', label: 'Deutsch' },
   { code: 'tr', label: 'Türkçe' },
   { code: 'ar', label: 'العربية' },
   { code: 'uk', label: 'Українська' },
 ];
+
+const swissLanguageOptions: Array<{ code: Language; label: string }> = [
+  ...baseLanguageOptions,
+  { code: 'fr', label: 'Français' },
+  { code: 'gsw', label: 'Schwiizerdütsch' },
+];
+
+export const isBaseLanguage = (language: Language): language is BaseLanguage =>
+  language === 'de' || language === 'tr' || language === 'ar' || language === 'uk';
 
 interface I18nContextValue {
   country: Country;
@@ -42,6 +53,8 @@ const I18nContext = createContext<I18nContextValue | null>(null);
 const readInitialLanguage = (): Language => {
   if (typeof window === 'undefined') return 'de';
   const savedLanguage = window.localStorage.getItem(STORAGE_KEY);
+  const savedCountry = window.localStorage.getItem(COUNTRY_STORAGE_KEY);
+  if (savedCountry === 'ch' && (savedLanguage === 'fr' || savedLanguage === 'gsw')) return savedLanguage;
   if (savedLanguage === 'ar') return 'ar';
   if (savedLanguage === 'uk') return 'uk';
   return savedLanguage === 'tr' ? 'tr' : 'de';
@@ -49,14 +62,18 @@ const readInitialLanguage = (): Language => {
 
 const readInitialCountry = (): Country => {
   if (typeof window === 'undefined') return 'de';
-  return window.localStorage.getItem(COUNTRY_STORAGE_KEY) === 'at' ? 'at' : 'de';
+  const savedCountry = window.localStorage.getItem(COUNTRY_STORAGE_KEY);
+  if (savedCountry === 'at' || savedCountry === 'ch') return savedCountry;
+  return 'de';
 };
 
 const countryLabels: Record<Language, Record<Country, string>> = {
-  de: { de: 'Deutschland', at: 'Österreich' },
-  tr: { de: 'Almanya', at: 'Avusturya' },
-  ar: { de: 'ألمانيا', at: 'النمسا' },
-  uk: { de: 'Німеччина', at: 'Австрія' },
+  de: { de: 'Deutschland', at: 'Österreich', ch: 'Schweiz' },
+  tr: { de: 'Almanya', at: 'Avusturya', ch: 'İsviçre' },
+  ar: { de: 'ألمانيا', at: 'النمسا', ch: 'سويسرا' },
+  uk: { de: 'Німеччина', at: 'Австрія', ch: 'Швейцарія' },
+  fr: { de: 'Allemagne', at: 'Autriche', ch: 'Suisse' },
+  gsw: { de: 'Dütschland', at: 'Öschtriich', ch: 'Schwiiz' },
 };
 
 const countryAriaLabels: Record<Language, string> = {
@@ -64,11 +81,18 @@ const countryAriaLabels: Record<Language, string> = {
   tr: 'Ülke',
   ar: 'البلد',
   uk: 'Країна',
+  fr: 'Pays',
+  gsw: 'Land',
 };
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [country, setCountry] = useState<Country>(readInitialCountry);
+  const [country, setCountryState] = useState<Country>(readInitialCountry);
   const [language, setLanguage] = useState<Language>(readInitialLanguage);
+
+  const setCountry = (nextCountry: Country) => {
+    setCountryState(nextCountry);
+    if (nextCountry !== 'ch' && !isBaseLanguage(language)) setLanguage('de');
+  };
 
   useEffect(() => {
     window.localStorage.setItem(COUNTRY_STORAGE_KEY, country);
@@ -77,7 +101,13 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, language);
-    document.documentElement.lang = language === 'de' ? (country === 'at' ? 'de-AT' : 'de-DE') : language;
+    document.documentElement.lang = language === 'de'
+      ? ({ de: 'de-DE', at: 'de-AT', ch: 'de-CH' } as const)[country]
+      : language === 'fr'
+        ? 'fr-CH'
+        : language === 'gsw'
+          ? 'gsw-CH'
+          : language;
     document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
   }, [country, language]);
 
@@ -85,18 +115,19 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     () => ({
       country,
       countryAriaLabel: countryAriaLabels[language],
-      countryOptions: (['de', 'at'] as Country[]).map((code) => ({
+      countryOptions: (['de', 'at', 'ch'] as Country[]).map((code) => ({
         code,
         label: countryLabels[language][code],
       })),
       language,
-      languageOptions,
+      languageOptions: country === 'ch' ? swissLanguageOptions : baseLanguageOptions,
       setCountry,
       setLanguage,
-      t:
-        country === 'at'
-          ? adaptTranslationForAustria(translations[language] ?? translations.de, language)
-          : translations[language] ?? translations.de,
+      t: country === 'ch'
+        ? adaptTranslationForSwitzerland(translations[isBaseLanguage(language) ? language : 'de'], language)
+        : country === 'at'
+          ? adaptTranslationForAustria(translations[isBaseLanguage(language) ? language : 'de'], isBaseLanguage(language) ? language : 'de')
+          : translations[isBaseLanguage(language) ? language : 'de'],
     }),
     [country, language],
   );

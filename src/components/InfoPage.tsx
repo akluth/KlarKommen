@@ -25,6 +25,8 @@ function Imprint() {
   const labels = {
     ar: { country: 'ألمانيا', email: 'البريد الإلكتروني', mobile: 'الهاتف المحمول' },
     de: { country: 'Deutschland', email: 'E-Mail', mobile: 'Mobil' },
+    fr: { country: 'Allemagne', email: 'E-mail', mobile: 'Téléphone mobile' },
+    gsw: { country: 'Düütschland', email: 'E-Mail', mobile: 'Mobil' },
     tr: { country: 'Almanya', email: 'E-posta', mobile: 'Cep telefonu' },
     uk: { country: 'Німеччина', email: 'Електронна пошта', mobile: 'Мобільний телефон' },
   }[language];

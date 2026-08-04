@@ -1,4 +1,4 @@
-import type { Language } from './index';
+import { isBaseLanguage, type BaseLanguage, type Language } from './index';
 
 export interface ResultExtraTexts {
   amountUnknown: string;
@@ -238,7 +238,25 @@ const uk: ResultExtraTexts = {
   urgencyEyebrow: 'Терміновість',
 };
 
-const textsByLanguage: Record<Language, ResultExtraTexts> = {
+const fr: ResultExtraTexts = {
+  amountUnknown: 'non indiqué', contactChecklist: ['Ouvrir un service approprié.', 'Téléphoner ou envoyer un bref message.', 'Noter le rendez-vous, le nom et l’heure.', 'Copier le dossier ou l’enregistrer en PDF.', 'Préparer les documents.'],
+  contactTitle: 'Prendre contact', copied: 'Copié', copyPackage: 'Copier le dossier', copyScript: 'Copier le texte', deadlineWritten: 'délai écrit présent, vérifier la date', deleteSavedCase: 'Supprimer le cas enregistré',
+  helpExternalNotice: 'Le type d’aide et le lieu ne sont transmis à Google que si vous ouvrez un lien. KlarKommen ne charge pas Google automatiquement.', helpSearchTitle: 'Chercher une autre aide locale avec Google', localHelpEyebrow: 'Trouver une aide réelle', newTab: 's’ouvre dans un nouvel onglet', noDeadline: 'non indiqué', noPlace: 'lieu non indiqué',
+  packageAmount: 'Montant', packageCategory: 'Catégorie', packageContact: 'Contact', packageDeadline: 'Délai', packageEyebrow: 'Dossier de conseil', packageHeading: 'Pour un appel, un rendez-vous ou l’impression', packagePlace: 'Lieu', packageSearchTitle: 'Recherche d’aide locale', packageScriptTitle: 'Texte pour téléphone ou message', packageWhy: 'Motif de cette évaluation',
+  phoneEyebrow: 'Téléphone ou message', phoneHeading: 'Ce que vous pouvez dire', printPdf: 'Imprimer / PDF', saveCase: 'Enregistrer ce cas sur cet appareil', savedCaseContinue: 'Continuer le cas', savedCaseEyebrow: 'Enregistré sur cet appareil', savedCaseFallback: 'Cas enregistré', savedCaseHeading: 'Continuer le cas enregistré', savedCaseSavedAt: 'dernier enregistrement', savedUpdate: 'Mettre à jour',
+  taskDocumentsEyebrow: 'Pour faciliter le conseil', taskDocumentsTitle: 'Préparer les documents', taskNextEyebrow: 'Prochaine étape concrète', taskNextTitle: 'Votre plan d’action', urgencyEyebrow: 'Niveau d’urgence',
+};
+
+const gsw: ResultExtraTexts = {
+  amountUnknown: 'nöd aageh', contactChecklist: ['Passendi Aalaufstell öffne.', 'Aalüüte oder e churzi Nachricht schicke.', 'Termin, Name und Ziit notiere.', 'Beratigspaket kopiere oder als PDF sichere.', 'Unterlage bereitmache.'],
+  contactTitle: 'Kontakt ufnäh', copied: 'Kopiert', copyPackage: 'Beratigspaket kopiere', copyScript: 'Text kopiere', deadlineWritten: 'schriftlichi Frist vorhande, Datum prüefe', deleteSavedCase: 'Gspeicherte Fall lösche',
+  helpExternalNotice: 'Erscht bim Öffne wird d Hilfsart mit Ort oder PLZ a Google übermittelt. KlarKommen ladet Google nöd automatisch.', helpSearchTitle: 'Witeri lokali Hilf mit Google sueche', localHelpEyebrow: 'Echti Hilf finde', newTab: 'öffnet i mene neue Tab', noDeadline: 'nöd aageh', noPlace: 'Ort nöd aageh',
+  packageAmount: 'Betrag', packageCategory: 'Kategorie', packageContact: 'Kontakt', packageDeadline: 'Frist', packageEyebrow: 'Beratigspaket', packageHeading: 'Für s Gspröch, de Termin oder zum Drucke', packagePlace: 'Ort', packageSearchTitle: 'Hilf i de Nöchi sueche', packageScriptTitle: 'Text für Telefon oder Nachricht', packageWhy: 'Grund für die Iischätzig',
+  phoneEyebrow: 'Telefon oder Nachricht', phoneHeading: 'Das chasch du säge', printPdf: 'Drucke / PDF', saveCase: 'Fall uf däm Grät speichere', savedCaseContinue: 'Fall wiitermache', savedCaseEyebrow: 'Uf däm Grät gspeicheret', savedCaseFallback: 'Gspeicherte Fall', savedCaseHeading: 'Gspeicherte Fall wiitermache', savedCaseSavedAt: 'zletscht gspeicheret', savedUpdate: 'Speicherig aktualisiere',
+  taskDocumentsEyebrow: 'Damit s Gspröch eifacher wird', taskDocumentsTitle: 'Unterlage vorbereite', taskNextEyebrow: 'De nöchste konkreti Schritt', taskNextTitle: 'Din Aktionsplan', urgencyEyebrow: 'Dringlichkeit',
+};
+
+const textsByLanguage: Record<BaseLanguage, ResultExtraTexts> = {
   ar,
   de,
   tr,
@@ -246,5 +264,7 @@ const textsByLanguage: Record<Language, ResultExtraTexts> = {
 };
 
 export function getResultExtraTexts(language: Language) {
-  return textsByLanguage[language] ?? de;
+  if (language === 'fr') return fr;
+  if (language === 'gsw') return gsw;
+  return textsByLanguage[isBaseLanguage(language) ? language : 'de'];
 }

@@ -1,5 +1,6 @@
-import type { Language } from '../i18n';
+import { isBaseLanguage, type BaseLanguage, type Language } from '../i18n';
 import { adaptTextForAustria } from '../i18n/austria';
+import { adaptSwissUrgency, buildSwissActionPlan, buildSwissDocuments } from './preparationSwitzerland';
 import type { Answers, CategoryId, Country } from '../types';
 
 const has = (answers: Answers, key: string, value: string) => answers[key] === value;
@@ -72,7 +73,7 @@ const daysUntilDeadline = (deadline?: string) => {
   return Math.ceil((date.getTime() - startOfToday().getTime()) / 86_400_000);
 };
 
-const signalTexts: Record<Language, Record<SignalKey, string>> = {
+const signalTexts: Record<BaseLanguage, Record<SignalKey, string>> = {
   de: {
     assessmentIncomplete: 'Wichtige Warnsignale sind noch nicht vollständig geklärt. Das ist keine Entwarnung.',
     basicNeedsAtRisk: 'Essen, Unterkunft, Energie, Behandlung oder Medikamente sind heute möglicherweise nicht gesichert.',
@@ -216,7 +217,7 @@ const signalTexts: Record<Language, Record<SignalKey, string>> = {
 };
 
 const urgencyText: Record<
-  Language,
+  BaseLanguage,
   Record<UrgencyLevel, { label: string; headline: string; summary: string; fallbackReason: string }>
 > = {
   de: {
@@ -319,7 +320,7 @@ const deadlineReason = (answers: Answers): { score: number; key: SignalKey } | n
   return { score: 0, key: 'deadlineLater' };
 };
 
-const refineAustrianPreparation = <T,>(value: T, language: Language): T => {
+const refineAustrianPreparation = <T,>(value: T, language: BaseLanguage): T => {
   const adapted = adaptTextForAustria(value, language);
   if (language !== 'de') return adapted;
 
@@ -354,6 +355,7 @@ export function buildUrgency(
   language: Language = 'de',
   country: Country = 'de',
 ): UrgencyResult {
+  const baseLanguage = isBaseLanguage(language) ? language : 'de';
   const signals: Array<{ score: number; key: SignalKey }> = [];
   const deadline = deadlineReason(answers);
 
@@ -455,7 +457,7 @@ export function buildUrgency(
 
   const highestScore = signals.reduce((highest, signal) => Math.max(highest, signal.score), 0);
   const level: UrgencyLevel = highestScore >= 3 ? 'red' : highestScore >= 1 ? 'yellow' : 'green';
-  const text = urgencyText[language][level];
+  const text = urgencyText[baseLanguage][level];
   const relevantSignals =
     level === 'red' ? signals.filter((signal) => signal.score >= 2) : level === 'yellow' ? signals : [];
   const uniqueSignals = relevantSignals.filter(
@@ -468,13 +470,15 @@ export function buildUrgency(
     headline: text.headline,
     summary: text.summary,
     reasons: uniqueSignals.length
-      ? uniqueSignals.map((signal) => signalTexts[language][signal.key])
+      ? uniqueSignals.map((signal) => signalTexts[baseLanguage][signal.key])
       : [text.fallbackReason],
   };
-  return country === 'at' ? refineAustrianPreparation(result, language) : result;
+  if (country === 'at') return refineAustrianPreparation(result, baseLanguage);
+  if (country === 'ch') return adaptSwissUrgency(result, language);
+  return result;
 }
 
-const sharedDocuments: Record<Language, string[]> = {
+const sharedDocuments: Record<BaseLanguage, string[]> = {
   de: [
     'Personalausweis oder anderes Ausweisdokument',
     'Alle aktuellen Schreiben, Mahnungen und Bescheide',
@@ -505,7 +509,7 @@ const sharedDocuments: Record<Language, string[]> = {
   ],
 };
 
-const documentsByCategory: Record<Language, Record<CategoryId, string[]>> = {
+const documentsByCategory: Record<BaseLanguage, Record<CategoryId, string[]>> = {
   de: {
     rent: ['Mietvertrag und letzte Nebenkostenabrechnung', 'Mahnung, Kündigung oder Schreiben der Hausverwaltung', 'Übersicht über offene Mieten und bereits gezahlte Beträge'],
     energy: ['Sperrandrohung oder Sperrmitteilung', 'Kundennummer, Zählernummer und letzte Jahresabrechnung', 'Übersicht über Abschläge, Rückstand und angebotene Raten'],
@@ -554,11 +558,14 @@ export function buildDocuments(
   language: Language = 'de',
   country: Country = 'de',
 ) {
-  const documents = [...documentsByCategory[language][categoryId], ...sharedDocuments[language]];
-  return country === 'at' ? refineAustrianPreparation(documents, language) : documents;
+  const baseLanguage = isBaseLanguage(language) ? language : 'de';
+  const documents = [...documentsByCategory[baseLanguage][categoryId], ...sharedDocuments[baseLanguage]];
+  if (country === 'at') return refineAustrianPreparation(documents, baseLanguage);
+  if (country === 'ch') return buildSwissDocuments(categoryId, language, documents);
+  return documents;
 }
 
-const sharedActionPlan: Record<Language, string[]> = {
+const sharedActionPlan: Record<BaseLanguage, string[]> = {
   de: [
     'Wichtigste Schreiben fotografieren oder scannen.',
     'Aktenzeichen, Kundennummern und Fristen auf einem Blatt notieren.',
@@ -585,14 +592,14 @@ const sharedActionPlan: Record<Language, string[]> = {
   ],
 };
 
-const deadlineStep: Record<Language, string> = {
+const deadlineStep: Record<BaseLanguage, string> = {
   de: 'Frist prüfen und sichtbar notieren.',
   tr: 'Süreyi kontrol et ve görünür şekilde not et.',
   ar: 'افحص المهلة ودوّنها بشكل واضح.',
   uk: 'Перевірити строк і записати його на видному місці.',
 };
 
-const categoryActionPlan: Record<Language, Record<CategoryId, string[]>> = {
+const categoryActionPlan: Record<BaseLanguage, Record<CategoryId, string[]>> = {
   de: {
     rent: ['Vermieter oder Hausverwaltung um schriftliche Klärung, Ratenzahlung oder Fristaufschub bitten.', 'Jobcenter, Sozialamt oder Wohnungsnotfallhilfe wegen möglicher Übernahme der Mietschulden kontaktieren.'],
     energy: ['Energieversorger um Sperraussetzung, Ratenzahlung und Forderungsaufstellung bitten.', 'Jobcenter oder Sozialamt nach einem Darlehen für Energieschulden fragen.'],
@@ -641,12 +648,15 @@ export function buildActionPlan(
   language: Language = 'de',
   country: Country = 'de',
 ) {
-  const plan = [...sharedActionPlan[language]];
+  const baseLanguage = isBaseLanguage(language) ? language : 'de';
+  const plan = [...sharedActionPlan[baseLanguage]];
 
   if (answers.deadlineDate || answers.writtenDeadline === 'ja') {
-    plan.unshift(deadlineStep[language]);
+    plan.unshift(deadlineStep[baseLanguage]);
   }
 
-  const actions = [...plan, ...categoryActionPlan[language][categoryId]];
-  return country === 'at' ? refineAustrianPreparation(actions, language) : actions;
+  const actions = [...plan, ...categoryActionPlan[baseLanguage][categoryId]];
+  if (country === 'at') return refineAustrianPreparation(actions, baseLanguage);
+  if (country === 'ch') return buildSwissActionPlan(categoryId, language, actions, Boolean(answers.deadlineDate || answers.writtenDeadline === 'ja'));
+  return actions;
 }

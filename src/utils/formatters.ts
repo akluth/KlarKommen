@@ -1,10 +1,12 @@
-export type SupportedLanguage = 'de' | 'tr' | 'ar' | 'uk';
+export type SupportedLanguage = 'de' | 'tr' | 'ar' | 'uk' | 'fr' | 'gsw';
 
 export const localeByLanguage: Record<SupportedLanguage, string> = {
   ar: 'ar-DE',
   de: 'de-DE',
   tr: 'tr-TR',
   uk: 'uk-UA',
+  fr: 'fr-CH',
+  gsw: 'de-CH',
 };
 
 export function formatDateForLanguage(value: string, language: SupportedLanguage): string {
@@ -20,13 +22,21 @@ export function formatDateForLanguage(value: string, language: SupportedLanguage
 }
 
 export function formatEuroForLanguage(value: string, language: SupportedLanguage): string {
+  return formatCurrencyForLanguage(value, language, 'EUR');
+}
+
+export function formatCurrencyForLanguage(
+  value: string,
+  language: SupportedLanguage,
+  currency: 'CHF' | 'EUR',
+): string {
   const normalized = value.trim().replace(',', '.');
   const amount = Number(normalized);
-  if (!normalized || !Number.isFinite(amount)) return `${value.trim()} €`.trim();
+  if (!normalized || !Number.isFinite(amount)) return `${value.trim()} ${currency}`.trim();
 
   return new Intl.NumberFormat(localeByLanguage[language], {
     style: 'currency',
-    currency: 'EUR',
+    currency,
     maximumFractionDigits: 2,
   }).format(amount);
 }

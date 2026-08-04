@@ -9,8 +9,8 @@ interface EmergencyContactsProps {
 
 export default function EmergencyContacts({ danger = false, headingId, texts }: EmergencyContactsProps) {
   const { country } = useI18n();
-  const ambulanceNumber = country === 'at' ? '144' : '112';
-  const policeNumber = country === 'at' ? '133' : '110';
+  const ambulanceNumber = country === 'de' ? '112' : '144';
+  const policeNumber = country === 'at' ? '133' : country === 'ch' ? '117' : '110';
   return (
     <aside
       className={danger ? 'emergency-strip danger' : 'emergency-strip'}

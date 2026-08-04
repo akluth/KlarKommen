@@ -1,4 +1,4 @@
-import type { Language } from '../i18n';
+import type { BaseLanguage as Language } from '../i18n';
 import type { Answers, CategoryId } from '../types';
 import type { DirectHelpContact } from './directHelp';
 

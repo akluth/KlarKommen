@@ -11,7 +11,9 @@ interface DirectHelpContactsProps {
 
 export default function DirectHelpContacts({ contacts, language, texts }: DirectHelpContactsProps) {
   const { country } = useI18n();
-  const locale = language === 'de' && country === 'at' ? 'de-AT' : localeByLanguage[language];
+  const locale = language === 'de'
+    ? ({ de: 'de-DE', at: 'de-AT', ch: 'de-CH' } as const)[country]
+    : localeByLanguage[language];
   const dateFormatter = new Intl.DateTimeFormat(locale, {
     day: '2-digit',
     month: '2-digit',

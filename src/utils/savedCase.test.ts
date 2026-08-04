@@ -22,6 +22,11 @@ describe('saved case validation', () => {
     );
   });
 
+  it('keeps the Swiss country when a case is resumed', () => {
+    saveCase({ country: 'ch', categoryId: 'debtCourt', answers: { city: 'Bern' }, checkedItems: {} });
+    expect(loadSavedCase()).toEqual(expect.objectContaining({ country: 'ch', categoryId: 'debtCourt' }));
+  });
+
   it('rejects invalid categories and removes malformed answer values', () => {
     window.localStorage.setItem(
       'klarkommen-saved-case',

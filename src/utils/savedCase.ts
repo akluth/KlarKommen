@@ -9,7 +9,7 @@ export interface SavedCase {
 }
 
 const STORAGE_KEY = 'klarkommen-saved-case';
-const SCHEMA_VERSION = 3;
+const SCHEMA_VERSION = 4;
 
 const isCategoryId = (value: string): value is CategoryId =>
   [
@@ -60,7 +60,7 @@ export function loadSavedCase(): SavedCase | null {
         : new Date().toISOString();
 
     return {
-      country: parsed.country === 'at' ? 'at' : 'de',
+      country: parsed.country === 'at' || parsed.country === 'ch' ? parsed.country : 'de',
       categoryId: parsed.categoryId,
       answers: readStringRecord(parsed.answers),
       checkedItems: readBooleanRecord(parsed.checkedItems),
