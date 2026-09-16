@@ -40,7 +40,7 @@ function Imprint() {
         <p>
           Alexander Kluth
           <br />
-          Kaistraße 2
+          Kaistraße 5
           <br />
           40221 Düsseldorf
           <br />

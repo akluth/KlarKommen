@@ -251,7 +251,7 @@ const specialLegal: Record<SpecialLanguage, Translation['legal']> = {
     urgentContacts: ['Danger immédiat : ambulance 144, police 117 ou numéro européen 112.', 'Commandement de payer : l’opposition doit en principe être formée dans les 10 jours.', 'Loyer ou énergie : contactez le service social communal ou cantonal et un service spécialisé.', 'Saisie : contactez immédiatement l’office des poursuites et un conseil en désendettement.'],
     privacySections: [
       { title: 'En bref', text: 'KlarKommen traite vos données uniquement dans ce navigateur. Il n’existe ni compte ni base de données pour vos informations.' },
-      { title: 'Responsable', text: 'Alexander Kluth, Kaistraße 2, 40221 Düsseldorf, Allemagne. E-mail : alex@denkwerk-kluth.de' },
+      { title: 'Responsable', text: 'Alexander Kluth, Kaistraße 5, 40221 Düsseldorf, Allemagne. E-mail : alex@denkwerk-kluth.de' },
       { title: 'Données traitées', text: 'Les informations sur votre situation servent uniquement à produire localement des indications et des modèles de texte.' },
       { title: 'Aucun stockage serveur', text: 'Un cas enregistré reste dans le stockage local de cet appareil jusqu’à sa suppression.' },
       { title: 'Liens externes', text: 'Un service externe ne reçoit des données que si vous ouvrez un lien ou passez un appel.' },
@@ -265,7 +265,7 @@ const specialLegal: Record<SpecialLanguage, Translation['legal']> = {
     urgentContacts: ['Bi akuter Gfahr: Sanität 144, Polizei 117 oder europäische Notruf 112.', 'Bi eme Zahligsbefehl: De Rechtsvorschlag mues grundsätzlich innert 10 Täg gmacht werde.', 'Bi Mietzins- oder Energieschulde: Sozialdienst und Fachberatig kontaktiere.', 'Bi ere Pfändig: Sofort s Betriibigsamt und e Schuldeberatig kontaktiere.'],
     privacySections: [
       { title: 'Churzfassig', text: 'KlarKommen verarbeitet dini Iigabe nur lokal i dim Browser. Es git kei Konto und kei Datebank für dini Aagabe.' },
-      { title: 'Verantwortlich', text: 'Alexander Kluth, Kaistraße 2, 40221 Düsseldorf, Dütschland. E-Mail: alex@denkwerk-kluth.de' },
+      { title: 'Verantwortlich', text: 'Alexander Kluth, Kaistraße 5, 40221 Düsseldorf, Dütschland. E-Mail: alex@denkwerk-kluth.de' },
       { title: 'Weli Date wärded verarbeitet?', text: 'Dini Situationsaagabe wärded nur bruucht, zum lokal Hiwiis und Textvorlage z erstelle.' },
       { title: 'Kei Server-Speicherig', text: 'En gspeicherete Fall bliibt lokal uf däm Grät, bis du en löschsch.' },
       { title: 'Externi Links', text: 'Externi Aabieter bechömed erst Date, wenn du en Link ufmachsch oder aalüütsch.' },

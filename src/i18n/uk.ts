@@ -740,7 +740,7 @@ export const uk = {
       },
       {
         title: 'Відповідальна особа',
-        text: 'Alexander Kluth, Kaistraße 2, 40221 Düsseldorf, Німеччина. Електронна пошта: alex@denkwerk-kluth.de',
+        text: 'Alexander Kluth, Kaistraße 5, 40221 Düsseldorf, Німеччина. Електронна пошта: alex@denkwerk-kluth.de',
       },
       {
         title: 'Які дані обробляються?',

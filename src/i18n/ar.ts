@@ -732,7 +732,7 @@ export const ar = {
       },
       {
         title: 'المسؤول',
-        text: 'Alexander Kluth، Kaistraße 2، 40221 Düsseldorf، ألمانيا. البريد الإلكتروني: alex@denkwerk-kluth.de',
+        text: 'Alexander Kluth، Kaistraße 5، 40221 Düsseldorf، ألمانيا. البريد الإلكتروني: alex@denkwerk-kluth.de',
       },
       {
         title: 'ما البيانات التي تتم معالجتها؟',

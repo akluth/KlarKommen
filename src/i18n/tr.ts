@@ -740,7 +740,7 @@ export const tr = {
       },
       {
         title: 'Sorumlu kişi',
-        text: 'Alexander Kluth, Kaistraße 2, 40221 Düsseldorf, Almanya. E-posta: alex@denkwerk-kluth.de',
+        text: 'Alexander Kluth, Kaistraße 5, 40221 Düsseldorf, Almanya. E-posta: alex@denkwerk-kluth.de',
       },
       {
         title: 'Hangi veriler işlenir?',
